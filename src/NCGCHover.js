@@ -123,7 +123,7 @@ function displayEdit(strtitle){
 	$("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:700px;' src='chrome-extension://" + extID + "/ketcher/ketcher.html'></iframe>")
 	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}})
 	.dialog( "option", "width", 720)
-	.dialog( "option", "height", 740);
+	.dialog( "option", "height", 600);
 	$(".ui-dialog").css('z-index', 99999); 
 	
 	

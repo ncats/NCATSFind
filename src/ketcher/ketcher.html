@@ -42,7 +42,10 @@
 				chrome.storage.local.get('ncgcImage', function (result) {
 					if(result.ncgcImage!=undefined){
 						document.getElementById("input_mol").value=result.ncgcImage;
-						document.getElementById("read_ok").click();					
+						document.getElementById("read_ok").click();
+						setTimeout(function(){
+							document.getElementById('smilesout').value=ketcher.getSmiles();
+						},1000);
 					}
 				});
 			}
@@ -51,10 +54,24 @@
 		
 		
 		</script>
+		<style>table.export td:last-child {
+    width: 100%
+}</style>
     </head>
 
     <body onload="loadit();">
-
+<table class="export" style="
+    width: 100%;
+    display: inline-block;
+              ">
+  <tbody><tr><td><button onclick = "document.getElementById('smilesout').value=ketcher.getSmiles();document.getElementById('smilesout').select()" id="makesmiles" style="
+    width: 100px;
+">Get Smiles</button></td><td style="
+    padding-right: 45px;
+"><input type="text" onfocus="this.select()" onmouseup="return false" id="smilesout" style="
+    width: 100%;
+"></td></tr>
+  </tbody></table>
         <div>
             <table id="ketcher_window">
                 <tr align="center" id="main_toolbar">
@@ -78,12 +95,12 @@
                     <td class="toolButtonCell toolButton serverRequired" id="aromatize"><img title="Aromatize" alt="" src="png/action/arom.png" /></td>
                     <td class="toolButtonCell toolButton serverRequired" id="dearomatize"><img title="Dearomatize" alt="" src="png/action/dearom.png" /></td>
                     <td style="width:100%"></td>
-                    <td style="width:1px" rowspan="14"></td>
+                    <td style="width:1px" rowspan="12"></td>
                     <td style="width:36px;padding:0 2px 0 0;"><a href="http://www.ggasoftware.com/" target="_blank"><img src="png/logo.png" alt="" title="GGA Software Services" /></a></td>
                 </tr>
                 <tr align="center" class="sideButtonCell">
                     <td><img class="sideButton modeButton" id="select_erase" src="png/action/edit-clear.png" alt="" title="Erase" /></td>
-                    <td colspan="18" rowspan="16" style="vertical-align: top;"><div id="client_area"></div></td>
+                    <td colspan="18" rowspan="12" style="vertical-align: top;"><div id="client_area"></div></td>
                     <td><div class="sideButton modeButton" id="atom_h" title="H Atom (H)"></div></td>
                 </tr>
                 <tr align="center" class="sideButtonCell">
@@ -130,22 +147,7 @@
                     <td></td>
                     <td><div class="sideButton modeButton" id="atom_reagenerics" title="Reaxys Generics"></div></td>
                 </tr>
-				<tr align="center" class="sideButtonCell">
-                    <td></td>
-                    <td></td>
-                </tr>
-				<tr align="center" class="sideButtonCell">
-                    <td></td>
-                    <td></td>
-                </tr>
-				<tr align="center" class="sideButtonCell">
-                    <td></td>
-                    <td></td>
-                </tr>
-				<tr align="center" class="sideButtonCell">
-                    <td></td>
-                    <td></td>
-                </tr>
+				
 				
 				
             </table>
