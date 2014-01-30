@@ -31,10 +31,10 @@ function toggle(){
 		if(result==undefined)result={ncgchover:true};
 		if(result.ncgchover!=true && result.ncgchover!=undefined){
 			result.ncgchover=true;
-			force();
+			force(false);
 		}else{
 			result.ncgchover=false;
-			forceoff();
+			forceoff(false);
 		}
 		chrome.storage.local.set({'ncgchover': result.ncgchover}, function (result2) {
 				if(result.ncgchover){
@@ -71,10 +71,10 @@ function forceRefresh(ref){
   		});
 	});
 }
-function force(){
+function force(c){
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   chrome.tabs.sendMessage(tabs[0].id, {greeting: "mark"}, function(response) {
-    console.log(response.farewell);
+   if(c) window.close();
   });
 });
 }
@@ -83,10 +83,10 @@ function img(){
 	window.close();
 	return;
 }
-function forceoff(){
+function forceoff(c){
    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   chrome.tabs.sendMessage(tabs[0].id, {greeting: "unmark"}, function(response) {
-    console.log(response.farewell);
+    if(c)window.close();
   });
 });
 }
@@ -130,13 +130,13 @@ function forceoff(){
     /* margin: 1px; */
     height: 30px;
 ">
-<li id="opt1b" onclick="force();" style="
+<li id="opt1b" onclick="force(true);" style="
     float: left;
     width: 100px;
     background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
     /* border: 1px solid black; */
 ">Add Captions</li>
-<li id="opt2b" onclick="forceoff();" style="
+<li id="opt2b" onclick="forceoff(true);" style="
     float: left;
     width: 100px;
     background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
