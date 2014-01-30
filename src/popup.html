@@ -99,12 +99,18 @@ function forceoff(){
   <div style="
     /* background-color: blue; */
     width: 100%;
-    height: 30px;
+    height: 40px;
             "><ul style="
     list-style: none;
 ">
 <li id="opt1" onclick="document.getElementById('options').style.display='none';document.getElementById('functions').style.display='block';document.getElementById('opt1').style.background='#B1B1B1';document.getElementById('opt2').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(177, 177, 177); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Actions</li>
 <li id="opt2" onclick="document.getElementById('options').style.display='block';document.getElementById('functions').style.display='none';document.getElementById('opt2').style.background='#B1B1B1';document.getElementById('opt1').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(235, 235, 235); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Options</li></ul></div>
+
+<div style="
+    width: 100%;
+    height: 1px;
+    background: #C7C7C7;
+"></div>
 
 <div id="options" style="display: none;">
 <ul style="
@@ -118,27 +124,39 @@ function forceoff(){
     <div id="functions" style="display: block; margin: auto auto 20px;">
   <ul style="
     list-style: none;
-    font-size: small;
+    font-size: 8pt;
     /* width: 210px; */
+    /* border: 1px solid black; */
+    /* margin: 1px; */
+    height: 30px;
 ">
 <li id="opt1b" onclick="force();" style="
     float: left;
-    width: 75px;
+    width: 100px;
     background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+    /* border: 1px solid black; */
 ">Add Captions</li>
 <li id="opt2b" onclick="forceoff();" style="
     float: left;
-    width: 75px;
+    width: 100px;
     background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
-                                            ">Remove Captions</li></ul>
+                                            
+    /* border: 1px solid #000; */
+">Remove Captions</li></ul>
+<div style="
+    width: 100%;
+    height: 1px;
+    background: #C7C7C7;
+"></div>
+
 <ul style="
     list-style: none;
 ">
-<li id="opt2c" onclick="forceoff();" style="
+<li id="opt2c" onclick="img();" style="
     float: left;
-    width: 150px;
+    width: 220px;
     background-color: #EBEBEB; padding: 10px; text-align: center; 
-    margin-top: 8px;
+    /* margin-top: 8px; */
     margin-bottom: 8px;
     cursor: pointer;
                                             ">Snapshot to Structure</li></ul>                                            
