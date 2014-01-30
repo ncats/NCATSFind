@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style>
+	li:hover{
+		color:white;
+	}
+</style>
 
 <script>
 
@@ -88,17 +93,61 @@ function forceoff(){
 </script>
 </head>
 <body style="width:300px">
-<form>
-<input id='chk' type="checkbox" onclick="toggle();" value="hover" checked>Automatic Captions<br>
-<input id='chkb' type="checkbox" onclick="toggleRefresh();" value="hoverRefresh" checked>Periodic Refresh<br>
-<input id='chkmessage' type="checkbox" onclick="toggleDebug();" value="hoverRefresh2" checked>Notifications<br>
+<form style="
+    font-family: 'Noto Sans','Segoe UI','Lucida Grande','Open Sans',arial,sans-serif-webkit-body;
+">
+  <div style="
+    /* background-color: blue; */
+    width: 100%;
+    height: 30px;
+            "><ul style="
+    list-style: none;
+">
+<li id="opt1" onclick="document.getElementById('options').style.display='none';document.getElementById('functions').style.display='block';document.getElementById('opt1').style.background='#B1B1B1';document.getElementById('opt2').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(177, 177, 177); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Actions</li>
+<li id="opt2" onclick="document.getElementById('options').style.display='block';document.getElementById('functions').style.display='none';document.getElementById('opt2').style.background='#B1B1B1';document.getElementById('opt1').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(235, 235, 235); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Options</li></ul></div>
 
+<div id="options" style="display: none;">
+<ul style="
+    list-style: none;
+">
+  <li><input id="chk" type="checkbox" onclick="toggle();" value="hover" checked="">Automatic Captions</li>
+<li><input id="chkb" type="checkbox" onclick="toggleRefresh();" value="hoverRefresh" checked="">Periodic Refresh</li>
+  <li><input id="chkmessage" type="checkbox" onclick="toggleDebug();" value="hoverRefresh2" checked="">Notifications</li>
+    </ul></div>
+    
+    <div id="functions" style="display: block; margin: auto auto 20px;">
+  <ul style="
+    list-style: none;
+    font-size: small;
+    /* width: 210px; */
+">
+<li id="opt1b" onclick="force();" style="
+    float: left;
+    width: 75px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+">Add Captions</li>
+<li id="opt2b" onclick="forceoff();" style="
+    float: left;
+    width: 75px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+                                            ">Remove Captions</li></ul>
+<ul style="
+    list-style: none;
+">
+<li id="opt2c" onclick="forceoff();" style="
+    float: left;
+    width: 150px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; 
+    margin-top: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+                                            ">Snapshot to Structure</li></ul>                                            
+                                            
+                                            </div>
+
+  
 <div id="status"></div>
 <div id="statusRefresh"></div>
-
-<button onclick="force();">Add Captions</button>
-<button onclick="forceoff();">Remove Captions</button>
-<button onclick="img();">Image to Structure</button>
 </form>
 <script>
 chrome.storage.local.get('ncgchover', function (result) {
