@@ -60,15 +60,21 @@
     </head>
 
     <body onload="loadit();">
+	<div style="display:none;">
+		<form id="export" action="http://tripod.nih.gov/servlet/exporter/">
+				<textarea id="molstr" type="text" name="structure"></textarea><br>
+				<input type="text" name="format" value="CDX">
+		</form>	
+	</div>
 <table class="export" style="
     width: 100%;
     display: inline-block;
               ">
-  <tbody><tr><td><button onclick = "document.getElementById('smilesout').value=ketcher.getSmiles();document.getElementById('smilesout').select()" id="makesmiles" style="
+  <tbody><tr><td><button onclick = "document.getElementById('molstr').innerHTML=ketcher.getMolfile();document.getElementById('export').submit();" id="cdx" style="
     width: 100px;
-">Get Smiles</button></td><td style="
+">ChemDraw</button></td><td style="
     padding-right: 45px;
-"><input type="text" onfocus="this.select()" onmouseup="return false" id="smilesout" style="
+"><input type="text" onfocus="document.getElementById('smilesout').value=ketcher.getSmiles();document.getElementById('smilesout').select();this.select();" onmouseup="return false" id="smilesout" style="
     width: 100%;
 "></td></tr>
   </tbody></table>
