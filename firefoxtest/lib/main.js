@@ -17,8 +17,12 @@ var widget = widgets.Widget({
   }
 });
 
+var activeWorker;
+
 var cm = require("sdk/context-menu");
+
 //Image-to Structure Menu
+
 cm.Item({
   label: "Image to Structure",
       context: cm.SelectorContext("img"),
@@ -30,39 +34,55 @@ cm.Item({
         displayResolve(imgSrc);
       }
 });
-//Name lookup menu
+
 cm.Item({
   label: "Lookup Structure",
-      context: cm.SelectorContext(),
-      contentScript: 'self.on("context", function () {' +
+    context: cm.SelectorContext("body"),
+    contentScript: 
+	  'self.on("context", function () {' +
                  '  var text = window.getSelection().toString();' +
-                 '  if (text.length > 20)' +
+                 '  if (text==undefined || text == "") return true;if (text.length > 20)' +
                  '    text = text.substr(0, 20) + "...";' +
-                 '  return "Lookup Structure of " + text;' +
+                 '  return "Lookup Structure of \'" + text + "\'";' +
                  '});' +
-                 'self.on("click", function (node, data) {' +
+                 'self.on("click", function () {' +
                   '  var text = window.getSelection().toString();' +
       			 '  self.postMessage(text);' + 
-      			 '});'
-      onMessage: function (text) {
-		//Code for lookup goes here
-
+      			 '});',
+      onMessage: function (imgSrc) {
+        //TODO: Change this to be a little better
+		activeWorker.port.emit("message",{id:1234,type:"display",name:imgSrc.trim()});
       }
 });
+
+//Name lookup menu
+cm.Item({
+  label: "Snapshot Area",
+      context: cm.PageContext(),
+      contentScript: 
+                 'self.on("click", function () {' +
+                  '  var text = window.getSelection().toString();' +
+      			 '  self.postMessage();' + 
+      			 '});',
+      onMessage: function () {
+		//TODO: Change this to be a little better
+		activeWorker.port.emit("message",{id:1234,type:"bbox"});
+      }
+});
+
+/*
 //PageContext()
 cm.Item({
   label: "Image to Structure (screenshot)",
       context: cm.PageContext(),
-      contentScript: 
-                 'self.on("click", function (node, data) {' +
-                  '  var text = window.getSelection().toString();' +
-      			 '  self.postMessage(text);' + 
-      			 '});'
+      contentScript: '  self.on("click", function () {' +
+      '  alertTest("b");' + 
+      '});',
       onMessage: function (text) {
 		//Code for lookup goes here
-
+		console.log(text);
       }
-});
+});*/
 
 tabs.on("pageshow", function(tab) {
   var worker = tab.attach({
@@ -78,9 +98,31 @@ tabs.on("pageshow", function(tab) {
 			worker.port.emit("message",{id:message.id,type:"ajax",data:data});
 			console.log("sent message");
 		});
+	  }else if(message.type == "bbox"){
+		var b64=tab.getThumbnail();
+		var window = require('window/utils').getMostRecentBrowserWindow();
+		//var tab = require('tabs/utils').getActiveTab(window);
+		var thumbnail = window.document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
+		thumbnail.mozOpaque = true;
+		window = tab.linkedBrowser.contentWindow;
+		thumbnail.width = Math.ceil(window.screen.availWidth / 5.75);
+		var aspectRatio = 0.5625; // 16:9
+		thumbnail.height = Math.round(thumbnail.width * aspectRatio);
+		var ctx = thumbnail.getContext("2d");
+		var snippetWidth = window.innerWidth ;
+		var scale = thumbnail.width / snippetWidth;
+		ctx.scale(scale, scale);
+		ctx.drawWindow(window, window.scrollX, window.scrollY, snippetWidth, snippetWidth * aspectRatio, "rgb(255,255,255)");
+		b64=ctx.toDataURL();
+		worker.port.emit("message",{id:message.id,type:"imagetest",image:b64,data:message.data});
+	  }else if(message.type == "imagetest"){
+		var b64=message.data.base64;
+		console.log(b64);
 	  }
     }
   });
+  activeWorker=worker;
+  console.log("attached");
 });
 
 var Request = require("sdk/request").Request;

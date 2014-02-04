@@ -45,13 +45,14 @@ function initializeListeners(){
 	}
 }
 function addFirefoxListeners(){
+	//alert("loading listeners");
 	self.port.on("message", function(addonMessage) {
 		//alert("got message!");
 		if(addonMessage.type=="ajax"){
 			firefoxCallbacks[addonMessage.id](addonMessage.data);
 		}
 		if(addonMessage.type=="bbox"){
-			var sresp = function(data){;
+			var sresp = function(data){
 					var uid= (Math.round(Math.random()*100000));
 					self.postMessage({type:"bbox",data:data,id:uid});
 					//callback here? ... ?
@@ -72,11 +73,38 @@ function addFirefoxListeners(){
 				self.postMessage({type:"imgprocess",data:data,id:uid});
 			//}
 		}
+		if (addonMessage.type == "imagetest"){
+				var sresp = function(data){;
+					var uid= (Math.round(Math.random()*100000));
+					self.postMessage({type:"imagetest",data:data,id:uid});
+					//callback here? ... ?
+				};
+				var rect=addonMessage.data.rect;
+				var c=document.createElement("CANVAS");
+				c.style="border:1px solid #d3d3d3;";
+				c.width=rect.width;
+				c.height=rect.height;
+				document.body.appendChild(c);
+				var ctx=c.getContext("2d");
+				var img = new Image;
+				
+					img.onload = function(){
+					
+					ctx.drawImage(img,-rect.x,-rect.y);
+					var b64=c.toDataURL().split("png;base64,")[1];
+					sresp({base64:b64});
+					//c.parentNode.removeChild(c);
+					//ctx.drawImage(img,0,0); // Or at whatever offset you like
+					};
+				img.src=addonMessage.image;
+				
+				return true;				
+		}
 		if (addonMessage.type == "displayEdit"){
 			displayEdit();
 		}
 		if (addonMessage.type == "display") {
-			displayResolve(addonMessage.structure);
+			displayResolve(addonMessage.name);
 		}
 	});
 }
@@ -210,33 +238,47 @@ function imageToPngBase64(imgsrc){
 function mark(){
 	next=false;
 	if(EXT_TYPE==CHROME_EXT){
-		chrome.storage.local.get('ncgchoverRefresh', function (result) {
-			if(result.ncgchoverRefresh==false){
-   	 			refresh=false;
-			}else{
-				refresh=true;
-			}
-		});
-		chrome.storage.local.get('ncgcdebug', function (result) {
-			if(result.ncgcdebug!=true){
-   	 			debug=false;
-			}else{
-				debug=true;
-			}
-		chrome.storage.local.get('ncgchover', function (result) {
-			if(result.ncgchover==true || result.ncgchover==undefined){
-   	 			var nhtml=document.body.textContent;
-   	 			if(prevhtml!=nhtml){
-   	  				prevhtml=nhtml; 
-   	  				mark2();  
-   	 			}
-			}
-			});
-		});
+		var settings= getSettings();
+		refresh=settings.refresh;
+		debug=settings.debug;
+		if(settings.hover){
+   	 		var nhtml=document.body.textContent;
+   	 		if(prevhtml!=nhtml){
+   	  			prevhtml=nhtml; 
+   	  			mark2();  
+   	 		}
+		}		
 	}else{
 		mark2();
 	}
 
+}
+function getSettings(){
+	var settings = {};
+	if(EXT_TYPE==CHROME_EXT){
+		chrome.storage.local.get('ncgchoverRefresh', function (result) {
+			if(result.ncgchoverRefresh==false){
+   	 			settings.refresh=false;
+			}else{
+				settings.refresh=true;
+			}
+		});
+		chrome.storage.local.get('ncgcdebug', function (result) {
+			if(result.ncgcdebug!=true){
+   	 			settings.debug=false;
+			}else{
+				settings.debug=true;
+			}
+			chrome.storage.local.get('ncgchover', function (result) {
+				if(result.ncgchover==true || result.ncgchover==undefined){
+					settings.hover=true;
+				}else{
+					settings.hover=false;
+				}
+				});
+		});
+	}
+	return settings;
 }
 function unmark(){
 	Zepto(".ncgchover").each(function(){
@@ -682,6 +724,9 @@ function fixRefresh(){
         }
   	});
   	}
+	function alertTest(c){
+	alert(c);
+	}
 function takeSnap(callback) {
     var startc = undefined;
     var endc = undefined;
