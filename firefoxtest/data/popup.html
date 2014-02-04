@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+	li:hover{
+		color:white;
+	}
+</style>
+
+<script>
+
+function toggleDebug(){
+chrome.storage.local.get('ncgcdebug', function (result) {
+		if(result==undefined)result={debug:true};
+		if(result.ncgcdebug!=true){
+			result.ncgcdebug=true;
+		}else{
+			result.ncgcdebug=false;
+		}
+		chrome.storage.local.set({'ncgcdebug': result.ncgcdebug}, function (result2) {
+				if(result.ncgcdebug){
+					document.getElementById("status").innerHTML = "Notifications ON";	
+				}else{
+					document.getElementById("status").innerHTML = "Notifications OFF";			
+				}
+   		});
+	});
+}
+function toggle(){
+	chrome.storage.local.get('ncgchover', function (result) {
+		if(result==undefined)result={ncgchover:true};
+		if(result.ncgchover!=true && result.ncgchover!=undefined){
+			result.ncgchover=true;
+			force(false);
+		}else{
+			result.ncgchover=false;
+			forceoff(false);
+		}
+		chrome.storage.local.set({'ncgchover': result.ncgchover}, function (result2) {
+				if(result.ncgchover){
+					document.getElementById("status").innerHTML = "Hover ON";	
+				}else{
+					document.getElementById("status").innerHTML = "Hover OFF";			
+				}
+   		});
+	});
+}
+function toggleRefresh(){
+	chrome.storage.local.get('ncgchoverRefresh', function (result) {
+		if(result==undefined)result={};
+		if(result.ncgchoverRefresh!=false){
+			result.ncgchoverRefresh=false;
+		}else{
+			result.ncgchoverRefresh=true;
+			//forceRefresh("refreshOff");
+		}
+		
+		chrome.storage.local.set({'ncgchoverRefresh': result.ncgchoverRefresh}, function (result2) {
+				if(result.ncgchoverRefresh){
+					document.getElementById("statusRefresh").innerHTML = "Refresh ON";	
+				}else{
+					document.getElementById("statusRefresh").innerHTML = "Refresh OFF";			
+				}
+   		});
+	});
+}
+function forceRefresh(ref){
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    	chrome.tabs.sendMessage(tabs[0].id, {greeting: ref}, function(response) {
+    		console.log(response.farewell);
+  		});
+	});
+}
+function force(c){
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {greeting: "mark"}, function(response) {
+   if(c) window.close();
+  });
+});
+}
+function img(){
+	chrome.runtime.sendMessage({type: "capture"}, function(response) {});
+	window.close();
+	return;
+}
+function forceoff(c){
+   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {greeting: "unmark"}, function(response) {
+    if(c)window.close();
+  });
+});
+}
+</script>
+</head>
+<body style="width:300px">
+<form style="
+    font-family: 'Noto Sans','Segoe UI','Lucida Grande','Open Sans',arial,sans-serif-webkit-body;
+">
+  <div style="
+    /* background-color: blue; */
+    width: 100%;
+    height: 40px;
+            "><ul style="
+    list-style: none;
+">
+<li id="opt1" onclick="document.getElementById('options').style.display='none';document.getElementById('functions').style.display='block';document.getElementById('opt1').style.background='#B1B1B1';document.getElementById('opt2').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(177, 177, 177); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Actions</li>
+<li id="opt2" onclick="document.getElementById('options').style.display='block';document.getElementById('functions').style.display='none';document.getElementById('opt2').style.background='#B1B1B1';document.getElementById('opt1').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(235, 235, 235); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Options</li></ul></div>
+
+<div style="
+    width: 100%;
+    height: 1px;
+    background: #C7C7C7;
+"></div>
+
+<div id="options" style="display: none;">
+<ul style="
+    list-style: none;
+">
+  <li><input id="chk" type="checkbox" onclick="toggle();" value="hover" checked="">Automatic Captions</li>
+<li><input id="chkb" type="checkbox" onclick="toggleRefresh();" value="hoverRefresh" checked="">Periodic Refresh</li>
+  <li><input id="chkmessage" type="checkbox" onclick="toggleDebug();" value="hoverRefresh2" checked="">Notifications</li>
+    </ul></div>
+    
+    <div id="functions" style="display: block; margin: auto auto 20px;">
+  <ul style="
+    list-style: none;
+    font-size: 8pt;
+    /* width: 210px; */
+    /* border: 1px solid black; */
+    /* margin: 1px; */
+    height: 30px;
+">
+<li id="opt1b" onclick="force(true);" style="
+    float: left;
+    width: 100px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+    /* border: 1px solid black; */
+">Add Captions</li>
+<li id="opt2b" onclick="forceoff(true);" style="
+    float: left;
+    width: 100px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+                                            
+    /* border: 1px solid #000; */
+">Remove Captions</li></ul>
+<div style="
+    width: 100%;
+    height: 1px;
+    background: #C7C7C7;
+"></div>
+
+<ul style="
+    list-style: none;
+">
+<li id="opt2c" onclick="img();" style="
+    float: left;
+    width: 220px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; 
+    /* margin-top: 8px; */
+    margin-bottom: 8px;
+    cursor: pointer;
+                                            ">Snapshot to Structure</li></ul>                                            
+                                            
+                                            </div>
+
+  
+<div id="status"></div>
+<div id="statusRefresh"></div>
+</form>
+<script>
+chrome.storage.local.get('ncgchover', function (result) {
+	if(result==undefined)result={};
+	if(result.ncgchover!=true && result.ncgchover!=undefined){
+		document.getElementById("chk").checked=false;
+	}else{
+		document.getElementById("chk").checked=true;
+	}
+});
+chrome.storage.local.get('ncgchoverRefresh', function (result) {
+	if(result==undefined)result={};
+	if(result.ncgchoverRefresh!=false){
+		document.getElementById("chkb").checked=true;
+	}else{
+		document.getElementById("chkb").checked=false;
+	}
+});
+chrome.storage.local.get('ncgcdebug', function (result) {
+	if(result==undefined)result={};
+	if(result.ncgcdebug!=true){
+		document.getElementById("chkmessage").checked=false;
+	}else{
+		document.getElementById("chkmessage").checked=true;
+	}
+});
+</script>
+</body>
+
+</html>

@@ -1,5 +1,12 @@
 var widgets = require("sdk/widget");
 var tabs = require("sdk/tabs");
+var self = require("sdk/self");
+var panel = require("sdk/panel").Panel({
+  contentURL: "about:blank",
+  onHide: function () {
+    panel.contentURL = "about:blank";
+  }
+});
 var widget = widgets.Widget({
   id: "mozilla-link",
   label: "Mozilla website",
@@ -23,6 +30,25 @@ cm.Item({
       }
 });
 
+tabs.on("pageshow", function(tab) {
+  var worker = tab.attach({
+    contentScriptFile:
+	[self.data.url("jquery.js"),self.data.url("jquery-ui.js"),self.data.url("jquery.jgrowl.js"), self.data.url("my-script.js"),self.data.url("styleSetter.js")],
+    onMessage: function (message) {
+      if(message.type=="ajax"){
+		ajaxGet(message.url,function(data){
+			console.log("=================================");
+			console.log(data);
+			console.log("=================================");
+			//message.id
+			worker.port.emit("message",{id:message.id,type:"ajax",data:data});
+			console.log("sent message");
+		});
+	  }
+    }
+  });
+});
+
 var Request = require("sdk/request").Request;
 const {components} = require("chrome");
 
@@ -33,7 +59,15 @@ function findNextNL(str, start){
   }
   return str.length;
 }
-
+function ajaxGet(murl,callback){
+	var xhr = Request({
+				url: murl,
+				onComplete: function (response) {
+					callback(response.text);
+				  }
+				});
+			  xhr.get();
+}
 function displayResolve(url){
   var xhr = Request({
     url: "http://tripod.nih.gov/imager?type=url&data=" + url,
@@ -43,6 +77,8 @@ function displayResolve(url){
 	m.smiles="test";
 	m.molfile=response.text.replace(/\n\n/g, "\n"+"!"+"\n");
 	firefoxMolCopy(m);
+	//tabs.open("http://www.example.com");
+	console.log(tabs.activeTab.getThumbnail());
       }
     });
   xhr.get();
@@ -85,10 +121,19 @@ function firefoxMolCopy(molecule){
 	var clip = components.classes["@mozilla.org/widget/clipboard;1"].getService(components.interfaces.nsIClipboard);
 	var trans = components.classes["@mozilla.org/widget/transferable;1"].createInstance(components.interfaces.nsITransferable);
 	trans.init(null);
-	addToClip(trans,"text/unicode",mfile);
+	addToClip(trans,"text/unicode",smiles);
+	//Kitchen sink:
 	addToClip(trans,"MDLCT",mdlCT);
 	addToClip(trans,"com.accelrys.mdl",mdlCT);	
+	addToClip(trans,"swsC",mdlCT);	
+	addToClip(trans,"chemical/x-mdl-molfile",mdlCT);
+	addToClip(trans,"chemical/x-mdl-sdfile",mdlCT);
+	//TODO:
+	//Add images / pdf / etc
+	
+	
 	clip.setData(trans, null, clip.kGlobalClipboard);
+	
 }
 
 
