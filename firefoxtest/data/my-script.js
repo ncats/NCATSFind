@@ -50,12 +50,35 @@ function addFirefoxListeners(){
 		if(addonMessage.type=="ajax"){
 			firefoxCallbacks[addonMessage.id](addonMessage.data);
 		}
+		if(addonMessage.type=="bbox"){
+			var sresp = function(data){;
+					var uid= (Math.round(Math.random()*100000));
+					self.postMessage({type:"bbox",data:data,id:uid});
+					//callback here? ... ?
+			};
+			if(true){
+				takeSnap(function(r){
+					sresp({rect:r});
+				});
+				return true;
+			}
+		}
+		if (addonMessage.type == "imgprocess"){
+			//if(request.frame == document.location.href ){
+				var b64=imageToPngBase64(addonMessage.imgurl).split("png;base64,")[1];
+				console.log(b64);
+				sendResponse({base64:b64});
+				var uid= (Math.round(Math.random()*100000));
+				self.postMessage({type:"imgprocess",data:data,id:uid});
+			//}
+		}
+		if (addonMessage.type == "displayEdit"){
+			displayEdit();
+		}
+		if (addonMessage.type == "display") {
+			displayResolve(addonMessage.structure);
+		}
 	});
-	//console.log("=========================");
-	//alert("listener add");
-	//Request= require("sdk/request").Request;
-	//console.log("=========================");
-	//alert("OK?");
 }
 //Chrome sniffer
 function addChromeListeners(){
@@ -114,9 +137,6 @@ function addChromeListeners(){
 				img.src=request.image;
 				
 				return true;
-				//document.body.appendChild(img);
-				
-				//img.parentNode.removeChild(img);
 			}
 				
 			//$("body").append("<img src='" + request.image +"'>");
@@ -371,7 +391,8 @@ function mark2(){
 		setTimeout(function(){mark()},refreshTime);
 }
 function myAjaxGet(murl,callback){
-console.log("OK ... what browser?");
+	console.log("OK ... what browser?");
+	
 	switch(EXT_TYPE){
 		case CHROME_EXT:
 			var xhr1 = new XMLHttpRequest();

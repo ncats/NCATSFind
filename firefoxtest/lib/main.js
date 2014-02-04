@@ -7,6 +7,7 @@ var panel = require("sdk/panel").Panel({
     panel.contentURL = "about:blank";
   }
 });
+//Don't think I need anymore:
 var widget = widgets.Widget({
   id: "mozilla-link",
   label: "Mozilla website",
@@ -17,16 +18,49 @@ var widget = widgets.Widget({
 });
 
 var cm = require("sdk/context-menu");
+//Image-to Structure Menu
 cm.Item({
-  label: "Copy Image as Structure",
+  label: "Image to Structure",
       context: cm.SelectorContext("img"),
       contentScript: '  self.on("click", function (node, data) {' +
-      '  console.log("clicked: " + node.src);' +
-      //'  open("http://tripod.nih.gov/imager?type=url&data=" + node.src);' + 
       '  self.postMessage(node.src);' + 
       '});',
       onMessage: function (imgSrc) {
+        //Change this to be a little better
         displayResolve(imgSrc);
+      }
+});
+//Name lookup menu
+cm.Item({
+  label: "Lookup Structure",
+      context: cm.SelectorContext(),
+      contentScript: 'self.on("context", function () {' +
+                 '  var text = window.getSelection().toString();' +
+                 '  if (text.length > 20)' +
+                 '    text = text.substr(0, 20) + "...";' +
+                 '  return "Lookup Structure of " + text;' +
+                 '});' +
+                 'self.on("click", function (node, data) {' +
+                  '  var text = window.getSelection().toString();' +
+      			 '  self.postMessage(text);' + 
+      			 '});'
+      onMessage: function (text) {
+		//Code for lookup goes here
+
+      }
+});
+//PageContext()
+cm.Item({
+  label: "Image to Structure (screenshot)",
+      context: cm.PageContext(),
+      contentScript: 
+                 'self.on("click", function (node, data) {' +
+                  '  var text = window.getSelection().toString();' +
+      			 '  self.postMessage(text);' + 
+      			 '});'
+      onMessage: function (text) {
+		//Code for lookup goes here
+
       }
 });
 
