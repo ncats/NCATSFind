@@ -1,9 +1,9 @@
 {
-  "name": "firefoxtest",
-  "title": "firefoxtest",
+  "name": "ncats-find",
+  "title": "NCATS Find",
   "id": "jid1-uXwgjC4XA5h0sA",
-  "description": "a basic add-on",
-  "author": "",
-  "license": "MPL 2.0",
-  "version": "0.1"
+  "description": "Structure image/name resolver",
+  "author": "NIH/NCATS",
+  "license": "LGPL?",
+  "version": "0.5"
 }
