@@ -36,20 +36,40 @@
         <script type="text/javascript" src="reaxys/reaxys.js"></script>
         <script type="text/javascript" src="ketcher.js"></script>
 		<script>
+		var CHROME_EXT = 1;
+		var FIREFOX_EXT = 2;
 		function loadit(){
 			ketcher.init();
-			if(chrome.storage.local!=undefined){
-				chrome.storage.local.get('ncgcImage', function (result) {
-					if(result.ncgcImage!=undefined){
-						document.getElementById("input_mol").value=result.ncgcImage;
-						document.getElementById("read_ok").click();
-						setTimeout(function(){
-							document.getElementById('smilesout').value=ketcher.getSmiles();
-						},1000);
-					}
-				});
+			switch(getExtensionType()){
+				case CHROME_EXT:
+					chrome.storage.local.get('ncgcImage', function (result) {
+						if(result.ncgcImage!=undefined){
+							document.getElementById("input_mol").value=result.ncgcImage;
+							document.getElementById("read_ok").click();
+							setTimeout(function(){
+								document.getElementById('smilesout').value=ketcher.getSmiles();
+							},1000);
+						}
+					});
+				break
+				case FIREFOX_EXT:
+					//self.postMessage("really?");
+					//var ss = require("sdk/simple-storage");
+					//document.getElementById("input_mol").value=ss.storage.ncgcImage;
+					//document.getElementById("read_ok").click();
+					//setTimeout(function(){
+					//			document.getElementById('smilesout').value=ketcher.getSmiles();
+					//},1000)
+				break;
 			}
 			
+		}
+		function delayedSmiles(){
+			setTimeout(function(){document.getElementById('smilesout').value=ketcher.getSmiles();},500);
+		}
+		function getExtensionType(){
+			if (typeof chrome != 'undefined')return CHROME_EXT;
+			return FIREFOX_EXT;
 		}
 		
 		
@@ -75,7 +95,7 @@
     width: 100px;
 ">ChemDraw</button></td><td style="
     padding-right: 45px;
-"><input type="text" onfocus="document.getElementById('smilesout').value=ketcher.getSmiles();document.getElementById('smilesout').select();this.select();" onmouseup="return false" id="smilesout" style="
+"><input type="text" value="click for smiles value" onfocus="document.getElementById('smilesout').value=ketcher.getSmiles();document.getElementById('smilesout').select();this.select();" onmouseup="return false" id="smilesout" style="
     width: 100%;
 "></td></tr>
   </tbody></table>

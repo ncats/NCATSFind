@@ -7,15 +7,39 @@ var panel = require("sdk/panel").Panel({
     panel.contentURL = "about:blank";
   }
 });
+
+var data = require("sdk/self").data;
+// Construct a panel, loading its content from the "text-entry.html"
+// file in the "data" directory, and loading the "get-text.js" script
+// into it.
+var text_entry = require("sdk/panel").Panel({
+  width: 720,
+  height: 600,
+  contentURL: data.url("ketcher/ketcher.html"),  
+  contentScript: 'self.port.on("message", function(addonMessage) {' + 
+						'document.getElementById("input_mol").value=addonMessage;' + 
+						'document.getElementById("read_ok").click();' + 
+						'setTimeout(function(){document.getElementById("smilesout").value=ketcher.getSmiles();},500);'+
+					'});'
+});
 //Don't think I need anymore:
 var widget = widgets.Widget({
-  id: "mozilla-link",
-  label: "Mozilla website",
-  contentURL: "http://www.mozilla.org/favicon.ico",
-  onClick: function() {
-    tabs.open("http://tripod.nih.gov/");
-  }
+  label: "NCATS Find",
+  id: "NCATS_FIND",
+  contentURL: data.url("images/icon16.png"),  
+  panel: text_entry,
+      onMessage: function (imgSrc) {
+			console.log("oh... ok" + imgSrc);
+      }
 });
+// When the panel is displayed it generated an event called
+// "show": we will listen for that event and when it happens,
+// send our own "show" event to the panel's script, so the
+// script can prepare the panel for display.
+text_entry.on("show", function() {
+  text_entry.port.emit("show");
+});
+
 
 var activeWorker;
 
@@ -31,7 +55,9 @@ cm.Item({
       '});',
       onMessage: function (imgSrc) {
         //Change this to be a little better
-        displayResolve(imgSrc);
+        displayResolve(imgSrc, function(mol){
+			showMolEditor(mol);
+		});
       }
 });
 
@@ -41,7 +67,7 @@ cm.Item({
     contentScript: 
 	  'self.on("context", function () {' +
                  '  var text = window.getSelection().toString();' +
-                 '  if (text==undefined || text == "") return true;if (text.length > 20)' +
+                 '  if (text==undefined || text == "") return false;if (text.length > 20)' +
                  '    text = text.substr(0, 20) + "...";' +
                  '  return "Lookup Structure of \'" + text + "\'";' +
                  '});' +
@@ -57,7 +83,7 @@ cm.Item({
 
 //Name lookup menu
 cm.Item({
-  label: "Snapshot Area",
+  label: "Image to Structure : Snapshot",
       context: cm.PageContext(),
       contentScript: 
                  'self.on("click", function () {' +
@@ -87,7 +113,7 @@ cm.Item({
 tabs.on("pageshow", function(tab) {
   var worker = tab.attach({
     contentScriptFile:
-	[self.data.url("jquery.js"),self.data.url("jquery-ui.js"),self.data.url("jquery.jgrowl.js"), self.data.url("my-script.js"),self.data.url("styleSetter.js")],
+	[self.data.url("jquery.js"),self.data.url("jquery-ui.js"),self.data.url("jquery.jgrowl.js"), self.data.url("NCGCHover.js"),self.data.url("styleSetter.js")],
     onMessage: function (message) {
       if(message.type=="ajax"){
 		ajaxGet(message.url,function(data){
@@ -99,25 +125,16 @@ tabs.on("pageshow", function(tab) {
 			console.log("sent message");
 		});
 	  }else if(message.type == "bbox"){
-		var b64=tab.getThumbnail();
-		var window = require('window/utils').getMostRecentBrowserWindow();
-		//var tab = require('tabs/utils').getActiveTab(window);
-		var thumbnail = window.document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
-		thumbnail.mozOpaque = true;
-		window = tab.linkedBrowser.contentWindow;
-		thumbnail.width = Math.ceil(window.screen.availWidth / 5.75);
-		var aspectRatio = 0.5625; // 16:9
-		thumbnail.height = Math.round(thumbnail.width * aspectRatio);
-		var ctx = thumbnail.getContext("2d");
-		var snippetWidth = window.innerWidth ;
-		var scale = thumbnail.width / snippetWidth;
-		ctx.scale(scale, scale);
-		ctx.drawWindow(window, window.scrollX, window.scrollY, snippetWidth, snippetWidth * aspectRatio, "rgb(255,255,255)");
-		b64=ctx.toDataURL();
+		b64=getActiveSnapshot();
 		worker.port.emit("message",{id:message.id,type:"imagetest",image:b64,data:message.data});
 	  }else if(message.type == "imagetest"){
 		var b64=message.data.base64;
-		console.log(b64);
+		displayResolveb64(b64,function(mol){
+			showMolEditor(mol);
+			//console.log(self.data.url("ketcher/ketcher.html"));
+			//worker.port.emit("message",{id:message.id,type:"displayEdit",url:self.data.url("ketcher/ketcher.html")});
+		});
+		
 	  }
     }
   });
@@ -127,7 +144,28 @@ tabs.on("pageshow", function(tab) {
 
 var Request = require("sdk/request").Request;
 const {components} = require("chrome");
-
+function getActiveSnapshot(){
+		var window = require('window/utils').getMostRecentBrowserWindow();
+		var tab2 = require('tabs/utils').getActiveTab(window);
+		var thumbnail = window.document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
+		thumbnail.mozOpaque = true;
+		window = tab2.linkedBrowser.contentWindow;
+		thumbnail.width = Math.ceil(window.innerWidth );
+		var aspectRatio = 0.5625; // 16:9
+		thumbnail.height = Math.round(window.innerHeight);
+		var ctx = thumbnail.getContext("2d");
+		var snippetWidth = window.innerWidth ;
+		var scale = thumbnail.width / snippetWidth;
+		ctx.scale(scale, scale);
+		ctx.drawWindow(window, window.scrollX, window.scrollY, thumbnail.width, thumbnail.height, "rgb(255,255,255)");
+		return thumbnail.toDataURL();
+}
+function showMolEditor(mol){
+			text_entry.show();
+			text_entry.contentURL = self.data.url("ketcher/ketcher.html");
+			text_entry.port.emit("message",mol);
+			console.log(self.data.url("ketcher/ketcher.html"));
+}
 function findNextNL(str, start){
   for (var i = start; i<str.length; i++) {
     if (str.charCodeAt(i) == 10) 
@@ -144,17 +182,27 @@ function ajaxGet(murl,callback){
 				});
 			  xhr.get();
 }
-function displayResolve(url){
+function ajaxPost(murl,data,callback){
+	var xhr = Request({
+				url: murl,
+				content: data,
+				onComplete: function (response) {
+					callback(response.text);
+				  }
+				});
+			  xhr.post();
+}
+function displayResolve(url,callback){
   var xhr = Request({
     url: "http://tripod.nih.gov/imager?type=url&data=" + url,
     onComplete: function (response) {
-	console.log(response.text);
-	var m = {};
-	m.smiles="test";
-	m.molfile=response.text.replace(/\n\n/g, "\n"+"!"+"\n");
-	firefoxMolCopy(m);
-	//tabs.open("http://www.example.com");
-	console.log(tabs.activeTab.getThumbnail());
+		//TODO: standardize across different versions
+		console.log(response.text);
+		var m = {};
+		m.smiles="test";
+		m.molfile=response.text.replace(/\n\n/g, "\n"+"!"+"\n");
+		callback(m.molfile);
+		firefoxMolCopy(m);
       }
     });
   xhr.get();
@@ -210,6 +258,40 @@ function firefoxMolCopy(molecule){
 	
 	clip.setData(trans, null, clip.kGlobalClipboard);
 	
+}
+function displayResolveb64(b64,callback){
+							var params="type=base64&data=" + encodeURIComponent(b64) ;
+							//alert("length:" + params.length);
+							ajaxPost("http://tripod.nih.gov/imager",params,function(text){
+								console.log(text);
+								var ss = require("sdk/simple-storage");
+								//require("sdk/simple-storage").ss.storage.ncgcImage
+								ss.storage.ncgcImage = text;
+								callback(text);
+							});
+							
+							/*
+							var xhr = new XMLHttpRequest();
+                                    xhr.open("POST", "http://tripod.nih.gov/imager", true);
+									xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+									xhr.setRequestHeader("Content-length", params.length);
+									xhr.setRequestHeader("Connection", "close");
+									xhr.onreadystatechange = function() {
+                                      if (xhr.readyState == 4) {
+											//console.log(xhr.responseText);
+											//alert(xhr.responseText);
+											chrome.storage.local.set({'ncgcImage': xhr.responseText}, function (result2) {
+												var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
+												//chrome.tabs.create({url:newURL});
+												chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+													chrome.tabs.sendMessage(tabs[0].id, {greeting: "displayEdit", frame: "TOP" }, function(response) {});
+												});
+											});
+                                      }
+                                    }
+									xhr.send(params);
+                                    
+                                    //xhr.send();*/
 }
 
 
