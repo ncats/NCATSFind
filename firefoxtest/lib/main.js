@@ -1,10 +1,12 @@
 var widgets = require("sdk/widget");
 var tabs = require("sdk/tabs");
 var self = require("sdk/self");
-var panel = require("sdk/panel").Panel({
-  contentURL: "about:blank",
-  onHide: function () {
-    panel.contentURL = "about:blank";
+var { Hotkey } = require("sdk/hotkeys");
+
+var showHotKey = Hotkey({
+  combo: "accel-shift-z",
+  onPress: function() {
+    activeWorker.port.emit("message",{id:1234,type:"bbox"});
   }
 });
 
@@ -117,12 +119,7 @@ tabs.on("pageshow", function(tab) {
     onMessage: function (message) {
       if(message.type=="ajax"){
 		ajaxGet(message.url,function(data){
-			console.log("=================================");
-			console.log(data);
-			console.log("=================================");
-			//message.id
 			worker.port.emit("message",{id:message.id,type:"ajax",data:data});
-			console.log("sent message");
 		});
 	  }else if(message.type == "bbox"){
 		b64=getActiveSnapshot();
@@ -134,7 +131,12 @@ tabs.on("pageshow", function(tab) {
 			//console.log(self.data.url("ketcher/ketcher.html"));
 			//worker.port.emit("message",{id:message.id,type:"displayEdit",url:self.data.url("ketcher/ketcher.html")});
 		});
-		
+	  }else if(message.type == "paste"){
+			var mol =getMolfileFromClipboard();
+			console.log("Trying");
+			if(mol){
+				worker.port.emit("message",{id:message.id,type:"paste",data:mol});
+			}
 	  }
     }
   });
@@ -142,8 +144,60 @@ tabs.on("pageshow", function(tab) {
   console.log("attached");
 });
 
-var Request = require("sdk/request").Request;
+
+
+
 const {components} = require("chrome");
+function getMolfileFromClipboard() {
+      //tabs.open("http://tripod.nih.gov/");
+
+      var clip = components.classes["@mozilla.org/widget/clipboard;1"].getService(components.interfaces.nsIClipboard);
+     
+      var trans = components.classes["@mozilla.org/widget/transferable;1"].createInstance(components.interfaces.nsITransferable);
+      trans.init(null);
+      trans.addDataFlavor("MDLCT");   
+
+      //var flavorList = ["MDLCT"];
+      //console.log(clip.hasDataMatchingFlavors(flavorList ,1 ,1));
+
+      clip.getData(trans, 1);
+     
+      var str       = {};
+      var strLength = {};
+
+      trans.getTransferData("MDLCT", str, strLength);
+
+      if (str) {
+			var pastetext = str.value.QueryInterface(components.interfaces.nsISupportsString).data;
+			var molFile = "";
+			pointer = 0;
+			for (var i=0; i<pastetext.length; i++) {
+			  var j = pastetext.charCodeAt(i);
+			  var k = j % 256;
+			  var l = (j-k) / 256;
+			  if (pointer == 0) {
+				pointer = k;
+				molFile += "\n";
+			  } else {
+				molFile += String.fromCharCode(k);
+				pointer --;
+			  }
+			  if (pointer == 0) {
+				pointer = l;
+				molFile += "\n";
+			  } else {
+				molFile += String.fromCharCode(l);
+				pointer --;
+			  }
+			}
+			console.log(molFile);
+			return molFile.substring(1);
+      }
+    }
+
+
+
+var Request = require("sdk/request").Request;
 function getActiveSnapshot(){
 		var window = require('window/utils').getMostRecentBrowserWindow();
 		var tab2 = require('tabs/utils').getActiveTab(window);

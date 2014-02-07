@@ -48,7 +48,7 @@ function addFirefoxListeners(){
 	//alert("loading listeners");
 	self.port.on("message", function(addonMessage) {
 		//alert("got message!");
-		if(addonMessage.type=="ajax"){
+		if(addonMessage.type=="ajax" || addonMessage.type=="paste"){
 			firefoxCallbacks[addonMessage.id](addonMessage.data);
 		}
 		if(addonMessage.type=="bbox"){
@@ -208,7 +208,6 @@ function getEditorURL(){
 		case FIREFOX_EXT:
 			return "www.google.com";
 			break;
-			
 	}
 	return "";
 }
@@ -837,6 +836,77 @@ function takeSnap(callback) {
     document.getElementById("myrect").style.zIndex = 999999;
     document.getElementById("mycoord").style.zIndex = 1999999;
 }
+function setMol(mol){
+	if(document.getElementById("input_mol")!=null){
+		document.getElementById("input_mol").value=mol;
+		document.getElementById("read_ok").click();
+		document.getElementById("checkbox_open_copy").checked=true;	
+	}
+	var v2= window.content.document.defaultView.wrappedJSObject;
+	if(typeof v2.JSDraw2 != "undefined"){
+		var keys = Object.keys(v2.JSDraw2.Editor._allitems);
+		for(var i in keys){
+			
+			if($(v2.JSDraw2.Editor._allitems[keys[i]].div).css("visibility")!="hidden"){
+				if($(v2.JSDraw2.Editor._allitems[keys[i]].div).is(":visible")){
+					v2.JSDraw2.Editor._allitems[keys[i]].pushundo();
+					v2.JSDraw2.Editor._allitems[keys[i]].setMolfile(mol);
+					v2.JSDraw2.Editor._allitems[keys[i]].selectAll();
+					v2.JSDraw2.Editor._allitems[keys[i]].copy();
+					//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
+					//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Undo']").click();
+					//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
+					//$("select[title='Paste']");
+					//Paste
+					//__jsd_tb_div1_undo
+					break;
+				}
+			}
+		}
+			
+	}
+}
+function pasteEvent(){
+//First, should look to see if this is a real thing
+console.log("PASTE EVENT");
+	switch(EXT_TYPE){
+		case CHROME_EXT:
+			//TODO: Write something for chrome
+			break;
+		case FIREFOX_EXT:
+			var uid= (Math.round(Math.random()*100000));
+			self.postMessage({type:"paste",id:uid});
+			firefoxCallbacks[uid]=function(mol){
+				if(mol!=undefined){
+					console.log(mol);
+					setMol(mol);
+				}
+			};
+			break;
+		default:
+	}
+}
+function copyEvent(){
+
+}
+//May be a bit hacky
+function addPasteHandler(){
+		var ctrlDown = false;
+		var ctrlKey = 17, vKey = 86, cKey = 67;
+		Zepto(document).keydown(function(e)
+		{
+			if (e.keyCode == ctrlKey) ctrlDown = true;
+			if (ctrlDown ){
+				if(e.keyCode == vKey)
+					pasteEvent();
+				if(e.keyCode == cKey)
+					copyEvent();
+			}
+		}).keyup(function(e)
+		{
+			if (e.keyCode == ctrlKey) ctrlDown = false;
+		});
+}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 Zepto(function($){
 		initializeListeners();
@@ -847,4 +917,7 @@ Zepto(function($){
         });
         mark();
         setInterval(function(){fixRefresh()},refreshTime*2.1);
+		addPasteHandler();
+		
+		
 });
