@@ -3,12 +3,21 @@ var tabs = require("sdk/tabs");
 var self = require("sdk/self");
 var { Hotkey } = require("sdk/hotkeys");
 
+function getActiveWorker(){
+	console.log("t1");
+	var tab2 =  tabs.activeTab;
+	var id1=tab2.id;
+	console.log("'" + id1 + "'");
+	return workerMap[id1];
+}
+
 var showHotKey = Hotkey({
   combo: "accel-shift-z",
   onPress: function() {
-    activeWorker.port.emit("message",{id:1234,type:"bbox"});
+    getActiveWorker().port.emit("message",{id:1234,type:"bbox"});
   }
 });
+
 
 var data = require("sdk/self").data;
 // Construct a panel, loading its content from the "text-entry.html"
@@ -79,7 +88,7 @@ cm.Item({
       			 '});',
       onMessage: function (imgSrc) {
         //TODO: Change this to be a little better
-		activeWorker.port.emit("message",{id:1234,type:"display",name:imgSrc.trim()});
+		getActiveWorker().port.emit("message",{id:1234,type:"display",name:imgSrc.trim()});
       }
 });
 
@@ -94,7 +103,7 @@ cm.Item({
       			 '});',
       onMessage: function () {
 		//TODO: Change this to be a little better
-		activeWorker.port.emit("message",{id:1234,type:"bbox"});
+		getActiveWorker().port.emit("message",{id:1234,type:"bbox"});
       }
 });
 
@@ -111,8 +120,10 @@ cm.Item({
 		console.log(text);
       }
 });*/
+var workerMap = {};
 
 tabs.on("pageshow", function(tab) {
+
   var worker = tab.attach({
     contentScriptFile:
 	[self.data.url("jquery.js"),self.data.url("jquery-ui.js"),self.data.url("jquery.jgrowl.js"), self.data.url("NCGCHover.js"),self.data.url("styleSetter.js")],
@@ -140,6 +151,8 @@ tabs.on("pageshow", function(tab) {
 	  }
     }
   });
+  workerMap[tab.id]=worker;
+  
   activeWorker=worker;
   console.log("attached");
 });
@@ -215,10 +228,12 @@ function getActiveSnapshot(){
 		return thumbnail.toDataURL();
 }
 function showMolEditor(mol){
+
 			text_entry.show();
-			text_entry.contentURL = self.data.url("ketcher/ketcher.html");
+			//text_entry.contentURL = self.data.url("ketcher/ketcher.html");
 			text_entry.port.emit("message",mol);
 			console.log(self.data.url("ketcher/ketcher.html"));
+			text_entry.show();
 }
 function findNextNL(str, start){
   for (var i = start; i<str.length; i++) {

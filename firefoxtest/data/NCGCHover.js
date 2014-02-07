@@ -93,7 +93,7 @@ function addFirefoxListeners(){
 					ctx.drawImage(img,-rect.x,-rect.y);
 					var b64=c.toDataURL().split("png;base64,")[1];
 					sresp({base64:b64});
-					c.parentNode.removeChild(c);
+					//c.parentNode.removeChild(c);
 					//ctx.drawImage(img,0,0); // Or at whatever offset you like
 					};
 				img.src=addonMessage.image;
