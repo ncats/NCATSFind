@@ -148,6 +148,16 @@ tabs.on("pageshow", function(tab) {
 			if(mol){
 				worker.port.emit("message",{id:message.id,type:"paste",data:mol});
 			}
+	  }else if(message.type == "copy"){
+			var mol = message.data;
+			firefoxMolCopy(mol);
+			//var mol =getMolfileFromClipboard();
+			console.log("Trying");
+			
+			/*
+			if(mol){
+				worker.port.emit("message",{id:message.id,type:"paste",data:mol});
+			}*/
 	  }
     }
   });
@@ -307,20 +317,20 @@ function addToClip(trans, flavor, data, len){
 	trans.setTransferData(flavor, textRes, len);
 }
 function firefoxMolCopy(molecule){
-	var mfile = molecule.molfile;
+	var mfile = molecule.molfile.replace(/\r/g, '');
 	var smiles = molecule.smiles;
 	var mdlCT = cDrawMol(mfile);
 	//get clipboard
 	var clip = components.classes["@mozilla.org/widget/clipboard;1"].getService(components.interfaces.nsIClipboard);
 	var trans = components.classes["@mozilla.org/widget/transferable;1"].createInstance(components.interfaces.nsITransferable);
 	trans.init(null);
-	addToClip(trans,"text/unicode",smiles);
+	//addToClip(trans,"text/unicode",smiles);
 	//Kitchen sink:
 	addToClip(trans,"MDLCT",mdlCT);
 	addToClip(trans,"com.accelrys.mdl",mdlCT);	
 	addToClip(trans,"swsC",mdlCT);	
-	addToClip(trans,"chemical/x-mdl-molfile",mdlCT);
-	addToClip(trans,"chemical/x-mdl-sdfile",mdlCT);
+	addToClip(trans,"chemical/x-mdl-molfile",mfile);
+	addToClip(trans,"chemical/x-mdl-sdfile",mfile);
 	//TODO:
 	//Add images / pdf / etc
 	

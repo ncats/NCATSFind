@@ -844,26 +844,46 @@ function setMol(mol){
 	}
 	var v2= window.content.document.defaultView.wrappedJSObject;
 	if(typeof v2.JSDraw2 != "undefined"){
+		var jsdraw = JSDraw_getActive();
+		jsdraw.pushundo();
+		jsdraw.setMolfile(mol);
+		//jsdraw.selectAll();
+		//jsdraw.copy();
+		//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
+		//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Undo']").click();
+		//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
+		//$("select[title='Paste']");
+		//Paste
+		//__jsd_tb_div1_undo
+	}
+}
+function getMol(){
+	var v2= window.content.document.defaultView.wrappedJSObject;
+	if(document.getElementById("input_mol")!=null){
+		var mfile1 = v2.ketcher.getMolfile();
+		var smiles1 = v2.ketcher.getSmiles();
+		return {smiles:smiles1,molfile:mfile1};
+	}
+	if(typeof v2.JSDraw2 != "undefined"){
+		var jsdraw = JSDraw_getActive();
+		var mfile = jsdraw.getMolfile();
+		var smiles = jsdraw.getSmiles();
+		return {smiles:smiles,molfile:mfile};
+	}
+}
+//TODO: get actual active
+function JSDraw_getActive(){
+	var v2= window.content.document.defaultView.wrappedJSObject;
+	if(typeof v2.JSDraw2 != "undefined"){
 		var keys = Object.keys(v2.JSDraw2.Editor._allitems);
 		for(var i in keys){
-			
 			if($(v2.JSDraw2.Editor._allitems[keys[i]].div).css("visibility")!="hidden"){
 				if($(v2.JSDraw2.Editor._allitems[keys[i]].div).is(":visible")){
-					v2.JSDraw2.Editor._allitems[keys[i]].pushundo();
-					v2.JSDraw2.Editor._allitems[keys[i]].setMolfile(mol);
-					v2.JSDraw2.Editor._allitems[keys[i]].selectAll();
-					v2.JSDraw2.Editor._allitems[keys[i]].copy();
-					//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
-					//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Undo']").click();
-					//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
-					//$("select[title='Paste']");
-					//Paste
-					//__jsd_tb_div1_undo
+					return v2.JSDraw2.Editor._allitems[keys[i]];
 					break;
 				}
 			}
 		}
-			
 	}
 }
 function pasteEvent(){
@@ -887,7 +907,29 @@ console.log("PASTE EVENT");
 	}
 }
 function copyEvent(){
-
+	console.log("COPY");
+	switch(EXT_TYPE){
+		case CHROME_EXT:
+			//TODO: Write something for chrome
+			break;
+		case FIREFOX_EXT:
+			console.log("so here?");
+			var mol =getMol();
+			console.log("GOTMOL:" + JSON.stringify(mol));
+			if(mol){
+				var uid= (Math.round(Math.random()*100000));
+				self.postMessage({type:"copy",id:uid, data:mol});
+				/*
+				firefoxCallbacks[uid]=function(mol){
+					if(mol!=undefined){
+						console.log(mol);
+						setMol(mol);
+					}
+				};*/
+			}
+			break;
+		default:
+	}
 }
 //May be a bit hacky
 function addPasteHandler(){
