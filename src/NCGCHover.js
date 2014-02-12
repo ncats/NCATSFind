@@ -50,7 +50,7 @@ function addFirefoxListeners(){
 	//alert("loading listeners");
 	self.port.on("message", function(addonMessage) {
 		//alert("got message!");
-		if(addonMessage.type=="ajax" || addonMessage.type=="paste"){
+		if(addonMessage.type=="ajax" || addonMessage.type=="paste" || addonMessage.type=="get" ){
 			firefoxCallbacks[addonMessage.id](addonMessage.data);
 		}
 		if(addonMessage.type=="bbox"){
@@ -456,6 +456,23 @@ function mark2(){
 	lastload=Date.now();
 	if(refresh)
 		setTimeout(function(){mark()},refreshTime);
+}
+//TODO: get/set all gloabls through this function:
+function getValue(key,callback){
+	console.log("----------GETTING");
+	switch(EXT_TYPE){
+		case CHROME_EXT:
+			//TODO:IMPLEMENT
+			break;
+		case FIREFOX_EXT:
+			var uid= (Math.round(Math.random()*100000));
+			self.postMessage({type:"get",key:key,id:uid});
+			firefoxCallbacks[uid]=callback;
+			break;
+		case GM_EXT:
+		//TODO:IMPLEMENT
+			break;
+	}
 }
 function myAjaxGet(murl,callback){
 	console.log("OK ... what browser?");
@@ -1333,24 +1350,44 @@ function tempFix(){
 	button.onclick=function(){pasteEvent();};
 	b.appendChild(button);
 	b.appendChild(document.body);
-	document.getElementsByTagName("HTML")[0].appendChild(b);
-	
-	
-}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+	document.getElementsByTagName("HTML")[0].appendChild(b);	
+}           
+//===========
+//FIREFOX review functions                                               
+function isReview(){
+	var elm =document.getElementById("NCATSreviewid");
+	if(elm)return true;
+}                         
+function forceLoad(){
+	getValue("resIMGURL",function(resURL){
+		getValue("ncgcImage",function(mol){
+			console.log("------EXECUTING " + resURL + "," + mol);
+			runlocal(function (ini){load_mol_url(ini.mol,ini.url);},{mol:mol,url:resURL});
+		});
+	});
+}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 Zepto(function($){
+		EXT_TYPE=getExtensionType();
 		//Clipboard applet
 		//console.log("loading");
 		if((document.getElementById("chemclipboard")+"") != "null"){
 			addAppletListener();
 			console.log("clipboard");
 		}else{
-			if(getExtensionType()==FIREFOX_EXT){
+			//alert("INITIALIZE");
+			initializeListeners();
+			
+			if(EXT_TYPE==FIREFOX_EXT){
 				if(document.body.tagName=="FRAMESET"){
 					tempFix();
 				}
+				if(isReview()){
+					console.log("============Yes, it's review");
+					forceLoad();
+				}
 			}
-			//alert("INITIALIZE");
-			initializeListeners();
+			
 			//console.log(document.location.href);
 			Zepto(document).mousemove(function (e) {
 				mouseX = e.pageX;

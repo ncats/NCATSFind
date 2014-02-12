@@ -91,7 +91,7 @@ chrome.contextMenus.onClicked.addListener(function(t){
 	if(sid=="image"){
 		//Simple url case:
 		if(t.srcUrl.indexOf("data:")!=0){
-			displayResolve("http://tripod.nih.gov/imager?type=url&data=" + t.srcUrl);
+			displayResolve("http://tripod.nih.gov/imager?type=url&data=", t.srcUrl);
 		}else{
 		//deeper
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -121,14 +121,17 @@ function captureImage(framen){
 			});
     	});
 }
-function displayResolve(url2){
+function displayResolve(url2, dataurl){
 							var xhr = new XMLHttpRequest();
-                                    xhr.open("GET", url2, true);
+                                    xhr.open("GET", url2+dataurl, true);
                                     xhr.onreadystatechange = function() {
                                       if (xhr.readyState == 4) {
 										 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 											chrome.tabs.sendMessage(tabs[0].id, {greeting: "image", image: xhr.responseText }, function(response) {});
 										 });
+										 
+										 chrome.storage.local.set({'resIMGURL': (dataurl)}, function (result2) {});
+										 
 										 chrome.storage.local.set({'ncgcImage': xhr.responseText}, function (result2) {
 												var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
 												//chrome.tabs.create({url:newURL});
@@ -154,6 +157,8 @@ function displayResolveb64(b64){
                                       if (xhr.readyState == 4) {
 											//console.log(xhr.responseText);
 											//alert(xhr.responseText);
+											chrome.storage.local.set({'resIMGURL': ("data:image/png;base64," + b64)}, function (result2) {});
+										 
 											chrome.storage.local.set({'ncgcImage': xhr.responseText}, function (result2) {
 												var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
 												//chrome.tabs.create({url:newURL});

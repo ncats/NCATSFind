@@ -38,6 +38,14 @@
 		<script>
 		var CHROME_EXT = 1;
 		var FIREFOX_EXT = 2;
+		function load_mol_url(mol,url){
+			document.getElementById("input_mol").value=mol;
+			document.getElementById("read_ok").click();
+			setTimeout(function(){
+				document.getElementById('smilesout').value=ketcher.getSmiles();
+			},1000);
+			document.getElementById("img2str").setAttribute("src",url);
+		}
 		function loadit(){
 			ketcher.init();
 			switch(getExtensionType()){
@@ -49,6 +57,11 @@
 							setTimeout(function(){
 								document.getElementById('smilesout').value=ketcher.getSmiles();
 							},1000);
+						}
+					});
+					chrome.storage.local.get('resIMGURL', function (result) {
+						if(result.resIMGURL!=undefined){
+							document.getElementById("img2str").setAttribute("src",result.resIMGURL);
 						}
 					});
 					loadSources(["../NCGCHover.js"]);
@@ -96,8 +109,6 @@
 			xmlhttp.open("GET",srcs[i],true);
 			xmlhttp.send();
 			}
-	
-			
 		}
 		</script>
 		<style>table.export td:last-child {
@@ -106,7 +117,7 @@
     </head>
 
     <body onload="loadit();">
-	<div style="display:none;">
+	<div id='NCATSreviewid' style="display:none;">
 		<form id="export" action="http://tripod.nih.gov/servlet/exporter/">
 				<textarea id="molstr" type="text" name="structure"></textarea><br>
 				<input type="text" name="format" value="CDX">
@@ -125,8 +136,9 @@
     width: 100%;
 "></td></tr>
   </tbody></table>
+  <table><tbody><tr><td>
         <div>
-            <table id="ketcher_window">
+            <table style = "position:relative; width:auto;" id="ketcher_window">
                 <tr align="center" id="main_toolbar">
                     <td style="width:36px"><div style="position:relative"><img class="sideButton modeButton stateButton" id="selector" selid="selector_lasso" src="png/action/lasso.png" alt="" title="Select Tool (Esc)" /><img class="dropdownButton" id="selector_dropdown" src="png/dropdown.png" alt="" /></div></td>
                     <td class="toolDelimiter"></td>
@@ -842,5 +854,9 @@
             <iframe name="buffer_frame" id="buffer_frame" src="about:blank" style="display:none">
             </iframe>
         </div>
+		</td>
+		<td><img id='img2str'></td></tr></tbody></table>
+		
+		
     </body>
 </html>

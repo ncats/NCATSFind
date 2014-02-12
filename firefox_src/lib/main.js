@@ -132,6 +132,12 @@ tabs.on("pageshow", function(tab) {
 		ajaxGet(message.url,function(data){
 			worker.port.emit("message",{id:message.id,type:"ajax",data:data});
 		});
+	  }else if(message.type == "get"){
+
+		var ss = require("sdk/simple-storage");
+		var resp = ss.storage[message.key];
+		worker.port.emit("message",{id:message.id,type:"get",data:resp});
+		
 	  }else if(message.type == "bbox"){
 		b64=getActiveSnapshot();
 		worker.port.emit("message",{id:message.id,type:"imagetest",image:b64,data:message.data});
@@ -239,7 +245,16 @@ function getActiveSnapshot(){
 }
 function showMolEditor(mol){
 
+			var tab1=tabs.open(self.data.url("ketcher/ketcher.html"));
+			var worker = tab.attach({
+				contentScript: 'console.log("also added");',
+				onMessage: function (message) {}
+			});
+			
+			
+			if(true)return;
 			text_entry.show();
+			
 			//text_entry.contentURL = self.data.url("ketcher/ketcher.html");
 			text_entry.port.emit("message",mol);
 			console.log(self.data.url("ketcher/ketcher.html"));
@@ -344,8 +359,8 @@ function displayResolveb64(b64,callback){
 							ajaxPost("http://tripod.nih.gov/imager",params,function(text){
 								console.log(text);
 								var ss = require("sdk/simple-storage");
-								//require("sdk/simple-storage").ss.storage.ncgcImage
 								ss.storage.ncgcImage = text;
+								ss.storage.resIMGURL = "data:image/png;base64," + b64;
 								callback(text);
 							});
 							
