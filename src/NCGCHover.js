@@ -27,9 +27,11 @@ var lastload = 0;
 var found = [];
 
 var refreshTime=3500;
+
 var regexSet = [new RegExp("(NCGC[0-9][0-9]*[-][0-9]*)","g"),
 				new RegExp("(MLS[0-9][0-9]*[-][0-9]*)","g")
-];
+				];
+				
 var firefoxCallbacks={};
 function initializeListeners(){
 	EXT_TYPE=getExtensionType();
