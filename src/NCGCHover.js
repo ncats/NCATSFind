@@ -26,7 +26,7 @@ var next=false;
 var lastload = 0;
 var found = [];
 
-var refreshTime=3000;
+var refreshTime=3500;
 var regexSet = [new RegExp("(NCGC[0-9][0-9]*[-][0-9]*)","g"),
 				new RegExp("(MLS[0-9][0-9]*[-][0-9]*)","g")
 ];
@@ -125,12 +125,7 @@ function addChromeListeners(){
 		if (request.greeting == "refreshOff"){
 			refresh=false;
 		}
-		if (request.greeting == "image"){
-			//alert("worked");
-			//$("body").append("<textarea>" + request.image +"</textarea>");
-			
-		}
-		 if (request.greeting == "bbox"){
+		if (request.greeting == "bbox"){
 			var sresp = sendResponse;
 			if(true){
 				if(request.frame == document.location.href|| request.frame == "TOP"){
@@ -138,10 +133,8 @@ function addChromeListeners(){
 						sresp({rect:r});
 					});
 					return true;
-				}
-				
+				}		
 			}
-			
 		}
 		if (request.greeting == "imagetest"){
 			if(request.frame == document.location.href || request.frame == "TOP"){
@@ -237,23 +230,24 @@ function imageToPngBase64(imgsrc){
 }
 function mark(){
 	next=false;
-	if(EXT_TYPE==CHROME_EXT){
-		var settings= getSettings();
-		refresh=settings.refresh;
-		debug=settings.debug;
-		if(settings.hover){
-   	 		var nhtml=document.body.textContent;
-   	 		if(prevhtml!=nhtml){
-   	  			prevhtml=nhtml; 
-   	  			mark2();  
-   	 		}
-		}		
-	}else{
-		mark2();
-	}
-
+	var startTime=(new Date()).getTime();
+		getSettings(function(settings){
+			//console.log(JSON.stringify(settings));
+			refresh=settings.refresh;
+			debug=settings.debug;
+			if(settings.hover){
+				var nhtml=document.body.textContent;
+				if(prevhtml!=nhtml){
+					prevhtml=nhtml; 
+					mark2();  
+					console.log("Finding:" + (((new Date()).getTime()-startTime)/1000));
+				}
+			}		
+		});
+	
 }
-function getSettings(){
+//should be async
+function getSettings(callback){
 	var settings = {};
 	
 	if(EXT_TYPE==CHROME_EXT){
@@ -263,25 +257,27 @@ function getSettings(){
    	 			settings.refresh=false;
 			}else{
 				settings.refresh=true;
-			}
-		});
-		chrome.storage.local.get('ncgcdebug', function (result) {
-			if(result.ncgcdebug!=true){
-   	 			settings.debug=false;
-			}else{
-				settings.debug=true;
-			}
-			chrome.storage.local.get('ncgchover', function (result) {
-				if(result.ncgchover==true || result.ncgchover==undefined){
-					settings.hover=true;
+			}		
+			chrome.storage.local.get('ncgcdebug', function (result) {
+				if(result.ncgcdebug!=true){
+					settings.debug=false;
 				}else{
-					settings.hover=false;
+					settings.debug=true;
 				}
+				chrome.storage.local.get('ncgchover', function (result) {
+					if(result.ncgchover==true || result.ncgchover==undefined){
+						settings.hover=true;
+					}else{
+						settings.hover=false;
+					}
+					if(callback)callback(settings);
 				});
+			});
 		});
 	}
 	if(EXT_TYPE==FIREFOX_EXT){
-		settings = {format:"png"};
+		settings = {format:"png",hover:true,debug:debug,refresh:refresh};
+		if(callback)callback(settings);
 	}
 	return settings;
 }
@@ -305,13 +301,21 @@ function getParentTree(e){
 	return plist;
 	
 }
+//This is what marks up the document with highlightable text
+//This is not very optimized presently
+//TODO: add timeouts for collection of elements
 function mark2(){
+	//This part may take a while now, at times
+	var startTime=(new Date()).getTime();
 	var elms = getChild(document.body,regexSet);
+	console.log("Tree Nav:" + (((new Date()).getTime()-startTime)/1000));
+	
 	var gotsome=false;
 	var numgot=0;
 	var totFound="";
 	
 	var doneElm = {};//This was added because firefox gets the elements with duplicates (not sure why)
+					 //Effectively, this makes it a hashset
 	
     for(var e in elms){
         var element=elms[e];
@@ -445,7 +449,7 @@ function mark2(){
 		}
 		}
 	}
-    //calls itself again in 2 seconds.
+    //calls itself again in refreshTime seconds.
 	next=true;
 	lastload=Date.now();
 	if(refresh)
@@ -522,6 +526,7 @@ function display2(str, wx, wy, strtitle){
 	makeRotate();
 
 }
+//TODO: retire this, not really used anymore
 function display(str, wx, wy){
 	if(true)return;
 	display2(str,wx,wy);
@@ -571,9 +576,11 @@ function display(str, wx, wy){
     
     
     
-}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+}                     
+                                   
+//This function finds lowest "leaf" nodes that match
+//The regex, and are valid elements								   
 function getChild(elm,regex,force){
-    
 	var ret = getChildren(elm,regex);
     var rret=[];
     for(i in ret){
@@ -587,8 +594,7 @@ function getChild(elm,regex,force){
 					break;
 				}
 				telm=telm.parentNode;
-            }
-            
+            }            
             if(ok)
                rret.push(ret[i]);
         }
@@ -616,27 +622,39 @@ function acceptNode(telm){
 			return true;
 
 }
-///NCGC[0-9][0-9]*[-][0-9]*/g
+function isElement(o){
+  return (
+    typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+    o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+)};
+//
 function getChildren(elm, regex){
-    var good = [];
-    var childs = elm.children;
-    var hasChild = false;
-    if((elm.className+"").indexOf("ncgchover")>=0){
+    //don't get children of ncgchover element
+	//Also, don't get children if it's not HTMLElement
+	//Or if it's undefined
+    if((elm.className+"").indexOf("ncgchover")>=0 || 
+		!isElement(elm) ||
+		(elm.tagName==undefined)){
         return undefined;
     }
+	
+	var good = [];
+    var childs = elm.children;
+    var hasChild = false;
+	
     
     for(i in childs){
     	var element = childs[i];
         if(element.textContent !=undefined){
-        if(matchAny(element.textContent,regex) || getUNIIMatches(element.textContent).length>0){
-            var subs = getChildren(element,regex);
-            if(subs!=undefined){
-                for (j in subs){
-    					good.push(subs[j]);                    
-                }
-            }
-            hasChild=true;
-    	}
+			if(matchAny(element.textContent,regex) || getUNIIMatches(element.textContent).length>0){
+				var subs = getChildren(element,regex);
+				if(subs!=undefined){
+					for (j in subs){
+							good.push(subs[j]);                    
+					}
+				}
+				hasChild=true;
+			}
         }
     }
     if(!hasChild){
@@ -753,9 +771,6 @@ function fixRefresh(){
         }
   	});
   	}
-	function alertTest(c){
-	alert(c);
-	}
 function takeSnap(callback) {
     var startc = undefined;
     var endc = undefined;
@@ -847,10 +862,51 @@ function getExtensionType(){
 }
 /*<<CLIPBOARD>>*/
 
+
+//==============================
+//CHROME CLIPBOARD HELPERS
+/*
+	chrome_clipsetup_local() 	-- refreshing function after clipboard loads, before initialized
+	chrome_clipsetup() 			-- makes sure something is availible for copy/paste
+	addAppletListener()			-- specifically add listeners for applet messages 
+								   TODO: could make more generic for multiple browsers
+	appletCopy()				-- gets molfile using applet
+	appletPaste()				-- puts molfile using applet
+
+*/
+function chrome_clipsetup_local(callback){
+	setTimeout(
+				chrome.runtime.sendMessage({type: "clipPing"}, function(response) {
+					if(response && !response.setup){
+						callback();
+					}else{
+						console.log("waiting...");
+						chrome_clipsetup_local(callback);
+					}
+				}),100);
+}
+function chrome_clipsetup(callback){
+			chrome.runtime.sendMessage({type: "clipPing"}, function(response) {
+				console.log("Callbacking");
+				if(response.setup){
+					console.log("Need setup");
+					var iframe=document.createElement("IFRAME");
+					iframe.src = "http://localhost:8080/chemclip.html";
+					iframe.setAttribute("style","opacity:0");
+					document.body.appendChild(iframe);
+					alert("Initializing clipboard applet");
+					chrome_clipsetup_local(callback);
+				}else{
+					console.log("Think its setup");
+				
+					callback();
+				}
+			});
+}
 function addAppletListener(){
 	chrome.runtime.onMessage.addListener(
 	  function(request, sender, sendResponse) {
-	  if (request.type == "copy"){
+		if (request.type == "copy"){
 			appletCopy(request.molecule);
 			console.log(request.molecule);
 		}
@@ -871,7 +927,6 @@ function addAppletListener(){
 			}
 			sendResponse();
 		}
-		
 	  });
 }
 function appletCopy(m){
@@ -880,8 +935,29 @@ function appletCopy(m){
 function appletPaste(){
 	return document.getElementById("chemclipboard").get();
 }
-
-
+//==============================
+//FIREFOX CLIPBOARD HELPERS
+//TODO: retire this, wrap up in native
+function JSDraw_getActive(){
+	var v2= window.content.document.defaultView.wrappedJSObject;
+	if(typeof v2.JSDraw2 != "undefined"){
+		var keys = Object.keys(v2.JSDraw2.Editor._allitems);
+		for(var i in keys){
+			if($(v2.JSDraw2.Editor._allitems[keys[i]].div).css("visibility")!="hidden"){
+				if($(v2.JSDraw2.Editor._allitems[keys[i]].div).is(":visible")){
+					return v2.JSDraw2.Editor._allitems[keys[i]];
+					break;
+				}
+			}
+		}
+	}
+}
+//=======================
+//General Helper
+/*
+	makeSciForm()	--	Converts molfile into JSON format expected by Scifinder
+						TODO: probably move this to more generic location
+*/
 function makeSciForm(mol){
 	var lines=mol.split("\n");
 	var nodes=[];
@@ -929,89 +1005,64 @@ function makeSciForm(mol){
 	}
 	return {nodes:nodes,bonds:bonds};
 }
-function chromeSetMol(m,callback){
-	if(normalPaste())return;
-	console.log("HREF "+document.location.href);
-	
-	runlocal('var temp1=' + JSON.stringify(m) + ";");
-	runlocal(function(){
-				var mol=temp1;
-				if(typeof JSDraw2 != "undefined"){
-					var jsdraw;
-					var keys = Object.keys(JSDraw2.Editor._allitems);
-					for(var i in keys){
-								jsdraw= JSDraw2.Editor._allitems[keys[i]];
-								break;
-						}
-						jsdraw.pushundo();
-						jsdraw.setMolfile(mol.molfile);
-						setTimeout(function(){
-						var jsd=jsdraw;
-						var getit= function(elm, cmd){
-						
-	var elm2 = elm.div.parentElement.parentElement.parentElement.parentElement;
-	var cmds=elm2.getElementsByTagName("img");
-	for(var i=0;cmds.length;i++){
-		if(cmds[i].getAttribute("cmd")==cmd){
-			return cmds[i];
-		}
+//====================
+//GENERIC getter / setter for molecule copy/paste
+/*
+	General method ALWAYS to be used to get/set mol
+*/
+function getMol(callback){
+	switch(EXT_TYPE){
+		case CHROME_EXT:
+		//case FIREFOX_EXT:
+			nativeGetMol(callback);
+			break;
+		case FIREFOX_EXT:
+			var v2= window.content.document.defaultView.wrappedJSObject;
+			if(document.getElementById("input_mol")!=null){
+				var mfile1 = v2.ketcher.getMolfile();
+				var smiles1 = v2.ketcher.getSmiles();
+				callback({smiles:smiles1,molfile:mfile1});
+			}
+			if(typeof v2.JSDraw2 != "undefined"){
+				var jsdraw = JSDraw_getActive();
+				var mfile = jsdraw.getMolfile();
+				var smiles = jsdraw.getSmiles();
+				callback({smiles:smiles,molfile:mfile});
+			}
+			break;
 	}
 }
-getit(jsd,"selectall").click();
-getit(jsd,"copy").click();
-getit(jsd,"undo").click();
-getit(jsd,"paste").click();
-getit(jsd,"lasso").click();
-getit(jsd,"selfrag").click();
-JSDraw2.Editor.setClipboard({isEmpty:function(){return false;},getXml:function(){return "";}},0);
-						
-						
-						},100);
-						//var smiles = jsdraw.getSmiles();
-						//$CB$({smiles:smiles,molfile:mfile});
-						return;
-					}
-					if(document.getElementById("input_mol")!=null){
-						document.getElementById("input_mol").value=mol.molfile;
-						document.getElementById("read_ok").click();
-						document.getElementById("checkbox_open_copy").checked=true;	
-					} 
-					var sm;
-					if(frames[0]){
-						sm=frames[0].window.require("casdraw/domain/structureModel");
-					}else{
-						sm=require("casdraw/domain/structureModel");
-					}
-					if(sm){
-						console.log("found");
-						sm.convertDslJson(mol.json);
-						sm.centerAndScaleStructure();
-					}
-	});
-}
-function setMol(mol){
-	if(document.getElementById("input_mol")!=null){
-		document.getElementById("input_mol").value=mol;
-		document.getElementById("read_ok").click();
-		document.getElementById("checkbox_open_copy").checked=true;	
-	}
-	var v2= window.content.document.defaultView.wrappedJSObject;
-	if(typeof v2.JSDraw2 != "undefined"){
-		var jsdraw = JSDraw_getActive();
-		jsdraw.pushundo();
-		jsdraw.setMolfile(mol);
-		
-		//jsdraw.selectAll();
-		//jsdraw.copy();
-		//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
-		//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Undo']").click();
-		//$(v2.JSDraw2.Editor._allitems[keys[i]].div).find("img[title='Paste']").click();
-		//$("select[title='Paste']");
-		//Paste
-		//__jsd_tb_div1_undo
+function setMol(m){
+	m.json = makeSciForm(m.molfile);
+	switch(EXT_TYPE){
+		case CHROME_EXT:
+		//case FIREFOX_EXT:
+			nativeSetMol(m);
+			break;
+		case FIREFOX_EXT:
+			//TODO: use above instead
+			var mol=m.molfile;		
+			if(document.getElementById("input_mol")!=null){
+				document.getElementById("input_mol").value=mol;
+				document.getElementById("read_ok").click();
+				document.getElementById("checkbox_open_copy").checked=true;	
+			}
+			var v2= window.content.document.defaultView.wrappedJSObject;
+			if(typeof v2.JSDraw2 != "undefined"){
+				var jsdraw = JSDraw_getActive();
+				jsdraw.pushundo();
+				jsdraw.setMolfile(mol);
+			}
+			break;
 	}
 }
-function normalCopy(){
+//==========================
+//Clipboard Sniffers
+/*
+	isNormalCopy() -- determines if the selection is valid for plain text
+	isNormalPaste() -- determines if the selected area can accept a plain text paste
+*/
+function isNormalCopy(){
 	if(document.getSelection()){
 		console.log("-----SELECTION");
 		var sel = document.getSelection();
@@ -1026,7 +1077,7 @@ function normalCopy(){
 			}
 		}
 	}
-	if(normalPaste())return true;
+	if(isNormalPaste())return true;
 	var tn=document.activeElement.tagName;
 	if( tn =="TEXTAREA" ||
 		tn =="INPUT"){
@@ -1034,7 +1085,7 @@ function normalCopy(){
 	}
 	return false;
 }
-function normalPaste(){
+function isNormalPaste(){
 	if(document.activeElement){
 		var elm = document.activeElement;
 		if(elm.isContentEditable || (document.activeElement.readOnly===false)){
@@ -1043,15 +1094,15 @@ function normalPaste(){
 	}
 	return false;
 }
-function chromeGetMol(callback){
-	if(normalCopy())return;
-	
-	
-		runlocal(function(){
-					if(typeof JSDraw2 != "undefined"){
-						var jsdraw;
-						var keys = Object.keys(JSDraw2.Editor._allitems);
-						for(var i in keys){
+
+//Fallback native getter and setter
+function nativeGetMol(callback){
+	if(isNormalCopy())return;
+	runlocal(function(){
+						if(typeof JSDraw2 != "undefined"){
+							var jsdraw;
+							var keys = Object.keys(JSDraw2.Editor._allitems);
+							for(var i in keys){
 									jsdraw= JSDraw2.Editor._allitems[keys[i]];
 									break;
 							}
@@ -1061,131 +1112,136 @@ function chromeGetMol(callback){
 							$CB$({smiles:smiles,molfile:mfile});
 							return;
 						}
-						
-						var mfile1 = ketcher.getMolfile(); 
-						var smiles1 = ketcher.getSmiles();
-						$CB$({smiles:smiles1,molfile:mfile1});
-		}, callback);
+						if(typeof ketcher != "undefined"){
+							var mfile1 = ketcher.getMolfile(); 
+							var smiles1 = ketcher.getSmiles();
+							$CB$({smiles:smiles1,molfile:mfile1});
+						}
+		},{}, callback);
 	
 }
-function getMol(){
-	var v2= window.content.document.defaultView.wrappedJSObject;
-	if(document.getElementById("input_mol")!=null){
-		var mfile1 = v2.ketcher.getMolfile();
-		var smiles1 = v2.ketcher.getSmiles();
-		return {smiles:smiles1,molfile:mfile1};
-	}
-	if(typeof v2.JSDraw2 != "undefined"){
-		var jsdraw = JSDraw_getActive();
-		var mfile = jsdraw.getMolfile();
-		var smiles = jsdraw.getSmiles();
-		return {smiles:smiles,molfile:mfile};
-	}
-}
-//TODO: get actual active
-function JSDraw_getActive(){
-	var v2= window.content.document.defaultView.wrappedJSObject;
-	if(typeof v2.JSDraw2 != "undefined"){
-		var keys = Object.keys(v2.JSDraw2.Editor._allitems);
-		for(var i in keys){
-			if($(v2.JSDraw2.Editor._allitems[keys[i]].div).css("visibility")!="hidden"){
-				if($(v2.JSDraw2.Editor._allitems[keys[i]].div).is(":visible")){
-					return v2.JSDraw2.Editor._allitems[keys[i]];
-					break;
-				}
-			}
-		}
-	}
-}
-function chrome_clipsetup_local(callback){
-	setTimeout(
-				chrome.runtime.sendMessage({type: "clipPing"}, function(response) {
-					if(response && !response.setup){
-						callback();
-					}else{
-						console.log("waiting...");
-						chrome_clipsetup_local(callback);
+function nativeSetMol(m,callback){
+	if(isNormalPaste())return;
+	runlocal(function(temp1){
+					var mol=temp1;
+					//====================
+					//JSDRAW
+					if(typeof JSDraw2 != "undefined"){
+						var jsdraw;
+						var keys = Object.keys(JSDraw2.Editor._allitems);
+						//Get active JSDRAW
+						//TODO: find ONLY active
+						for(var i in keys){
+									jsdraw= JSDraw2.Editor._allitems[keys[i]];
+									break;
+						}
+							jsdraw.pushundo();
+							jsdraw.setMolfile(mol.molfile);
+							setTimeout(function(){
+							var jsd=jsdraw;
+							//gets a command
+							var getit= function(elm, cmd){						
+								var elm2 = elm.div.parentElement.parentElement.parentElement.parentElement;
+								var cmds=elm2.getElementsByTagName("img");
+								for(var i=0;cmds.length;i++){
+									if(cmds[i].getAttribute("cmd")==cmd){
+										return cmds[i];
+									}
+								}
+							}
+							getit(jsd,"selectall").click();
+							getit(jsd,"copy").click();
+							getit(jsd,"undo").click();
+							getit(jsd,"paste").click();
+							getit(jsd,"lasso").click();
+							getit(jsd,"selfrag").click();
+							JSDraw2.Editor.setClipboard({isEmpty:function(){return false;},getXml:function(){return "";}},0);
+							},100);
+							return;
 					}
-				}),100);
+					//====================
+					//Ketcher
+					if(document.getElementById("input_mol")!=null){
+						document.getElementById("input_mol").value=mol.molfile;
+						document.getElementById("read_ok").click();
+						document.getElementById("checkbox_open_copy").checked=true;	
+						return;
+					}
+					//====================
+					//Scifinder
+					{
+						var sm;
+						if(frames[0]){
+							sm=frames[0].window.require("casdraw/domain/structureModel");
+						}else{
+							sm=require("casdraw/domain/structureModel");
+						}
+						if(sm){
+							console.log("found");
+							sm.convertDslJson(mol.json);
+							sm.centerAndScaleStructure();
+						}
+					}
+	},m);
 }
-function chrome_clipsetup(callback){
-			chrome.runtime.sendMessage({type: "clipPing"}, function(response) {
-				console.log("Callbacking");
-				if(response.setup){
-					console.log("Need setup");
-					var iframe=document.createElement("IFRAME");
-					iframe.src = "http://localhost:8080/chemclip.html";
-					iframe.setAttribute("style","opacity:0");
-					document.body.appendChild(iframe);
-					alert("Initializing clipboard applet");
-					chrome_clipsetup_local(callback);
-				}else{
-					console.log("Think its setup");
-				
-					callback();
-				}
-			});
-}
+
+//================
+//COPY/PASTE direct event handlers
+
 function pasteEvent(){
-//First, should look to see if this is a real thing
-if(normalPaste()){
-	return true;		
-}
-console.log("PASTE EVENT");
-	switch(EXT_TYPE){
-		case CHROME_EXT:
-			//TODO: Write something for chrome
-			//chromeSetMol(tmol);
-				chrome_clipsetup(function(){
-					chrome.runtime.sendMessage({type: "paste"}, function(response) {
-						console.log("got paste" + JSON.stringify(response));
-						response.json = makeSciForm(response.molfile);
-						chromeSetMol(response);
-					});
-				});
-				break;
-		case FIREFOX_EXT:
-			var uid= (Math.round(Math.random()*100000));
-			self.postMessage({type:"paste",id:uid});
-			firefoxCallbacks[uid]=function(mol){
-				if(mol!=undefined){
-					console.log(mol);
-					setMol(mol);
-				}
-			};
-			break;
-		default:
+	//First, see if this is a real thing
+	if(isNormalPaste()){
+		return true;		
 	}
-	return false;
+	console.log("PASTE EVENT");
+		switch(EXT_TYPE){
+			case CHROME_EXT:
+					chrome_clipsetup(function(){
+						chrome.runtime.sendMessage({type: "paste"}, function(response) {
+							console.log("got paste" + JSON.stringify(response));
+							setMol(response);
+						});
+					});
+					break;
+			case FIREFOX_EXT:
+				var uid= (Math.round(Math.random()*100000));
+				self.postMessage({type:"paste",id:uid});
+				firefoxCallbacks[uid]=function(mol){
+					if(mol!=undefined){
+						console.log(mol);
+						setMol({molfile:mol});
+					}
+				};
+				break;
+			default:
+		}
+		return false;
 }
-var tmol;
 function copyEvent(){
 	console.log("COPY");
-	
+	var callback;
 	switch(EXT_TYPE){
 		case CHROME_EXT:
-			chromeGetMol(function(m){
+			callback=function(m){
 				if(m){
-					console.log("initial:" + JSON.stringify(m));
-					tmol=m;
 					chrome_clipsetup(function(){
-						chrome.runtime.sendMessage({type: "copy", molecule:tmol}, function(response) {});
+						chrome.runtime.sendMessage({type: "copy", molecule:m}, function(response) {});
 					});
 				}
-			});
-			//window.open("http://www.w3schools.com");
-			//window.open("http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()");
-			//TODO: Write something for chrome
+			}
 			break;
 		case FIREFOX_EXT:
-			var mol =getMol();
-			if(mol){
-				var uid= (Math.round(Math.random()*100000));
-				self.postMessage({type:"copy",id:uid, data:mol});
+			callback=function(mol){
+				if(mol){
+					var uid= (Math.round(Math.random()*100000));
+					self.postMessage({type:"copy",id:uid, data:mol});
+				}
 			}
 			break;
 		default:
 	}
+	if(callback!=undefined)
+		getMol(callback);
 }
 //May be a bit hacky
 function addPasteHandler(){
@@ -1209,20 +1265,25 @@ function addPasteHandler(){
 /**
 *	Runs script in local context.
 *	Any return data must be asynchronous, 
-*   and any return calls should be for the function
-*	"$CB$" 
+*   and any return calls should be for the function "$CB$"
+*	src can be a string that evaluates to a function,
+*	or a function to be called immediately
+*
+*	param should be 1 variable, to be passed to src function
+*	 
 **/
-function runlocal(src, callback){
+function runlocal(src, param, callback){
 	var tcallbackname = "callback" + (Math.random()+"").split(".")[1];
 	
 	if(typeof src === "function"){
 		var n=src.name;
+		//function must have some name, generate one if it doesn't
 		if(n==""){
 			n=tcallbackname+"B";
-			src = src.toString() +";" + n + "();";
-			src = src.replace(/function[ ]*\(\)/,"function " + n + "()");
+			src = src.toString() +";" + n + "(" + (JSON.stringify(param)) + ");";
+			src = src.replace(/function[ ]*\(([^)]*)\)/,"function " + n + "($1)");
 		}else{
-			src = src.toString() +";" + n + "();";
+			src = src.toString() +";" + n + "("+(JSON.stringify(param))+");";
 		}
 		
 	}
@@ -1268,5 +1329,4 @@ Zepto(function($){
 			setInterval(function(){fixRefresh()},refreshTime*2.1);
 			addPasteHandler();
 		}
-		
 });

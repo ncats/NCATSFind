@@ -1,4 +1,6 @@
+<!DOCTYPE html>
 <html>
+<head>
   <script>
    chrome.contextMenus.create({id:"image",title:"Image to Structure",contexts:["image"]});
 chrome.contextMenus.create({id:"image2",title:"Image to Structure",contexts:["page"]});
@@ -166,12 +168,8 @@ function displayResolveb64(b64){
                                     //xhr.send();
 }
   </script>
-
+</head>
   <body>
-    <p>
-    Image here:
-    </p>
-
-	<iframe id="copypaste" scr="about:blank"></iframe>
+  <!--<iframe src="http://localhost:8080/chemclip.html"></iframe>-->
   </body>
 </html>
