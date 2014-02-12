@@ -1038,9 +1038,10 @@ function setMol(m){
 	m.json = makeSciForm(m.molfile);
 	switch(EXT_TYPE){
 		case CHROME_EXT:
-		//case FIREFOX_EXT:
+		case FIREFOX_EXT:
 			nativeSetMol(m);
 			break;
+			/*
 		case FIREFOX_EXT:
 			//TODO: use above instead
 			var mol=m.molfile;		
@@ -1055,7 +1056,7 @@ function setMol(m){
 				jsdraw.pushundo();
 				jsdraw.setMolfile(mol);
 			}
-			break;
+			break;*/
 	}
 }
 //==========================
@@ -1245,12 +1246,15 @@ function copyEvent(){
 	if(callback!=undefined)
 		getMol(callback);
 }
-//May be a bit hacky
-function addPasteHandler(){
+function addPasteHandler(document1){
+		if(document1==undefined){
+			document1=document;
+		}
 		EXT_TYPE=getExtensionType();
 		var ctrlDown = false;
 		var ctrlKey = 17, vKey = 86, cKey = 67;
-		document.onkeydown=function(e){
+		document1.onkeydown=function(e){
+			//console.log("down");
 			if (e.keyCode == ctrlKey) ctrlDown = true;
 			if (ctrlDown ){
 				if(e.keyCode == vKey){
@@ -1260,7 +1264,7 @@ function addPasteHandler(){
 				}
 			}
 		}
-		document.onkeyup=function(e){
+		document1.onkeyup=function(e){
 			if (e.keyCode == ctrlKey) ctrlDown = false;
 		};
 }
@@ -1312,7 +1316,27 @@ function runlocal(src, param, callback){
 	//run script
 	document.body.appendChild(s);
 }
-//<<CLIPBOARD_DONE>>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+//<<CLIPBOARD_DONE>>
+//This is a hack fix exclusively for pages with frameset paste events
+//TODO: Refactor
+function tempFix(){
+	console.log("tryfix");
+	for (var id=0;id<window.parent.frames.length; id++){
+		console.log("fixing" + id);
+		addPasteHandler(window.parent.frames[id].document);
+	}
+	if(true)return;
+	//legacy bad way:
+	var b=document.createElement("BODY");
+	var button = document.createElement("BUTTON");
+	button.innerHTML="TRY PASTE";
+	button.onclick=function(){pasteEvent();};
+	b.appendChild(button);
+	b.appendChild(document.body);
+	document.getElementsByTagName("HTML")[0].appendChild(b);
+	
+	
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 Zepto(function($){
 		//Clipboard applet
 		//console.log("loading");
@@ -1320,6 +1344,11 @@ Zepto(function($){
 			addAppletListener();
 			console.log("clipboard");
 		}else{
+			if(getExtensionType()==FIREFOX_EXT){
+				if(document.body.tagName=="FRAMESET"){
+					tempFix();
+				}
+			}
 			//alert("INITIALIZE");
 			initializeListeners();
 			//console.log(document.location.href);
