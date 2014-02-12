@@ -1,4 +1,6 @@
-chrome.contextMenus.create({id:"image",title:"Image to Structure",contexts:["image"]});
+<html>
+  <script>
+   chrome.contextMenus.create({id:"image",title:"Image to Structure",contexts:["image"]});
 chrome.contextMenus.create({id:"image2",title:"Image to Structure",contexts:["page"]});
 chrome.contextMenus.create({id:"display",title:"Display structure of %s",contexts:["selection"]});
 chrome.runtime.onMessage.addListener(
@@ -6,12 +8,63 @@ chrome.runtime.onMessage.addListener(
 		if(request.type == "capture"){
 			captureImage("TOP");
 		}
+		if(request.type == "clipPing"){
+			chrome.tabs.query({currentWindow: true}, function(tabs) {
+				var tcount=0;
+				var found=false;
+				for(var i=0;i<tabs.length;i++){
+					chrome.tabs.sendMessage(tabs[i].id, {type: "clipPing"}, function(response) {
+						if((response+"")=="OK"){
+							console.log(response);
+							found=true;
+							sendResponse({setup:false});
+						}else{
+							tcount++;
+						}
+					});
+				}
+				setTimeout(function(){
+				//TODO: need better way to handle this
+					if(!found){
+						//TODO: procedure for setup
+						sendResponse({setup:true});
+						console.log("none found. tabs:" + tcount);
+					}
+				},100);
+				
+			});
+			return true;
+		}
+		if(request.type == "copy"){
+			chrome.tabs.query({currentWindow: true}, function(tabs) {
+				for(var i=0;i<tabs.length;i++){
+					chrome.tabs.sendMessage(tabs[i].id, {type: "copy", molecule: request.molecule}, function(response) {
+						
+					});
+				}
+			});
+		}
+		if(request.type == "paste"){
+			chrome.tabs.query({currentWindow: true}, function(tabs) {
+				for(var i=0;i<tabs.length;i++){
+					chrome.tabs.sendMessage(tabs[i].id, {type: "paste"}, function(response) {
+						console.log("response:" + response);
+						if((response+"")!="undefined"){
+							sendResponse(response);
+						}
+					});
+				}
+			});
+			return true;
+		}
   });
 chrome.commands.onCommand.addListener(function(command) {
   if(command == "capture"){
 	//alert(JSON.stringify(command));
 	captureImage("TOP");
-	
+	//doesn't seem to work
+	//document.getElementById("copypaste").setAttribute("src","http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()");
+	//window.open("http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()");
   }
 });  
 //http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()
@@ -112,3 +165,13 @@ function displayResolveb64(b64){
                                     
                                     //xhr.send();
 }
+  </script>
+
+  <body>
+    <p>
+    Image here:
+    </p>
+
+	<iframe id="copypaste" scr="about:blank"></iframe>
+  </body>
+</html>
