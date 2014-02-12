@@ -35,6 +35,7 @@
         <script type="text/javascript" src="ui/actions.js"></script>
         <script type="text/javascript" src="reaxys/reaxys.js"></script>
         <script type="text/javascript" src="ketcher.js"></script>
+		
 		<script>
 		function loadit(){
 			ketcher.init();
@@ -48,7 +49,34 @@
 						},1000);
 					}
 				});
+				loadSources(["../NCGCHover.js"]);
 			}
+			
+		}
+		function loadSources(srcs){
+			var xmlhttp=new XMLHttpRequest();
+			var allinner="";
+			var loaded=0;
+			for(var i=0;i<srcs.length;i++){
+			xmlhttp.onreadystatechange=function(){
+			  if (xmlhttp.readyState==4 && xmlhttp.status==200){
+					allinner+=xmlhttp.responseText;
+					allinner=allinner.split("CLIPBOARD_START>>")[1].split("<<CLIPBOARD_DONE")[0];
+					
+					console.log("loaded 1");
+					loaded++;
+					if(loaded==srcs.length){
+					var sc=document.createElement("SCRIPT");
+						sc.innerHTML = "" + allinner + ";addPasteHandler();";
+						document.body.appendChild(sc);
+						addPasteHandler();
+					}
+				}
+			}
+			xmlhttp.open("GET",srcs[i],true);
+			xmlhttp.send();
+			}
+	
 			
 		}
 		
@@ -796,5 +824,7 @@
             <iframe name="buffer_frame" id="buffer_frame" src="about:blank" style="display:none">
             </iframe>
         </div>
+		
+		
     </body>
 </html>

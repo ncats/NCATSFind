@@ -5,7 +5,7 @@
         "include_globs":    [ "*" ],
         "js":               [ "NCGCHover.js","jquery.js","jquery-ui.js","jquery.jgrowl.js"],
         "css": ["jquery-ui.css","jquery.jgrowl.css"],
-        "matches":          [   "*://*/*"
+        "matches":          [   "<all_urls>"
                             ],
         "run_at": "document_end"
     } ],
@@ -28,7 +28,7 @@
     "name":         "NCATS Find",
     "version":      "2.15",
     "permissions": [
-	    "*://*/*", 
+	    "<all_urls>", 
 	    "storage",
 		"tabs",
 	    "contextMenus",

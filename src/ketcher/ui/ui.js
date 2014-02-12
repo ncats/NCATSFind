@@ -347,6 +347,7 @@ ui.init = function ()
     ui.path = document.location.pathname.substring(0, document.location.pathname.lastIndexOf('/') + 1);
     ui.base_url = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
 
+	/*
     new Ajax.Request(ui.path + 'knocknock',
     {
         method: 'get',
@@ -356,7 +357,7 @@ ui.init = function ()
             if (res.responseText == 'You are welcome!')
                 ui.standalone = false;
         }
-    });
+    });*/
 
     if (this.standalone)
     {

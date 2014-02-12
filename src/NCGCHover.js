@@ -12,8 +12,6 @@ var Zepto=function(){function G(a){return a==null?String(a):z[A.call(a)]||"objec
 var CHROME_EXT=1;
 var FIREFOX_EXT=2;
 var GM_EXT=3;
-
-
 var EXT_TYPE=0;
 
 
@@ -44,39 +42,8 @@ function initializeListeners(){
 			break;
 	}
 }
-function addAppletListener(){
-	chrome.runtime.onMessage.addListener(
-	  function(request, sender, sendResponse) {
-	  if (request.type == "copy"){
-			appletCopy(request.molecule);
-			console.log(request.molecule);
-		}
-		if (request.type == "paste"){
-			var mfile=appletPaste();
-			console.log("paste" + mfile);
-			if((mfile+"")!="null"){
-				sendResponse({molfile:mfile});
-			}
-		}
-		if( request.type == "clipPing"){
-			if(typeof document.getElementById("chemclipboard").test == "function"){
-				if(document.getElementById("chemclipboard").test("D") == "D"){
-					console.log("found it");
-					sendResponse("OK");
-					return true;
-				}
-			}
-			sendResponse();
-		}
-		
-	  });
-}
-function appletCopy(m){
-	document.getElementById("chemclipboard").set(m.molfile);
-}
-function appletPaste(){
-	return document.getElementById("chemclipboard").get();
-}
+
+
 function addFirefoxListeners(){
 	//alert("loading listeners");
 	self.port.on("message", function(addonMessage) {
@@ -145,9 +112,6 @@ function addFirefoxListeners(){
 function addChromeListeners(){
 	chrome.runtime.onMessage.addListener(
 	  function(request, sender, sendResponse) {
-		if(request.type=="copy" || request.type=="paste"){
-			return false;
-		}
 		//alert(request.greeting);
 		if (request.greeting == "mark"){
 			mark2();
@@ -828,7 +792,7 @@ function takeSnap(callback) {
         }else{
         	document.body.removeEventListener('mousemove',arguments.callee);
         }
-        console.log(coor);
+        //console.log(coor);
     }, false);
     document.body.addEventListener("click", function myFunction2(e) {
         if (snapListen) {
@@ -872,6 +836,51 @@ function takeSnap(callback) {
     document.getElementById("myrect").style.zIndex = 999999;
     document.getElementById("mycoord").style.zIndex = 1999999;
 }
+/*<<CLIPBOARD_START>>
+var CHROME_EXT=1;
+var FIREFOX_EXT=2;
+var GM_EXT=3;
+var EXT_TYPE=0;
+function getExtensionType(){
+	if (typeof chrome != 'undefined')return CHROME_EXT;
+	return FIREFOX_EXT;
+}
+/*<<CLIPBOARD>>*/
+
+function addAppletListener(){
+	chrome.runtime.onMessage.addListener(
+	  function(request, sender, sendResponse) {
+	  if (request.type == "copy"){
+			appletCopy(request.molecule);
+			console.log(request.molecule);
+		}
+		if (request.type == "paste"){
+			var mfile=appletPaste();
+			console.log("paste" + mfile);
+			if((mfile+"")!="null"){
+				sendResponse({molfile:mfile});
+			}
+		}
+		if( request.type == "clipPing"){
+			if(typeof document.getElementById("chemclipboard").test == "function"){
+				if(document.getElementById("chemclipboard").test("D") == "D"){
+					console.log("found it");
+					sendResponse("OK");
+					return true;
+				}
+			}
+			sendResponse();
+		}
+		
+	  });
+}
+function appletCopy(m){
+	document.getElementById("chemclipboard").set(m.molfile);
+}
+function appletPaste(){
+	return document.getElementById("chemclipboard").get();
+}
+
 
 function makeSciForm(mol){
 	var lines=mol.split("\n");
@@ -1091,7 +1100,7 @@ function JSDraw_getActive(){
 function chrome_clipsetup_local(callback){
 	setTimeout(
 				chrome.runtime.sendMessage({type: "clipPing"}, function(response) {
-					if(!response.setup){
+					if(response && !response.setup){
 						callback();
 					}else{
 						console.log("waiting...");
@@ -1180,10 +1189,10 @@ function copyEvent(){
 }
 //May be a bit hacky
 function addPasteHandler(){
+		EXT_TYPE=getExtensionType();
 		var ctrlDown = false;
 		var ctrlKey = 17, vKey = 86, cKey = 67;
-		Zepto(document).keydown(function(e)
-		{
+		document.onkeydown=function(e){
 			if (e.keyCode == ctrlKey) ctrlDown = true;
 			if (ctrlDown ){
 				if(e.keyCode == vKey){
@@ -1192,10 +1201,10 @@ function addPasteHandler(){
 					copyEvent();
 				}
 			}
-		}).keyup(function(e)
-		{
+		}
+		document.onkeyup=function(e){
 			if (e.keyCode == ctrlKey) ctrlDown = false;
-		});
+		};
 }
 /**
 *	Runs script in local context.
@@ -1239,9 +1248,8 @@ function runlocal(src, callback){
 	}
 	//run script
 	document.body.appendChild(s);
-
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+//<<CLIPBOARD_DONE>>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 Zepto(function($){
 		//Clipboard applet
 		//console.log("loading");
