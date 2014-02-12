@@ -872,8 +872,57 @@ function takeSnap(callback) {
     document.getElementById("myrect").style.zIndex = 999999;
     document.getElementById("mycoord").style.zIndex = 1999999;
 }
+
+function makeSciForm(mol){
+	var lines=mol.split("\n");
+	var nodes=[];
+	var bonds=[];
+	var ncount=0;
+	var bcount=0;
+	for(var i=0;i<lines.length; i++){
+		var line=lines[i];
+		if(i==3){
+			ncount=line.substring(0,3).trim()-0;
+			bcount=line.substring(4,7).trim()-0;
+		}
+		if(i>3 && i<=ncount+3){
+			var node={};
+			node.id="cdj" + (i-3);
+			node.pos={};
+			node.pos.x=line.substring(0,10).trim()-0;
+			node.pos.y=-1*(line.substring(11,20).trim()-0);
+			//node.z=line.substring(0,10).trim()-0;
+			node.sym=line.substring(31,34).trim();
+			node.type="ring_or_chain";
+			node.nodeNumber=(i-3);
+			nodes.push(node);
+		}
+		if(i>ncount+3 && i<=ncount+3+bcount){
+			var b1=line.substring(0,3).trim()-0;
+			var b2=line.substring(3,6).trim()-0;
+			var or=line.substring(6,9).trim()-0;
+			var bond={};
+			bond.id="cdj" + (i-3);
+			bond.fromId="cdj" + b1;
+			bond.toId="cdj" + b2;
+			if(or==1){
+				bond.order= "single";
+			}else if(or==2){
+				bond.order= "double";
+			}else if(or==3){
+				bond.order= "triple";
+			}
+            bond.type="ring_or_chain";
+            bond.locked= false;
+			bonds.push(bond);
+			
+		}
+	}
+	return {nodes:nodes,bonds:bonds};
+}
 function chromeSetMol(m,callback){
 	if(normalPaste())return;
+	console.log("HREF "+document.location.href);
 	
 	runlocal('var temp1=' + JSON.stringify(m) + ";");
 	runlocal(function(){
@@ -918,6 +967,17 @@ JSDraw2.Editor.setClipboard({isEmpty:function(){return false;},getXml:function()
 						document.getElementById("read_ok").click();
 						document.getElementById("checkbox_open_copy").checked=true;	
 					} 
+					var sm;
+					if(frames[0]){
+						sm=frames[0].window.require("casdraw/domain/structureModel");
+					}else{
+						sm=require("casdraw/domain/structureModel");
+					}
+					if(sm){
+						console.log("found");
+						sm.convertDslJson(mol.json);
+						sm.centerAndScaleStructure();
+					}
 	});
 }
 function setMol(mol){
@@ -1070,6 +1130,7 @@ console.log("PASTE EVENT");
 				chrome_clipsetup(function(){
 					chrome.runtime.sendMessage({type: "paste"}, function(response) {
 						console.log("got paste" + JSON.stringify(response));
+						response.json = makeSciForm(response.molfile);
 						chromeSetMol(response);
 					});
 				});
@@ -1183,7 +1244,7 @@ function runlocal(src, callback){
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 Zepto(function($){
 		//Clipboard applet
-		//console.log((typeof document.ChemClipboard));
+		//console.log("loading");
 		if((document.getElementById("chemclipboard")+"") != "null"){
 			addAppletListener();
 			console.log("clipboard");

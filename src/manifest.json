@@ -5,8 +5,7 @@
         "include_globs":    [ "*" ],
         "js":               [ "NCGCHover.js","jquery.js","jquery-ui.js","jquery.jgrowl.js"],
         "css": ["jquery-ui.css","jquery.jgrowl.css"],
-        "matches":          [   "*://*/*",
-								"file:///C:/*"
+        "matches":          [   "*://*/*"
                             ],
         "run_at": "document_end"
     } ],
