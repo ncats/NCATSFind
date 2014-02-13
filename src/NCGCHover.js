@@ -1115,6 +1115,19 @@ function isNormalPaste(){
 	return false;
 }
 
+
+//==========================
+function addNativeHooks(){
+	runlocal(function forceClipboardpaste(b){
+				if(b){}
+				else{$CB$();}
+			},{},function(){pasteEvent();},true);
+	runlocal(function forceClipboardcopy(b){
+				if(b){}
+				else{$CB$();}
+			},{},function(){copyEvent();},true);
+}
+
 //Fallback native getter and setter
 //Specified local getter: getClipboardMolecule
 //Specified local setter: setClipboardMolecule(mol)
@@ -1291,6 +1304,7 @@ function copyEvent(){
 function addPasteHandler(document1){
 		if(document1==undefined){
 			document1=document;
+			addNativeHooks();
 		}
 		EXT_TYPE=getExtensionType();
 		var ctrlDown = false;
@@ -1320,7 +1334,7 @@ function addPasteHandler(document1){
 *	param should be 1 variable, to be passed to src function
 *	 
 **/
-function runlocal(src, param, callback){
+function runlocal(src, param, callback, persist){
 	var tcallbackname = "callback" + (Math.random()+"").split(".")[1];
 	
 	if(typeof src === "function"){
@@ -1356,8 +1370,8 @@ function runlocal(src, param, callback){
 					callback(JSON.parse(this.value));
 				else
 					callback();
-					
-				this.parentNode.removeChild(this);
+				if(persist){}else	
+					this.parentNode.removeChild(this);
 			};
 		cb.style="display:none;";
 		document.body.appendChild(cb);
