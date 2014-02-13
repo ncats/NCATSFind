@@ -1116,9 +1116,25 @@ function isNormalPaste(){
 }
 
 //Fallback native getter and setter
+//Specified local getter: getClipboardMolecule
+//Specified local setter: setClipboardMolecule(mol)
 function nativeGetMol(callback){
 	if(isNormalCopy())return;
 	runlocal(function(){
+		if(typeof getClipboardMolecule != "undefined"){
+			var m=getClipboardMolecule();
+			$CB$(m);
+		}else{
+			$CB$();
+		}
+	},{},
+	//callback
+	function(gmol){
+		if(gmol){
+			callback(gmol);
+			return;
+		}
+		runlocal(function(){
 						if(typeof JSDraw2 != "undefined"){
 							var jsdraw;
 							var keys = Object.keys(JSDraw2.Editor._allitems);
@@ -1138,11 +1154,19 @@ function nativeGetMol(callback){
 							$CB$({smiles:smiles1,molfile:mfile1});
 						}
 		},{}, callback);
+	});
 	
 }
 function nativeSetMol(m,callback){
 	if(isNormalPaste())return;
-	runlocal(function(temp1){
+	runlocal(function(mol){
+		if(typeof setClipboardMolecule != "undefined"){
+			var m=setClipboardMolecule(mol);
+		}else{
+			$CB$();
+		}
+	},m,function(){
+			runlocal(function(temp1){
 					var mol=temp1;
 					//====================
 					//JSDRAW
@@ -1203,6 +1227,7 @@ function nativeSetMol(m,callback){
 						}
 					}
 	},m);
+	});
 }
 
 //================
@@ -1326,7 +1351,14 @@ function runlocal(src, param, callback){
 		var cb=document.createElement("TEXTAREA");
 		cb.id=tcallbackname;
 		cb.value="";
-		cb.onclick=function(){callback(JSON.parse(this.value));this.parentNode.removeChild(this);};
+		cb.onclick=function(){
+				if(this.value && this.value!="undefined")
+					callback(JSON.parse(this.value));
+				else
+					callback();
+					
+				this.parentNode.removeChild(this);
+			};
 		cb.style="display:none;";
 		document.body.appendChild(cb);
 	}
