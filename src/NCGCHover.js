@@ -910,7 +910,7 @@ function chrome_clipsetup(callback){
 				if(response.setup){
 					console.log("Need setup");
 					var iframe=document.createElement("IFRAME");
-					iframe.src = "http://localhost:8080/chemclip.html";
+					iframe.src = "http://tripod.nih.gov/ncatsfind/chemclip.html";
 					iframe.setAttribute("style","opacity:0");
 					document.body.appendChild(iframe);
 					alert("Initializing clipboard applet");
