@@ -1,2 +1,2 @@
-echo "No" | xcopy /E firefox_src\* firefox_bundle\
-echo "No" | xcopy /E src\* firefox_bundle\data\
+xcopy /Y /E firefox_src\* firefox_bundle\
+xcopy /Y /E src\* firefox_bundle\data\

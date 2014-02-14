@@ -323,6 +323,7 @@ function mark2(){
         var element=elms[e];
 		if(doneElm[element])continue;
 		doneElm[element]=true;
+		//if(!Zepto(element).is(":visible"))continue;
         if(element.textContent !=undefined){
             var UNIIS= getUNIIMatches(element.textContent);
             if(matchAny(element.textContent,regexSet) || UNIIS.length>0){
@@ -331,7 +332,7 @@ function mark2(){
                 for(i in regexSet){
                 	if(!isNaN(i)){
                 		var m=str.match(regexSet[i]);
-                		
+                		//console.log(element.parentNode.outerHTML);
                 		if(m!=null){
                 			for(o in m){
                 				found.push(m[o]);
@@ -600,22 +601,37 @@ function display(str, wx, wy){
 //This function finds lowest "leaf" nodes that match
 //The regex, and are valid elements								   
 function getChild(elm,regex,force){
+	var startTime=(new Date()).getTime();
 	var ret = getChildren(elm,regex);
+	console.log("Actual Nav:" + (((new Date()).getTime()-startTime)/1000));
+	
+	//if(true)return rret;
+	console.log("Found: " + ret.length + " nodes");
     var rret=[];
+	var testCache={};
     for(i in ret){
         if(ret[i].tagName!=undefined){
             var telm = ret[i];
             var ok = true;
+			
             while(telm!=null){
+				if(testCache[telm])break;
                 if(telm.outerHTML==undefined)break;
 				if(!acceptNode(telm)){
 					ok=false;
 					break;
 				}
 				telm=telm.parentNode;
-            }            
-            if(ok)
+            }      
+			//given node is ok, all parents are also valid
+            if(ok){
                rret.push(ret[i]);
+			   var telm = ret[i];
+			   while(telm!=null){
+					testCache[telm]=true;
+					telm=telm.parentNode;
+				}      
+			}
         }
     }
     return rret;
@@ -628,12 +644,11 @@ function acceptNode(telm){
                 false
                 || t.indexOf("noscript")>=0
                 || t.indexOf("textarea")>=0
+				|| t.indexOf("ncgchover")>=0
                 || t.indexOf("input")>=0
                 || t.indexOf("display:none")>=0
-             //   || ($(telm).is(":visible") === false && $(telm).is(":not(:hidden)")===false )
                 || t.indexOf("textbox")>=0 || t.indexOf("ncgchover")>=0 
                 || t.indexOf("script")>=0 || t.indexOf("jGrowl-notification")>=0
-                || $(telm).hasClass("ncgchover")
                 || (t.indexOf("style")>=0 && t.indexOf("style") < 3)
                 ){
                     return false;
@@ -647,15 +662,20 @@ function isElement(o){
     o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
 )};
 //
+var tlevel = 0;
 function getChildren(elm, regex){
+	tlevel++;
+	
     //don't get children of ncgchover element
 	//Also, don't get children if it's not HTMLElement
 	//Or if it's undefined
     if((elm.className+"").indexOf("ncgchover")>=0 || 
 		!isElement(elm) ||
 		(elm.tagName==undefined)){
+		tlevel--;
         return undefined;
     }
+	//console.log("entering level " + tlevel + ", looking at:" + elm.tagName);
 	
 	var good = [];
     var childs = elm.children;
@@ -680,6 +700,7 @@ function getChildren(elm, regex){
         if(elm.tagName!=undefined)
     		good.push(elm);
     }
+	tlevel--;
     return good;
 }
 function matchAny(str, regs){
