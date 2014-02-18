@@ -599,9 +599,12 @@ function display(str, wx, wy){
 }                     
                                    
 //This function finds lowest "leaf" nodes that match
-//The regex, and are valid elements								   
+//The regex, and are valid elements					
+//This is a hacky addition. Tree traversal should never take longer than 100 ms
+var treeStartTime=0;			   
 function getChild(elm,regex,force){
 	var startTime=(new Date()).getTime();
+	treeStartTime=startTime;
 	var ret = getChildren(elm,regex);
 	console.log("Actual Nav:" + (((new Date()).getTime()-startTime)/1000));
 	
@@ -665,7 +668,9 @@ function isElement(o){
 var tlevel = 0;
 function getChildren(elm, regex){
 	tlevel++;
-	
+	if(((new Date()).getTime()-treeStartTime)>100){
+		return undefined;
+	}
     //don't get children of ncgchover element
 	//Also, don't get children if it's not HTMLElement
 	//Or if it's undefined
