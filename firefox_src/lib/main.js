@@ -65,8 +65,13 @@ cm.Item({
       '  self.postMessage(node.src);' + 
       '});',
       onMessage: function (imgSrc) {
+		console.log(imgSrc);
         //Change this to be a little better
         displayResolve(imgSrc, function(mol){
+			console.log(mol);
+			var ss = require("sdk/simple-storage");
+			ss.storage.ncgcImage = mol;
+			ss.storage.resIMGURL = imgSrc;
 			showMolEditor(mol);
 		});
       }
@@ -287,19 +292,7 @@ function ajaxPost(murl,data,callback){
 			  xhr.post();
 }
 function displayResolve(url,callback){
-  var xhr = Request({
-    url: "http://tripod.nih.gov/imager?type=url&data=" + url,
-    onComplete: function (response) {
-		//TODO: standardize across different versions
-		console.log(response.text);
-		var m = {};
-		m.smiles="test";
-		m.molfile=response.text.replace(/\n\n/g, "\n"+"!"+"\n");
-		callback(m.molfile);
-		firefoxMolCopy(m);
-      }
-    });
-  xhr.get();
+	ajaxGet("http://tripod.nih.gov/imager?type=url&data=" + url,callback);
 }
 function cDrawMol(molFile){
 	var molFile = molFile.replace(/\n\n/g, "\n"+"!"+"\n");
