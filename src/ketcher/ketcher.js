@@ -18,7 +18,7 @@ ketcher.version = "1.0b5";
 
 ketcher.init = function ()
 {
-    document.title += ' v' + ketcher.version;
+    //document.title += ' v' + ketcher.version;
     ketcher.templates = {};
 	ketcher.button_areas = {};
 	var elemLabelOpts = {'fontSize':25};
