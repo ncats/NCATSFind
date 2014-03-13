@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Ketcher</title>
+        <title>NCATS Find [Edit Structure]</title>
         <link rel="stylesheet" type="text/css" href="ketcher.css" />
         <script type="text/javascript" src="prototype-min.js"></script>
         <script type="text/javascript" src="raphael.js"></script>
@@ -117,6 +117,7 @@
     </head>
 
     <body onload="loadit();">
+	<div style="width:1000px">
 	<div id='NCATSreviewid' style="display:none;">
 		<form id="export" action="http://tripod.nih.gov/servlet/exporter/">
 				<textarea id="molstr" type="text" name="structure"></textarea><br>
@@ -165,7 +166,7 @@
                 </tr>
                 <tr align="center" class="sideButtonCell">
                     <td><img class="sideButton modeButton" id="select_erase" src="png/action/edit-clear.png" alt="" title="Erase" /></td>
-                    <td colspan="18" rowspan="12" style="vertical-align: top;"><div id="client_area"></div></td>
+                    <td colspan="18" rowspan="12" style="vertical-align: top;"><div style="max-width: 1000px;" id="client_area"></div></td>
                     <td><div class="sideButton modeButton" id="atom_h" title="H Atom (H)"></div></td>
                 </tr>
                 <tr align="center" class="sideButtonCell">
@@ -208,7 +209,7 @@
                     <td></td>
                     <td><div class="sideButton modeButton" id="atom_table" title="Periodic table"></div></td>
                 </tr>
-                <tr align="center" class="sideButtonCell">
+                <tr align="center" style="display:none" class="sideButtonCell">
                     <td></td>
                     <td><div class="sideButton modeButton" id="atom_reagenerics" title="Reaxys Generics"></div></td>
                 </tr>
@@ -857,6 +858,6 @@
 		</td>
 		<td><img id='img2str'></td></tr></tbody></table>
 		
-		
+		</div>
     </body>
 </html>
