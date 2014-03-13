@@ -143,16 +143,30 @@ tabs.on("pageshow", function(tab) {
 		var resp = ss.storage[message.key];
 		worker.port.emit("message",{id:message.id,type:"get",data:resp});
 		
+	  }else if(message.type == "set"){
+
+		var ss = require("sdk/simple-storage");
+		ss.storage[message.key] = message.value;
+		
 	  }else if(message.type == "bbox"){
 		b64=getActiveSnapshot();
 		worker.port.emit("message",{id:message.id,type:"imagetest",image:b64,data:message.data});
 	  }else if(message.type == "imagetest"){
-		var b64=message.data.base64;
-		displayResolveb64(b64,function(mol){
+			var b64=message.data.base64;
+			displayResolveb64(b64,function(mol){
 			showMolEditor(mol);
-			//console.log(self.data.url("ketcher/ketcher.html"));
-			//worker.port.emit("message",{id:message.id,type:"displayEdit",url:self.data.url("ketcher/ketcher.html")});
 		});
+	  }else if(message.type=="edit"){
+			var molecule=message.data.molecule;
+			var ss = require("sdk/simple-storage");
+			ss.storage.ncgcImage = "";
+			if(molecule.molfile == undefined){
+					getChemicalFormat(molecule.smiles,"MOL",function(mol){
+						showMolEditor(mol);
+					});
+			}else{
+				showMolEditor(molecule.molfile);
+			}
 	  }else if(message.type == "paste"){
 			var mol =getMolfileFromClipboard();
 			console.log("Trying");
@@ -249,7 +263,9 @@ function getActiveSnapshot(){
 		return thumbnail.toDataURL();
 }
 function showMolEditor(mol){
-
+			var ss = require("sdk/simple-storage");
+			ss.storage.ncgcImage = mol;
+			//ss.storage.resIMGURL = "";
 			var tab1=tabs.open(self.data.url("ketcher/ketcher.html"));
 			var worker = tab.attach({
 				contentScript: 'console.log("also added");',
@@ -271,6 +287,10 @@ function findNextNL(str, start){
       return i;
   }
   return str.length;
+}
+function getChemicalFormat(str,format,callback){
+	str = encodeURIComponent(str);
+	ajaxPost("http://tripod.nih.gov/servlet/exporter/","structure=" + str + "&format=" + format.toUpperCase(),callback);
 }
 function ajaxGet(murl,callback){
 	var xhr = Request({
