@@ -95,7 +95,7 @@ function addFirefoxListeners(){
 					ctx.drawImage(img,-rect.x,-rect.y);
 					var b64=c.toDataURL().split("png;base64,")[1];
 					sresp({base64:b64});
-					//c.parentNode.removeChild(c);
+					c.parentNode.removeChild(c);
 					//ctx.drawImage(img,0,0); // Or at whatever offset you like
 					};
 				img.src=addonMessage.image;
@@ -544,6 +544,7 @@ function display2(str, wx, wy, strtitle){
 	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}});
 	$(".ui-dialog").css('z-index', 99999); 
 	makeRotate();
+	$(".ui-dialog .ui-dialog-content").css("overflow","hidden");
 
 }
 //TODO: retire this, not really used anymore
@@ -822,7 +823,9 @@ function takeSnap(callback) {
     var tc = undefined;
     var snapListen = true;
 	$.jGrowl("Click to select top-left corner of image");
-
+    //Drag area should probably be default
+    dragSelection=true;
+    
     document.body.addEventListener("mousemove", function myFunction(e) {
         if (snapListen) {
             x = e.clientX;
@@ -831,7 +834,7 @@ function takeSnap(callback) {
                 x: x,
                 y: y
             };
-				document.getElementById("mycoord").style.top = (tc.y + window.pageYOffset-13) + "px";
+		document.getElementById("mycoord").style.top = (tc.y + window.pageYOffset-13) + "px";
                 document.getElementById("mycoord").style.left = (tc.x + window.pageXOffset-13) + "px";
             if (startc != undefined) {
                 var w = tc.x - startc.x;
@@ -854,7 +857,7 @@ function takeSnap(callback) {
         }
         //console.log(coor);
     }, false);
-    document.body.addEventListener("click", function myFunction2(e) {
+    var selectionEvent = function(e) {
         if (snapListen) {
             x = e.clientX;
             y = e.clientY;
@@ -887,8 +890,15 @@ function takeSnap(callback) {
         }else{
         	
         }
-    }, false);
-	var econt=document.createElement("DIV");
+    };
+    if(dragSelection){
+    	document.body.addEventListener("click",  selectionEvent, false);
+    }else{
+    	document.body.addEventListener("mouseup",  selectionEvent, false);
+    	document.body.addEventListener("mousedown",  selectionEvent, false);
+    }	
+    
+    var econt=document.createElement("DIV");
 	
     econt.innerHTML += "<div id='myrect' style='position:absolute;background-color:rgba(0, 0, 0, 0.24);border:1px dashed black;top:0px;left:0px;width:0px;height:0px'></div>"
     econt.innerHTML += "<div id='mycoord' style='cursor:crosshair;padding:0px;margin:0px;position:absolute;opacity:0.5;top:0px;left:0px;width:100px;height:100px'><table style='opacity:0;padding:0px;margin:0px;' class='cross'><tbody><tr><td style='padding: 0px; height: 10px; width: 10px; border: 1px solid black; background-color: rgba(0, 0, 0, 0.38);'></td><td style='padding: 0px; height: 10px; width: 10px; border: 1px solid black; background-color: rgba(0, 0, 0, 0.38);'></td></tr><tr><td style='padding: 0px; height: 10px; width: 10px; border: 1px solid black; background-color: rgba(0, 0, 0, 0.38);'></td><td style='padding: 0px; height: 10px; width: 10px; border: 1px solid black; background-color: rgba(0, 0, 0, 0.38);'></td></tr></tbody></table><div id='coordText'></div></div>"
@@ -911,7 +921,7 @@ function getExtensionType(){
 //==============================
 //CHROME CLIPBOARD HELPERS
 /*
-	chrome_clipsetup_local() 	-- refreshing function after clipboard loads, before initialized
+	chrome_clipsetup_local() 		-- refreshing function after clipboard loads, before initialized
 	chrome_clipsetup() 			-- makes sure something is availible for copy/paste
 	addAppletListener()			-- specifically add listeners for applet messages 
 								   TODO: could make more generic for multiple browsers
