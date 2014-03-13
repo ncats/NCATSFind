@@ -368,7 +368,7 @@ ui.init = function ()
             else
                 el.hide();
         });
-        document.title += ' (standalone)';
+        //document.title += ' (standalone)';
     } else
     {
         if (ui.path != '/')
