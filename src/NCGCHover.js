@@ -1395,6 +1395,7 @@ function runlocal(src, param, callback, persist){
 		"}";
 	}
 	var s=document.createElement("SCRIPT");
+	s.setAttribute("style","display:none");
 	s.innerHTML=src;
 	
 	if(callback!=undefined){
@@ -1409,7 +1410,7 @@ function runlocal(src, param, callback, persist){
 				if(persist){}else	
 					this.parentNode.removeChild(this);
 			};
-		cb.style="display:none;";
+		cb.setAttribute("style","display:none");
 		document.body.appendChild(cb);
 	}
 	//run script
