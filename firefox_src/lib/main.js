@@ -159,7 +159,7 @@ tabs.on("pageshow", function(tab) {
 	  }else if(message.type=="edit"){
 			var molecule=message.data.molecule;
 			var ss = require("sdk/simple-storage");
-			ss.storage.ncgcImage = "";
+			ss.storage.resIMGURL = "";
 			if(molecule.molfile == undefined){
 					getChemicalFormat(molecule.smiles,"MOL",function(mol){
 						showMolEditor(mol);
