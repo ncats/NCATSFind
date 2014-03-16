@@ -2,6 +2,14 @@ var widgets = require("sdk/widget");
 var tabs = require("sdk/tabs");
 var self = require("sdk/self");
 var { Hotkey } = require("sdk/hotkeys");
+var enabled=true;
+
+var defaultSettings={format:"png",hover:true,debug:true,refresh:true,
+			casResolve:true,
+			UNIIResolve:true,
+			inchiResolve:false,
+			NCGCResolve:false};
+
 
 function getActiveWorker(){
 	console.log("t1");
@@ -24,25 +32,11 @@ var data = require("sdk/self").data;
 // file in the "data" directory, and loading the "get-text.js" script
 // into it.
 var text_entry = require("sdk/panel").Panel({
-  width: 720,
-  height: 600,
-  contentURL: data.url("ketcher/ketcher.html"),  
-  contentScript: 'self.port.on("message", function(addonMessage) {' + 
-						'document.getElementById("input_mol").value=addonMessage;' + 
-						'document.getElementById("read_ok").click();' + 
-						'setTimeout(function(){document.getElementById("smilesout").value=ketcher.getSmiles();},500);'+
-					'});'
+  width: 350,
+  height: 350,
+  contentURL: data.url("popup.html")
 });
-//Don't think I need anymore:
-var widget = widgets.Widget({
-  label: "NCATS Find",
-  id: "NCATS_FIND",
-  contentURL: data.url("images/icon16.png"),  
-  panel: text_entry,
-      onMessage: function (imgSrc) {
-			console.log("oh... ok" + imgSrc);
-      }
-});
+
 // When the panel is displayed it generated an event called
 // "show": we will listen for that event and when it happens,
 // send our own "show" event to the panel's script, so the
@@ -50,6 +44,29 @@ var widget = widgets.Widget({
 text_entry.on("show", function() {
   text_entry.port.emit("show");
 });
+text_entry.port.on("saveSettings", function(settings) {
+			console.log("---------saved called");
+			setValue("settings",settings);
+			console.log("---------saved");
+		});
+text_entry.port.on("img", function(){
+	text_entry.hide();
+	getActiveWorker().port.emit("message",{id:1234,type:"bbox"});
+});
+
+text_entry.port.on("captionsOFF", function(){
+	getActiveWorker().port.emit("message",{id:1234,type:"captionsOFF"});
+});
+text_entry.port.on("captionsON", function(){
+	getActiveWorker().port.emit("message",{id:1234,type:"captionsON"});
+});
+text_entry.port.on("getSettings", getSettings);
+function getSettings(id){
+	var v=getValue("settings");
+	console.log("---------get settings:" + JSON.stringify(v));
+	text_entry.port.emit("callback",{id:id,data:v});
+	text_entry.port.on("getSettings",getSettings);
+}
 
 
 var activeWorker;
@@ -125,6 +142,11 @@ cm.Item({
 		console.log(text);
       }
 });*/
+
+function getSnap(){
+
+}
+
 var workerMap = {};
 
 tabs.on("pageshow", function(tab) {
@@ -138,15 +160,14 @@ tabs.on("pageshow", function(tab) {
 			worker.port.emit("message",{id:message.id,type:"ajax",data:data});
 		});
 	  }else if(message.type == "get"){
-
+	
 		var ss = require("sdk/simple-storage");
-		var resp = ss.storage[message.key];
+		var resp = getValue(message.key);
 		worker.port.emit("message",{id:message.id,type:"get",data:resp});
-		
+	  
 	  }else if(message.type == "set"){
-
 		var ss = require("sdk/simple-storage");
-		ss.storage[message.key] = message.value;
+		setValue(message.key,message.value);
 		
 	  }else if(message.type == "bbox"){
 		b64=getActiveSnapshot();
@@ -269,7 +290,9 @@ function showMolEditor(mol){
 			var tab1=tabs.open(self.data.url("ketcher/ketcher.html"));
 			var worker = tab.attach({
 				contentScript: 'console.log("also added");',
-				onMessage: function (message) {}
+				onMessage: function (message) {
+				
+				}
 			});
 			
 			
@@ -402,3 +425,97 @@ function displayResolveb64(b64,callback){
 }
 
 
+//Save individual value
+ function getValue(key){
+		var ss = require("sdk/simple-storage");
+		var resp = ss.storage[key];
+		if(key=="settings"){
+			if(resp==undefined){
+				resp=defaultSettings;
+			}
+		}
+		return resp;	
+ }
+ function setValue(key, value){
+		var ss = require("sdk/simple-storage");
+		ss.storage[key] = value;
+ }
+//=============================
+//new way
+/*
+function pop(){
+//var { ActionButton } = require('sdk/ui/button/action');
+
+var button = ActionButton({
+  id: "ncatsFind",
+  label: "ncatsFind",
+  icon: {
+    "16": 'images/icon16.png',
+    "32": 'images/icon32.png',
+    "64": 'images/icon64.png'
+  },
+  onClick: handleClick
+});
+
+function handleClick(state) {
+  text_entry.show({
+    position: button
+  });
+}
+}
+*/
+//=============================
+//Nav Bar BUtton
+
+// import the modules we need
+var data = require('self').data;
+var {Cc, Ci} = require('chrome');
+var mediator = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
+ 
+// exports.main is called when extension is installed or re-enabled
+exports.main = function(options, callbacks) {
+	addToolbarButton();
+	// do other stuff
+};
+ 
+// exports.onUnload is called when Firefox starts and when the extension is disabled or uninstalled
+exports.onUnload = function(reason) {
+	removeToolbarButton();
+	// do other stuff
+};
+ 
+ 
+ 
+// add our button
+function addToolbarButton() {
+	// this document is an XUL document
+	var document = mediator.getMostRecentWindow('navigator:browser').document;		
+	var navBar = document.getElementById('nav-bar');
+	if (!navBar) {
+		return;
+	}
+	var btn = document.createElement('toolbarbutton');	
+	btn.setAttribute('id', 'mybutton-id');
+	btn.setAttribute('type', 'button');
+	// the toolbarbutton-1 class makes it look like a traditional button
+	btn.setAttribute('class', 'toolbarbutton-1');
+	// the data.url is relative to the data folder
+	btn.setAttribute('image', data.url('images/icon16.png'));
+	btn.setAttribute('orient', 'horizontal');
+	// this text will be shown when the toolbar is set to text or text and iconss
+	btn.setAttribute('label', 'NCATS Find');
+	btn.addEventListener('click', function() {
+		text_entry.show();
+	}, false)
+	navBar.appendChild(btn);
+}
+ 
+function removeToolbarButton() {
+	// this document is an XUL document
+	var document = mediator.getMostRecentWindow('navigator:browser').document;		
+	var navBar = document.getElementById('nav-bar');
+	var btn = document.getElementById('mybutton-id');
+	if (navBar && btn) {
+		navBar.removeChild(btn);
+	}
+}
