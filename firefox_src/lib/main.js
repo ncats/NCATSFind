@@ -6,7 +6,7 @@ var enabled=true;
 
 var defaultSettings={format:"png",hover:true,debug:true,refresh:true,
 			casResolve:true,
-			UNIIResolve:true,
+			UNIIResolve:false,
 			inchiResolve:false,
 			NCGCResolve:false};
 
