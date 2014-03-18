@@ -378,6 +378,7 @@ function mark2(){
 		//if(!Zepto(element).is(":visible"))continue;
         if(element.textContent !=undefined){
             var UNIIS= getSpecialMatches(element.textContent);
+			//console.log(JSON.stringify(UNIIS));
             if(matchAny(element.textContent,regexSet) || UNIIS.length>0){
                 var str = element.innerHTML;
                 var ostr=str;
@@ -393,7 +394,6 @@ function mark2(){
                 			numgot+=m.length;
                 		}
                 		str=str.replace(regexSet[i],'<span class="ncgchover unii"  !><span class="ncatsterm">$1</span>' +dotHTML+' </span>');
-						
                 	}
                 }
 				
@@ -401,22 +401,33 @@ function mark2(){
                 for(var u in UNIIS){
 					//alert("trying:" + UNIIS[u][0] + " of " + UNIIS.length + " in " + element.outerHTML);				
 					//if(doneUNII[UNIIS[u][0]])continue;
-            		if(!matchAny(str,
-            		new RegExp(UNIIS[u][0]+"[^<>]*[>]","g")
+					var strRep = str.replace(UNIIS[u][0],"____");
+            		if(!matchAny(strRep,
+            		new RegExp("____[^<>]*[>]","g")
             					)){
-            			
-            		
-                	var n=str.substring(str.indexOf(UNIIS[u][0])+10,str.indexOf(UNIIS[u][0])+11);
-                    if(n==undefined || (n+"").match(/[0-9A-Z]/)==null){
-					var str2=str.replace(UNIIS[u][0],
-                    '<span class="ncgchover unii" !><span class="ncatsterm">'+UNIIS[u][0] +"</span>"+dotHTML+'</span>');
-                    	if(str2!==str){
-                        	numgot++;
-                        	found.push(UNIIS[u][0]);
-                    		totFound+=UNIIS[u][0]+"<br>";
-                			str=str2;
-                    	}
-                    }
+						
+						var sIndex=str.indexOf(UNIIS[u][0]);
+						var eIndex=sIndex+UNIIS[u][0].length;
+						if(eIndex==1){
+							eIndex=sIndex+UNIIS[u][0][0].length;
+						}
+						
+						var n=str.substring(eIndex,eIndex+2);
+						
+						
+						
+						if(n==undefined || (n+"").match(/[0-9A-Z]/)==null){
+							console.log("GOT STR:" + str);
+							var str2=str.replace(UNIIS[u][0],
+							'<span class="ncgchover unii" !><span class="ncatsterm">'+UNIIS[u][0] +"</span>"+dotHTML+'</span>');
+								if(str2!==str){
+									numgot++;
+									found.push(UNIIS[u][0]);
+									totFound+=UNIIS[u][0]+"<br>";
+									str=str2;
+									
+								}
+						}
                     }
 					//doneUNII[UNIIS[u][0]]=true;
                 }
@@ -461,17 +472,18 @@ function mark2(){
   });
 					Zepto("span.ncgchover").css("cursor","pointer");
   					Zepto("span.ncgchover .ncatsicon").off("click");
-                    Zepto("span.ncgchover .ncatsicon").on("click",function(e){e.preventDefault();displayResolve(Zepto(this).parent().text());});
+                    Zepto("span.ncgchover .ncatsicon").on("click",function(e){e.preventDefault();e.stopPropagation();displayResolve(Zepto(this).parent().text());return false;});
                     
 					Zepto('.ncgchover').on("mouseenter",function () {
                         if(!Zepto(this).hasClass("unii")){
                         	display(Zepto(this).text());
                         }else{
-                            var uniilook=Zepto(this).text();
+                            var uniilook=Zepto(this).text().trim();
                             var str=lookup[uniilook];
                             if(str==undefined){
                                 lookup[uniilook]="d";
-								var murl = "https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace("+","%2B") + "&force=true&apikey="  + _cacheSettings.apikey;
+								var murl = "https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey;
+								//alert(murl);
 								myAjaxGet(murl,function(data){
                                          lookup[uniilook]=data.split("\t")[1];
 										 lookup[uniilook + "_SRC"]=data.split("\t")[2];
@@ -599,6 +611,7 @@ function myAjaxGet(murl,callback){
 
 }
 function displayResolve(uniilook){
+							uniilook=uniilook.trim();
 							var str=lookup[uniilook];
                             if(str==undefined){
                                 lookup[uniilook]="d";
@@ -668,7 +681,6 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	$(".ui-dialog .ui-dialog-content").css("overflow","hidden");
 	$(".ui-dialog-title").css("overflow","visible");
 	$(".ui-dialog-title").not(".active").html(strtitlem);
-	
 	$(".ui-dialog-title").addClass(".active");
 }
 //TODO: retire this, not really used anymore
@@ -872,16 +884,27 @@ function getUNIIMatches(str){
 		var unii=UNIIS[k][0].substring(0,10);
 		var tot = 0;
 		var rcode=0;
+		var consecutiveLetters=0;
 		for(j=0;j<10;j++){
 			var code=unii.charCodeAt(j)-'0'.charCodeAt(0);
 			if(code>9){
 				code=code-7;
+				consecutiveLetters++;
+			}else{
+				consecutiveLetters=0;
+			}
+			if(consecutiveLetters>4){
+				break;
 			}
 			if(j<9){
+				
 				tot+=code;
 			}else{
 				rcode=code;	
 			}
+		}
+		if(consecutiveLetters>4){
+			continue;
 		}
 		tot=tot%36;
 		if(tot == rcode){
@@ -904,7 +927,7 @@ function getUNIIMatches(str){
 }     
 
 function getCASMatches(str){
-	var casreg=/[0-9][0-9]*[-][0-9]{2}[-][0-9]{1}/g;
+	var casreg=/[0-9][0-9][0-9]*[-][0-9]{2}[-][0-9]{1}/g;
 	var UNIIS=[];
 	while ((match = casreg.exec(str)) != null) {
 		UNIIS.push(match);
@@ -1244,7 +1267,7 @@ function JSDraw_getActive(){
 }
 function addCopyPasteBar(){
 	var headelm = document.createElement("DIV");
-	headelm.setAttribute("style","position: fixed; float: right; top: 0px; width: 100%; right: 0px; color: white; font-size: 15pt; vertical-align: middle; background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.75); padding-left: 5px; padding-top: 10px; padding-bottom: 10px;z-index: 99999;");
+	headelm.setAttribute("style","position: fixed; float: right; bottom: 0px; width: 100%; right: 0px; color: white; font-size: 15pt; vertical-align: middle; background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.75); padding-left: 5px; padding-top: 10px; padding-bottom: 10px;z-index: 99999;");
 	
 	var html = '<img style="border-radius: 5px; margin-left: 10px; padding: 4px; vertical-align: middle; background: none repeat scroll 0% 0% white;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACRUlEQVR42p1STYhSURTWoimmrOQlRZM/D/+fz/+f0HkzI8ODx2slbgyGiEanoBzLGCpahLqRhIpctHBTK2cbudClCyEIQtonGc7KRYskeqHv1fceNOCQUh243HvPPd93vnPuUanmmMlkOkZR1ILqf4ym6bN+v5/1er2czWZb+mugTqc7EQqFWIC3PR5PDusmzjksHopOz8MeRrZIIBDYcblcW8jKQL7f7XZf8vl8y9g3sO9gX0XskX0UgiiLxXI0HA5vIMsjs9m8rNFozuDpEPwnoeAqSJ/Z7XYP7i4kuY/7dfiPKwTxePwLJL+G8x6C1kFAH1CmdjqdNN5fYt2SE4JkE2QXlNd8Pj+uVCrfOI57D+mXEfQU7sU/lLhgMBgoOQEIrmHXK95isSj2ej2xXq8LyWSyAYJduGc2C9LJKYJSqSQOh0NpNBpJjUZD4Hn+E+St/QuBBIKfMEkQBKnT6UxQThelMgewiwCv4BccswgUk2Ddbvc7y7JvAbDLTYxEIuto9C6G64rVasVv+jL7BIVCQRwMBmK/35+02+1JIpGYxGKxj/jSV3L3g8HgXfl7jUZjgCTJFfToMQi2tFrtKYUgk8kItVrtazqd3mu1WkI2mx1D5hMExZDR6XA41lAOD98NSH+AabwImDwDaoWAYZjnqPkFJD6sVqufm83mGFk+IHgbJLdxvgOiHGaEQzghT+xUZ5CBAOs5uaZUKvWmXC7/AOgdJJMoYRWzwREEsTQ1vjNMjaxMNBrd1Ov153/75JGeB/oFDjDMFWlNFx4AAAAASUVORK5CYII=">'
 			  +'<span style=""></span><span style="padding-right: 5px; padding-left: 5px;">You can copy and paste structures in this page using <span style="background: none repeat scroll 0% 0% black; font-size: 12pt; font-weight: bold; padding-right: 2px; padding-left: 2px; border-radius: 5px;">Ctrl+C</span> and <span style="background: none repeat scroll 0% 0% black; font-size: 12pt; font-weight: bold; padding-right: 2px; padding-left: 2px; border-radius: 5px;">Ctrl+V</span>, or just click here :</span><button id="ncatsfindcopy" style="padding: 3px;    margin-right: 10px;">copy</button><button id="ncatsfindpaste" style="    padding: 3px;">paste</button><a style="    color: rgb(255, 255, 255);    text-decoration: underline;    float: right;    margin-right: 25px;    background: grey;    padding: 3px;    padding-right: 10px;    border-radius: 5px;    padding-left: 10px;" href="#" id="ncatsfindbarclose">close</a>';
@@ -1699,8 +1722,14 @@ function forceLoad(){
 	getValue("resIMGURL",function(resURL){
 		getValue("ncgcImage",function(mol){
 			console.log("------EXECUTING " + resURL + "," + mol);
-			addCopyPasteBar();
-			runlocal(function (ini){load_mol_url(ini.mol,ini.url);},{mol:mol,url:resURL});
+			//if response is invalid, don't do anything
+			if(mol.indexOf("Not a valid")>=0){
+				
+			}else{
+				addCopyPasteBar();
+				//inject molfile and image
+				runlocal(function (ini){load_mol_url(ini.mol,ini.url);},{mol:mol,url:resURL});
+			}
 		});
 	});
 }

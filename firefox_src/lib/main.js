@@ -60,6 +60,9 @@ text_entry.port.on("captionsOFF", function(){
 text_entry.port.on("captionsON", function(){
 	getActiveWorker().port.emit("message",{id:1234,type:"captionsON"});
 });
+text_entry.port.on("close", function(){
+	text_entry.hide();
+});
 text_entry.port.on("getSettings", getSettings);
 function getSettings(id){
 	var v=getValue("settings");
@@ -286,23 +289,19 @@ function getActiveSnapshot(){
 function showMolEditor(mol){
 			var ss = require("sdk/simple-storage");
 			ss.storage.ncgcImage = mol;
-			//ss.storage.resIMGURL = "";
-			var tab1=tabs.open(self.data.url("ketcher/ketcher.html"));
-			var worker = tab.attach({
-				contentScript: 'console.log("also added");',
-				onMessage: function (message) {
+			//don't do anything if it's invalid
+			if(mol.indexOf("Not a valid")>=0){
 				
-				}
-			});
-			
-			
-			if(true)return;
-			text_entry.show();
-			
-			//text_entry.contentURL = self.data.url("ketcher/ketcher.html");
-			text_entry.port.emit("message",mol);
-			console.log(self.data.url("ketcher/ketcher.html"));
-			text_entry.show();
+			}else{
+				//ss.storage.resIMGURL = "";
+				var tab1=tabs.open(self.data.url("ketcher/ketcher.html"));
+				var worker = tab.attach({
+					contentScript: 'console.log("also added");',
+					onMessage: function (message) {
+					
+					}
+				});
+			}			
 }
 function findNextNL(str, start){
   for (var i = start; i<str.length; i++) {

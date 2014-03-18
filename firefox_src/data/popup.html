@@ -28,14 +28,14 @@
 
 <div id="options" style="display: none;">
 		<ul style="list-style: none;">
-			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic Captions</label></li>
-			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Periodic Refresh</label></li>
-			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Notifications</label></li>
-			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show Tutorial</label></li>
+			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic Resolve (on Page Load)</label></li>
+			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic Resolve (every 4 seconds)</label></li>
 			<li onclick='saveSettings();'><input name="casResolve" id="casResolve" type="checkbox" value="casResolve" checked=""><label for="casResolve">Resolve CAS number</label></li>
 			<li onclick='saveSettings();'><input name="UNIIResolve" id="UNIIResolve" type="checkbox" value="UNIIResolve" checked=""><label for="UNIIResolve">Resolve UNII code</label></li>
 			<li onclick='saveSettings();'><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve">Resolve InChI string</label></li>
 			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
+			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Alerts</label></li>
+			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show How-To on Snapshot</label></li>
 		</ul>
 		<label for="apikey">ApiKey</label>
 		<input name=apikey" id="apikey"></input>
@@ -88,8 +88,9 @@
   
 <div id="status"></div>
 <div id="statusRefresh"></div>
-
-		
+<div style="width:300px;margin:auto;">
+	<button style="float:right;margin-top:40px;margin-right:25px" onclick='closeit()'>Close</button>
+</div>
 </body>
 
 </html>

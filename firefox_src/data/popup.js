@@ -73,6 +73,10 @@ function img(){
 	addon.port.emit("img");
 	window.close();
 }
+function closeit(){
+	addon.port.emit("close");
+	window.close();
+}
 function captions(bol){
 	if(bol){
 		addon.port.emit("captionsON");
