@@ -87,3 +87,6 @@ function captions(bol){
 function about(){
 	addon.port.emit("about");
 }
+function update(){
+	addon.port.emit("update");
+}

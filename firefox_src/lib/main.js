@@ -3,6 +3,7 @@ var tabs = require("sdk/tabs");
 var self = require("sdk/self");
 var { Hotkey } = require("sdk/hotkeys");
 var enabled=true;
+var version = 0.87;
 
 
 
@@ -10,7 +11,9 @@ var defaultSettings={format:"png",hover:true,debug:true,refresh:true,
 			casResolve:true,
 			UNIIResolve:false,
 			inchiResolve:false,
-			NCGCResolve:false};
+			NCGCResolve:false,
+			checkUpdates:true
+			};
 
 
 function getActiveWorker(){
@@ -30,12 +33,30 @@ var showHotKey = Hotkey({
 
 
 var data = require("sdk/self").data;
+
+var update_panel = require("sdk/panel").Panel({
+  width: 310,
+  height: 200,
+  contentURL: data.url("update.html")
+});
+
+update_panel.on("show", function() {
+	update_panel.port.emit("show");
+});
+update_panel.port.on("update", function(settings) {
+	update_panel.hide();
+	tabs.open("http://tripod.nih.gov/ncatsfind/ncats-find.xpi");
+});
+update_panel.port.on("close", function(settings) {
+	update_panel.hide();
+});
+
 // Construct a panel, loading its content from the "text-entry.html"
 // file in the "data" directory, and loading the "get-text.js" script
 // into it.
 var text_entry = require("sdk/panel").Panel({
   width: 350,
-  height: 350,
+  height: 500,
   contentURL: data.url("popup.html")
 });
 
@@ -68,10 +89,12 @@ text_entry.port.on("captionsON", function(){
 text_entry.port.on("close", function(){
 	text_entry.hide();
 });
+text_entry.port.on("update", function(){
+	checkUpdates();
+});
 text_entry.port.on("getSettings", getSettings);
 function getSettings(id){
 	var v=getValue("settings");
-	console.log("---------get settings:" + JSON.stringify(v));
 	text_entry.port.emit("callback",{id:id,data:v});
 	text_entry.port.on("getSettings",getSettings);
 }
@@ -319,6 +342,16 @@ function getChemicalFormat(str,format,callback){
 	str = encodeURIComponent(str);
 	ajaxPost("http://tripod.nih.gov/servlet/exporter/","structure=" + str + "&format=" + format.toUpperCase(),callback);
 }
+function checkUpdates(){
+	console.log("Checking version");
+	ajaxGet("http://tripod.nih.gov/ncatsfind/_version.txt",function(data){
+		console.log("Nversion:" + data + ":" + version);
+		if(version < (data-0)){
+			console.log("There's a new version");
+			update_panel.show();
+		}
+	});
+}
 function ajaxGet(murl,callback){
 	var xhr = Request({
 				url: murl,
@@ -458,8 +491,12 @@ var mediator = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWi
  
 // exports.main is called when extension is installed or re-enabled
 exports.main = function(options, callbacks) {
-	if(options.loadReason=="install"){
+	if(options.loadReason=="install" || options.loadReason=="upgrade"){
 		launchAbout();
+	}
+	var v=getValue("settings");
+	if(v.checkUpdates){
+		checkUpdates();
 	}
 	addToolbarButton();
 	// do other stuff
