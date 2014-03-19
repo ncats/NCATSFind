@@ -84,3 +84,6 @@ function captions(bol){
 		addon.port.emit("captionsOFF");
 	}
 }
+function about(){
+	addon.port.emit("about");
+}

@@ -4,6 +4,8 @@ var self = require("sdk/self");
 var { Hotkey } = require("sdk/hotkeys");
 var enabled=true;
 
+
+
 var defaultSettings={format:"png",hover:true,debug:true,refresh:true,
 			casResolve:true,
 			UNIIResolve:false,
@@ -20,7 +22,7 @@ function getActiveWorker(){
 }
 
 var showHotKey = Hotkey({
-  combo: "accel-shift-z",
+  combo: "accel-shift-c",
   onPress: function() {
     getActiveWorker().port.emit("message",{id:1234,type:"bbox"});
   }
@@ -53,7 +55,10 @@ text_entry.port.on("img", function(){
 	text_entry.hide();
 	getActiveWorker().port.emit("message",{id:1234,type:"bbox"});
 });
-
+text_entry.port.on("about", function(){
+	text_entry.hide();
+	launchAbout();	
+});
 text_entry.port.on("captionsOFF", function(){
 	getActiveWorker().port.emit("message",{id:1234,type:"captionsOFF"});
 });
@@ -398,29 +403,6 @@ function displayResolveb64(b64,callback){
 								ss.storage.resIMGURL = "data:image/png;base64," + b64;
 								callback(text);
 							});
-							
-							/*
-							var xhr = new XMLHttpRequest();
-                                    xhr.open("POST", "http://tripod.nih.gov/imager", true);
-									xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-									xhr.setRequestHeader("Content-length", params.length);
-									xhr.setRequestHeader("Connection", "close");
-									xhr.onreadystatechange = function() {
-                                      if (xhr.readyState == 4) {
-											//console.log(xhr.responseText);
-											//alert(xhr.responseText);
-											chrome.storage.local.set({'ncgcImage': xhr.responseText}, function (result2) {
-												var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
-												//chrome.tabs.create({url:newURL});
-												chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-													chrome.tabs.sendMessage(tabs[0].id, {greeting: "displayEdit", frame: "TOP" }, function(response) {});
-												});
-											});
-                                      }
-                                    }
-									xhr.send(params);
-                                    
-                                    //xhr.send();*/
 }
 
 
@@ -438,6 +420,9 @@ function displayResolveb64(b64,callback){
  function setValue(key, value){
 		var ss = require("sdk/simple-storage");
 		ss.storage[key] = value;
+ }
+ function launchAbout(){
+	tabs.open(self.data.url("about.html"));
  }
 //=============================
 //new way
@@ -473,6 +458,9 @@ var mediator = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWi
  
 // exports.main is called when extension is installed or re-enabled
 exports.main = function(options, callbacks) {
+	if(options.loadReason=="install"){
+		launchAbout();
+	}
 	addToolbarButton();
 	// do other stuff
 };

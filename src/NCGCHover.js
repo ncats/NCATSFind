@@ -236,7 +236,7 @@ function displayEdit(strtitle,url){
 	$("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:700px;' src='" + url + "'></iframe>")
 	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}})
 	.dialog( "option", "width", 720)
-	.dialog( "option", "height", 600);
+	.dialog( "option", "height", 600).dialog({dialogClass:'NCATSFindDialog'});
 	$(".ui-dialog").css('z-index', 99999); 
 }
 function imageToPngBase64(imgsrc){
@@ -485,6 +485,7 @@ function mark2(){
 								var murl = "https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey;
 								//alert(murl);
 								myAjaxGet(murl,function(data){
+									if(data.indexOf("Exception")<0){
                                          lookup[uniilook]=data.split("\t")[1];
 										 lookup[uniilook + "_SRC"]=data.split("\t")[2];
 										 if(data.split("\t").length>3){
@@ -492,6 +493,7 @@ function mark2(){
 										 }
                                          display(lookup[uniilook]);
 										 $("img.NCGCHOVER_" + uniilook).attr("src",urlFor(lookup[uniilook]));
+									}
                                 });
                             }else{
                                 if(str!="d"){
@@ -616,13 +618,20 @@ function displayResolve(uniilook){
                             if(str==undefined){
                                 lookup[uniilook]="d";
 								var lurl="https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace("+","%2B") +  "&force=true&apikey="  + _cacheSettings.apikey;
+								console.log(uniilook);
+								
 								myAjaxGet(lurl,function(data){
-										lookup[uniilook]=data.split("\t")[1];
-										lookup[uniilook + "_SRC"]=data.split("\t")[2];
-										if(data.split("\t").length>3){
-											lookup[uniilook + "_SRCURL"]=data.split("\t")[3];
+										if(data.indexOf("Exception")<0){
+											lookup[uniilook]=data.split("\t")[1];
+											lookup[uniilook + "_SRC"]=data.split("\t")[2];
+											if(data.split("\t").length>3){
+												lookup[uniilook + "_SRCURL"]=data.split("\t")[3];
+											}
+											display2(lookup[uniilook],undefined, undefined, uniilook,lookup[uniilook + "_SRC"],lookup[uniilook + "_SRCURL"]);
+										}else{
+											lookup[uniilook]="Exception";
+											display2(undefined,undefined, undefined, uniilook,lookup[uniilook + "_SRC"],lookup[uniilook + "_SRCURL"]);
 										}
-                                        display2(lookup[uniilook],undefined, undefined, uniilook,lookup[uniilook + "_SRC"],lookup[uniilook + "_SRCURL"]);
 								});
                             }else{
                                 if(str!="d"){
@@ -661,7 +670,8 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	+"<img title='Click to get structure' style='cursor:pointer;width: 100%;' src='" + urlFor(str) + "'>" + 
 	sourceHTML + 
 	"</div>")
-	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}});
+	.dialog({dialogClass:'NCATSFindDialog',closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}});
+	//.dialog({dialogClass:'NCATSFindDialog'});
 	$(".ui-dialog").css('z-index', 99999); 
 	
 	$(".mystr img").click(function(){
@@ -681,7 +691,7 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	$(".ui-dialog .ui-dialog-content").css("overflow","hidden");
 	$(".ui-dialog-title").css("overflow","visible");
 	$(".ui-dialog-title").not(".active").html(strtitlem);
-	$(".ui-dialog-title").addClass(".active");
+	$(".ui-dialog-title").addClass("active");
 }
 //TODO: retire this, not really used anymore
 function display(str, wx, wy){
