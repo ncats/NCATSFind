@@ -3,11 +3,10 @@ var tabs = require("sdk/tabs");
 var self = require("sdk/self");
 var { Hotkey } = require("sdk/hotkeys");
 var enabled=true;
-var version = 0.87;
+var version = 0.88;
 
 
-
-var defaultSettings={format:"png",hover:true,debug:true,refresh:true,
+var defaultSettings={format:"png",hover:false,debug:true,refresh:false,
 			casResolve:true,
 			UNIIResolve:false,
 			inchiResolve:false,

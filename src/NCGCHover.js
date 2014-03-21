@@ -378,7 +378,7 @@ function mark2(){
 		//if(!Zepto(element).is(":visible"))continue;
         if(element.textContent !=undefined){
             var UNIIS= getSpecialMatches(element.textContent);
-			//console.log(JSON.stringify(UNIIS));
+			
             if(matchAny(element.textContent,regexSet) || UNIIS.length>0){
                 var str = element.innerHTML;
                 var ostr=str;
@@ -401,29 +401,31 @@ function mark2(){
                 for(var u in UNIIS){
 					//alert("trying:" + UNIIS[u][0] + " of " + UNIIS.length + " in " + element.outerHTML);				
 					//if(doneUNII[UNIIS[u][0]])continue;
-					var strRep = str.replace(UNIIS[u][0],"____");
+					var actualTerm = UNIIS[u][0];
+					if(Array.isArray(actualTerm)){
+						actualTerm = actualTerm[0];
+					}
+					//console.log(actualTerm);
+					var strRep = str.replace(actualTerm,"____");
             		if(!matchAny(strRep,
             		new RegExp("____[^<>]*[>]","g")
             					)){
 						
-						var sIndex=str.indexOf(UNIIS[u][0]);
-						var eIndex=sIndex+UNIIS[u][0].length;
-						if(eIndex==1){
-							eIndex=sIndex+UNIIS[u][0][0].length;
-						}
+						var sIndex=str.indexOf(actualTerm);
+						var eIndex=sIndex+actualTerm.length;
 						
-						var n=str.substring(eIndex,eIndex+2);
+						var n=str.substring(eIndex,eIndex+1)+" ";
+						//console.log("N is:" + n);
 						
 						
-						
-						if(n==undefined || (n+"").match(/[0-9A-Z]/)==null){
+						if(n==undefined || (n+"").match(/^[0-9A-Z]/)==null){
 							console.log("GOT STR:" + str);
-							var str2=str.replace(UNIIS[u][0],
-							'<span class="ncgchover unii" !><span class="ncatsterm">'+UNIIS[u][0] +"</span>"+dotHTML+'</span>');
+							var str2=str.replace(actualTerm,
+							'<span class="ncgchover unii" !><span class="ncatsterm">'+actualTerm +"</span>"+dotHTML+'</span>');
 								if(str2!==str){
 									numgot++;
-									found.push(UNIIS[u][0]);
-									totFound+=UNIIS[u][0]+"<br>";
+									found.push(actualTerm);
+									totFound+=actualTerm+"<br>";
 									str=str2;
 									
 								}
@@ -780,7 +782,7 @@ function getChild(elm,regex,force){
 			   while(telm!=null){
 					testCache[telm]=true;
 					telm=telm.parentNode;
-				}      
+			   }
 			}
         }
     }
@@ -790,16 +792,16 @@ function getChild(elm,regex,force){
 function acceptNode(telm){
 	//if(telm.outerHTML==undefined)return true;
 	var t = telm.outerHTML.replace(telm.innerHTML,"");
+	console.log("ITS:" + t);
     if(
-                false
-                || t.indexOf("noscript")>=0
+                t.indexOf("noscript")>=0
                 || t.indexOf("textarea")>=0
 				|| t.indexOf("ncgchover")>=0
 				|| t.indexOf("ui-dialog")>=0
                 || t.indexOf("input")>=0
                 || t.indexOf("display:none")>=0
                 || t.indexOf("textbox")>=0 || t.indexOf("ncgchover")>=0 
-                || t.indexOf("script")>=0 || t.indexOf("jGrowl-notification")>=0
+                || t.indexOf("script")>=0 || t.indexOf("jGrowl")>=0
                 || (t.indexOf("style")>=0 && t.indexOf("style") < 3)
                 ){
                     return false;
@@ -808,11 +810,15 @@ function acceptNode(telm){
 
 }
 function isElement(o){
+  if(o.tagName==undefined)return false;
   return (
     typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
     o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
 )};
 //
+function hasClass(elm,clazz){
+	return ((elm.className+"").indexOf(clazz)>=0)
+}
 var tlevel = 0;
 function getChildren(elm, regex){
 	tlevel++;
@@ -822,9 +828,11 @@ function getChildren(elm, regex){
     //don't get children of ncgchover element
 	//Also, don't get children if it's not HTMLElement
 	//Or if it's undefined
-    if((elm.className+"").indexOf("ncgchover")>=0 || 
-		!isElement(elm) ||
-		(elm.tagName==undefined)){
+    if(	!isElement(elm) ||
+		hasClass(elm,"ncgchover") || 
+		hasClass(elm,"jGrowl") || 
+		hasClass(elm,"NCATSFind") 
+		){
 		tlevel--;
         return undefined;
     }
@@ -941,6 +949,7 @@ function getCASMatches(str){
 	var UNIIS=[];
 	while ((match = casreg.exec(str)) != null) {
 		UNIIS.push(match);
+		//console.log(JSON.stringify(match));
 	}                      
 	var gmatches = [];
 	for(k in UNIIS){
