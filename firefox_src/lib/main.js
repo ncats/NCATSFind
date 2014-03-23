@@ -44,7 +44,7 @@ update_panel.on("show", function() {
 });
 update_panel.port.on("update", function(settings) {
 	update_panel.hide();
-	tabs.open("http://tripod.nih.gov/ncatsfind/ncats-find.xpi");
+	tabs.open("https://tripod.nih.gov/ncatsfind/ncats-find.xpi");
 });
 update_panel.port.on("close", function(settings) {
 	update_panel.hide();
@@ -339,11 +339,11 @@ function findNextNL(str, start){
 }
 function getChemicalFormat(str,format,callback){
 	str = encodeURIComponent(str);
-	ajaxPost("http://tripod.nih.gov/servlet/exporter/","structure=" + str + "&format=" + format.toUpperCase(),callback);
+	ajaxPost("https://tripod.nih.gov/servlet/exporter/","structure=" + str + "&format=" + format.toUpperCase(),callback);
 }
 function checkUpdates(){
 	console.log("Checking version");
-	ajaxGet("http://tripod.nih.gov/ncatsfind/_version.txt",function(data){
+	ajaxGet("https://tripod.nih.gov/ncatsfind/_version.txt",function(data){
 		console.log("Nversion:" + data + ":" + version);
 		if(version < (data-0)){
 			console.log("There's a new version");
@@ -371,7 +371,7 @@ function ajaxPost(murl,data,callback){
 			  xhr.post();
 }
 function displayResolve(url,callback){
-	ajaxGet("http://tripod.nih.gov/imager?type=url&data=" + url,callback);
+	ajaxGet("https://tripod.nih.gov/imager?type=url&data=" + url,callback);
 }
 function cDrawMol(molFile){
 	var molFile = molFile.replace(/\n\n/g, "\n"+"!"+"\n");
@@ -428,7 +428,7 @@ function firefoxMolCopy(molecule){
 function displayResolveb64(b64,callback){
 							var params="type=base64&data=" + encodeURIComponent(b64) ;
 							//alert("length:" + params.length);
-							ajaxPost("http://tripod.nih.gov/imager",params,function(text){
+							ajaxPost("https://tripod.nih.gov/imager",params,function(text){
 								console.log(text);
 								var ss = require("sdk/simple-storage");
 								ss.storage.ncgcImage = text;
