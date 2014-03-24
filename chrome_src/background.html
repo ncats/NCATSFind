@@ -91,7 +91,7 @@ chrome.contextMenus.onClicked.addListener(function(t){
 	if(sid=="image"){
 		//Simple url case:
 		if(t.srcUrl.indexOf("data:")!=0){
-			displayResolve("http://tripod.nih.gov/imager?type=url&data=", t.srcUrl);
+			displayResolve("https://tripod.nih.gov/imager?type=url&data=", t.srcUrl);
 		}else{
 		//deeper
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -149,7 +149,7 @@ function displayResolveb64(b64){
 							var params="type=base64&data=" + encodeURIComponent(b64) ;
 							//alert("length:" + params.length);
 							var xhr = new XMLHttpRequest();
-                                    xhr.open("POST", "http://tripod.nih.gov/imager", true);
+                                    xhr.open("POST", "https://tripod.nih.gov/imager", true);
 									xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 									xhr.setRequestHeader("Content-length", params.length);
 									xhr.setRequestHeader("Connection", "close");
