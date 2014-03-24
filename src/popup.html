@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+	li:hover{
+		color:blue;
+		border:1px solid blue;
+	}
+	li{
+	webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	}
+</style>
+<script src='popup.js'></script>
+</head>
+<body style="background:white;margin:0px">
+<div style="
+background-color: rgb(218, 218, 218);
+margin: 0px;
+"><h1 style="display:inline;font-size: 2em;padding-left: 15px;margin: 0px;">NCATS<span style="color: orange;">FIND</span></h1><span>Version 0.88</span></div>
+
+  <div style="
+    width: 100%;
+    height: 40px;
+            "><ul style="
+    list-style: none;
+">
+<li id="opt1" onclick="document.getElementById('options').style.display='none';document.getElementById('functions').style.display='block';document.getElementById('opt1').style.background='#B1B1B1';document.getElementById('opt2').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(177, 177, 177); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Actions</li>
+<li id="opt2" onclick="document.getElementById('options').style.display='block';document.getElementById('functions').style.display='none';document.getElementById('opt2').style.background='#B1B1B1';document.getElementById('opt1').style.background='#EBEBEB';" style="float: left; width: 100px; background-color: rgb(235, 235, 235); padding: 10px; text-align: center; cursor: pointer; background-position: initial initial; background-repeat: initial initial;">Settings</li></ul></div>
+
+<div style="
+    width: 100%;
+    height: 1px;
+    background: #C7C7C7;
+"></div>
+
+<div id="options" style="display: none;">
+		<ul style="list-style: none;">
+			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic Resolve (on Page Load)</label></li>
+			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic Resolve (every 4 seconds)</label></li>
+			<li onclick='saveSettings();'><input name="casResolve" id="casResolve" type="checkbox" value="casResolve" checked=""><label for="casResolve">Resolve CAS number</label></li>
+			<li onclick='saveSettings();'><input name="UNIIResolve" id="UNIIResolve" type="checkbox" value="UNIIResolve" checked=""><label for="UNIIResolve">Resolve UNII code</label></li>
+			<li onclick='saveSettings();'><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve">Resolve InChI string</label></li>
+			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
+			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Alerts</label></li>
+			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show How-To on Snapshot</label></li>
+			<li onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
+		</ul>
+		<span style='margin-left:10px;'>
+		<label for="apikey">ApiKey</label>
+		<input name=apikey" id="apikey"></input>
+		<button onclick='saveSettings();'>Save</button>
+		</span>
+		<input type="hidden" style="display:none;" name="format" id="format" value='png' />		
+</div>    
+    <div id="functions" style="display: block; margin: auto auto 20px;">
+  <ul style="
+    list-style: none;
+    font-size: 8pt;
+    /* width: 210px; */
+    /* border: 1px solid black; */
+    /* margin: 1px; */
+    height: 30px;
+">
+<li id="opt1b" onclick="captions(true);" style="
+    float: left;
+    width: 100px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+    /* border: 1px solid black; */
+">Add Captions</li>
+<li id="opt2b" onclick="captions(false);" style="
+    float: left;
+    width: 100px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; cursor: pointer;
+                                            
+    /* border: 1px solid #000; */
+">Remove Captions</li></ul>
+<div style="
+    width: 100%;
+    height: 1px;
+    background: #C7C7C7;
+"></div>
+
+<ul style="
+    list-style: none;
+">
+<li id="opt2c" onclick="img();" style="
+    float: left;
+    width: 220px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; 
+    /* margin-top: 8px; */
+    margin-bottom: 8px;
+    cursor: pointer;
+                                            ">Snapshot to Structure</li>
+<li onclick="about();" style="
+    float: left;
+    width: 220px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; 
+    /* margin-top: 8px; */
+    margin-bottom: 8px;
+    cursor: pointer;
+                                            ">About NCATSFind</li>
+											
+       
+<li onclick="update();" style="
+    float: left;
+    width: 220px;
+    background-color: #EBEBEB; padding: 10px; text-align: center; 
+    /* margin-top: 8px; */
+    margin-bottom: 8px;
+    cursor: pointer;
+                                            ">Check for New Version</li>											
+</ul>                                        
+
+                                            
+                                            </div>
+
+  
+<div id="status"></div>
+<div id="statusRefresh"></div>
+<div style="width:300px;margin:auto;">
+	<button style="float:right;margin-top:40px;margin-right:25px" onclick='closeit()'>Close</button>
+</div>
+</body>
+
+</html>
