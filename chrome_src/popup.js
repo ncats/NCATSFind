@@ -1,4 +1,6 @@
 var _loaded=false;
+populateSavedSettings();
+
 /*
 Firefox legacy
 addon.port.on("show", function (arg) {
@@ -29,7 +31,11 @@ function FIREFOX_GETUID(){
 
 function saveSettings(){
 	var settings=getSettingsFromForm();
-	addon.port.emit("saveSettings", settings);
+	//addon.port.emit("saveSettings", settings);
+
+	chrome.storage.local.set({'settings': settings}, function (result2) {
+			//???
+   		});
 }
 function getSettingsFromForm(){
 	var settings={};

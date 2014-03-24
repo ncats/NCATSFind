@@ -2,7 +2,34 @@
 <html>
 <head>
   <script>
-   chrome.contextMenus.create({id:"image",title:"Image to Structure",contexts:["image"]});
+function getChemicalFormat(str,format,callback){
+        str = encodeURIComponent(str);
+        ajaxPost("https://tripod.nih.gov/servlet/exporter/","structure=" + str + "&format=" + format.toUpperCase(),callback);
+}
+function ajaxPost(murl,data,callback){
+	var xhr = new XMLHttpRequest();
+        xhr.open("POST", murl, true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("Content-length", data.length);
+        xhr.setRequestHeader("Connection", "close");
+        xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+        		callback(xhr.responseText);
+		}
+        }
+        xhr.send(data);
+}
+
+
+
+
+
+
+
+
+
+
+chrome.contextMenus.create({id:"image",title:"Image to Structure",contexts:["image"]});
 chrome.contextMenus.create({id:"image2",title:"Image to Structure",contexts:["page"]});
 chrome.contextMenus.create({id:"display",title:"Display structure of %s",contexts:["selection"]});
 chrome.runtime.onMessage.addListener(
@@ -10,6 +37,19 @@ chrome.runtime.onMessage.addListener(
 		if(request.type == "capture"){
 			captureImage("TOP");
 		}
+		if(request.type == "edit"){
+			//todo: chrome
+			console.log(JSON.stringify(request));
+			var molecule=request.data.molecule;
+                        if(molecule.molfile == undefined){
+                                        getChemicalFormat(molecule.smiles,"MOL",function(mol){
+                                                showMolEditor(mol);
+                                        });
+                        }else{
+                                showMolEditor(molecule.molfile);
+                        }
+		}
+
 		if(request.type == "clipPing"){
 			chrome.tabs.query({currentWindow: true}, function(tabs) {
 				var tcount=0;
@@ -62,14 +102,9 @@ chrome.runtime.onMessage.addListener(
   });
 chrome.commands.onCommand.addListener(function(command) {
   if(command == "capture"){
-	//alert(JSON.stringify(command));
 	captureImage("TOP");
-	//doesn't seem to work
-	//document.getElementById("copypaste").setAttribute("src","http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()");
-	//window.open("http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()");
   }
 });  
-//http://www.elncloud.com/jsdrawapp/jsdraw/JSDrawClipboard.htm?JSDrawClipboard_onstart()
 
 chrome.contextMenus.onClicked.addListener(function(t){
 	//alert("b");
@@ -121,26 +156,24 @@ function captureImage(framen){
 			});
     	});
 }
+function showMolEditor(mol, img){
+	chrome.storage.local.set({'resIMGURL': img}, function (result2) {});
+	chrome.storage.local.set({'ncgcImage': mol}, function (result2) {});
+        //var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        	chrome.tabs.sendMessage(tabs[0].id, {greeting: "displayEdit", frame: "TOP" }, function(response) {});
+        });
+}
+
 function displayResolve(url2, dataurl){
-							var xhr = new XMLHttpRequest();
+				var xhr = new XMLHttpRequest();
                                     xhr.open("GET", url2+dataurl, true);
                                     xhr.onreadystatechange = function() {
                                       if (xhr.readyState == 4) {
-										 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-											chrome.tabs.sendMessage(tabs[0].id, {greeting: "image", image: xhr.responseText }, function(response) {});
-										 });
-										 
-										 chrome.storage.local.set({'resIMGURL': (dataurl)}, function (result2) {});
-										 
-										 chrome.storage.local.set({'ncgcImage': xhr.responseText}, function (result2) {
-												var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
-												//chrome.tabs.create({url:newURL});
-												chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-													chrome.tabs.sendMessage(tabs[0].id, {greeting: "displayEdit", frame: "TOP" }, function(response) {});
-												});
-										});
-										 
-                                        // alert(xhr.responseText);
+					chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+						chrome.tabs.sendMessage(tabs[0].id, {greeting: "image", image: xhr.responseText }, function(response) {});
+					});
+					showMolEditor(xhr.responseText,dataurl);
                                       }
                                     }
                                     xhr.send();

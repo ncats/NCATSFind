@@ -6,6 +6,7 @@
 // @match      *://*/*
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
+/* Zepto v1.1.2 - zepto event ajax form ie - zeptojs.com/license */
 
 var CHROME_EXT=1;
 var FIREFOX_EXT=2;
@@ -59,21 +60,6 @@ function initializeListeners(){
 			addFirefoxListeners();
 			break;
 	}
-}
-function editMolecule(data){
-        EXT_TYPE=getExtensionType();
-        switch(EXT_TYPE){
-                case CHROME_EXT:
-			console.log("editting molecule");
-        		chrome.runtime.sendMessage({type: "edit",
-                        	data:{"molecule":data}
-                        	}, function(response) {
-				});
-                        break;
-                case FIREFOX_EXT:
-                	FIREFOX_SEND_MESSAGE({type:"edit",data:{"molecule":{"smiles":smi}}},callback);
-                        break;
-        }
 }
 
 
@@ -300,15 +286,32 @@ function getSettings(callback2){
 		callback2(csettings);
 	}
 	if(EXT_TYPE==CHROME_EXT){
-                //settings = {};
-                getValue("settings",function(val){
-                        if(val!=undefined){
-                                settings=val;
-                        }
-                        callback(settings);
-                });
-	}else if(EXT_TYPE==FIREFOX_EXT){
-		//settings = {};
+		settings = {format:"svg"};
+		chrome.storage.local.get('ncgchoverRefresh', function (result) {
+			if(result.ncgchoverRefresh==false){
+   	 			settings.refresh=false;
+			}else{
+				settings.refresh=true;
+			}		
+			chrome.storage.local.get('ncgcdebug', function (result) {
+				if(result.ncgcdebug!=true){
+					settings.debug=false;
+				}else{
+					settings.debug=true;
+				}
+				chrome.storage.local.get('ncgchover', function (result) {
+					if(result.ncgchover==true || result.ncgchover==undefined){
+						settings.hover=true;
+					}else{
+						settings.hover=false;
+					}
+					if(callback)callback(settings);
+				});
+			});
+		});
+	}
+	if(EXT_TYPE==FIREFOX_EXT){
+		settings = {};
 		getValue("settings",function(val){
 			if(val!=undefined){
 				settings=val;
@@ -371,7 +374,6 @@ function mark2(){
         var element=elms[e];
 		if(doneElm[element])continue;
 		doneElm[element]=true;
-		//if(!$(element).is(":visible"))continue;
         if(element.textContent !=undefined){
             var UNIIS= getSpecialMatches(element.textContent);
 			
@@ -442,7 +444,6 @@ function mark2(){
                     $('.ncgchover .ncatsterm').css("border-radius","5px");
                     $('.ncgchover .ncatsterm').css("padding-right","5px");
                     $('.ncgchover .ncatsterm').css("padding-left","5px");
-                    //$('.ncgchover').css("cursor","pointer");
                     $(function() {
     $( document ).tooltip({
       items: ".ncgchover .ncatsterm",
@@ -528,19 +529,18 @@ function mark2(){
 		setTimeout(function(){mark()},refreshTime);
 }
 //TODO: get/set all globals through this function:
-function getValue(key,callback2){
+function getValue(key,callback){
 	console.log("----------GETTING");
 	switch(EXT_TYPE){
 		case CHROME_EXT:
 			chrome.storage.local.get(key, function (result) {
-					console.log("OK, I got something: " + result);
-					callback2(result[key]);
+					callback(result[key]);
 				});
 			break;
 		case FIREFOX_EXT:
 			var msg = {type:"get"};
 			msg["key"]=key;
-			FIREFOX_SEND_MESSAGE(msg,callback2);
+			FIREFOX_SEND_MESSAGE(msg,callback);
 			break;
 		case GM_EXT:
 		//TODO:IMPLEMENT
@@ -594,6 +594,9 @@ function myAjaxGet(murl,callback){
 			break;
 		case FIREFOX_EXT:
 			FIREFOX_SEND_MESSAGE({type:"ajax",url:murl},callback);
+			//var uid= (Math.round(Math.random()*100000));
+			//self.postMessage({type:"ajax",url:murl,id:uid});
+			//firefoxCallbacks[uid]=callback;
 			break;
 		case GM_EXT:
 			GM_xmlhttpRequest({
@@ -673,8 +676,8 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	$(".mystr img").click(function(){
 		//open in ketcher
 		var smi=$(this).parent().find("input").val();
-		var mole = {"smiles":smi};
-		editMolecule(mole);
+		var uid= (Math.round(Math.random()*100000));
+		self.postMessage({type:"edit",id:uid, data:{"molecule":{"smiles":smi}}});
 	});
 	
 	//rotation behavior:
@@ -689,7 +692,6 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	$(".ui-dialog-title").not(".active").html(strtitlem);
 	$(".ui-dialog-title").addClass("active");
 }
-
 //TODO: retire this, not really used anymore
 function display(str, wx, wy){
 	if(true)return;
@@ -1747,8 +1749,8 @@ function forceLoad(){
 		});
 	});
 }
-jQuery(document).ready(
-	function($){
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+$(document).ready(function($){
 		EXT_TYPE=getExtensionType();
 		//Clipboard applet
 		//console.log("loading");
@@ -1770,7 +1772,7 @@ jQuery(document).ready(
 			}
 			
 			//console.log(document.location.href);
-			$(document).mousemove(function (e) {
+			Zepto(document).mousemove(function (e) {
 				mouseX = e.pageX;
 				mouseY = e.pageY;
 			});
@@ -1778,5 +1780,4 @@ jQuery(document).ready(
 			setInterval(function(){fixRefresh()},refreshTime*2.1);
 			addPasteHandler();
 		}
-	}
-);
+});
