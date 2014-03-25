@@ -406,7 +406,7 @@ function addToClip(trans, flavor, data, len){
 function firefoxMolCopy(molecule){
 	var mfile = molecule.molfile.replace(/\r/g, '');
 	var smiles = molecule.smiles;
-	var mdlCT = cDrawMol(mfile);
+	var mdlCT = cDrawMol(mfile + "$$$$\n");
 	//get clipboard
 	var clip = components.classes["@mozilla.org/widget/clipboard;1"].getService(components.interfaces.nsIClipboard);
 	var trans = components.classes["@mozilla.org/widget/transferable;1"].createInstance(components.interfaces.nsITransferable);
