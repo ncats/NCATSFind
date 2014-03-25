@@ -246,10 +246,17 @@ function getEditorURL(){
 function displayEdit(strtitle,url){
 	if(strtitle==undefined)strtitle="Structure";
 	if(url==undefined)url=getEditorURL();
-	$("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:700px;' src='" + url + "'></iframe>")
+	$("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:740px;' src='" + url + "'></iframe>")
 	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}})
-	.dialog( "option", "width", 720)
-	.dialog( "option", "height", 600).dialog({dialogClass:'NCATSFindDialog'});
+	.dialog( "option", "width", 760)
+	.dialog( "option", "height", 600)
+	.dialog({dialogClass:'NCATSFindDialog'});
+	$(".NCATSFindDialog").css('position','fixed');
+	$(".NCATSFindDialog").not(".setup").css('top','0px');
+        $(".NCATSFindDialog").not(".setup").css('left','0px');
+        $(".NCATSFindDialog").not(".setup").addClass("setup"); 
+
+
 	$(".ui-dialog").css('z-index', 99999); 
 }
 function imageToPngBase64(imgsrc){
@@ -669,7 +676,12 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	.dialog({dialogClass:'NCATSFindDialog',closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}});
 	//.dialog({dialogClass:'NCATSFindDialog'});
 	$(".ui-dialog").css('z-index', 99999); 
-	
+	$(".NCATSFindDialog").css('position','fixed');
+	$(".NCATSFindDialog").not(".setup").css('top','0px');
+	$(".NCATSFindDialog").not(".setup").css('left','0px');
+	$(".NCATSFindDialog").not(".setup").addClass("setup");
+
+
 	$(".mystr img").click(function(){
 		//open in ketcher
 		var smi=$(this).parent().find("input").val();
