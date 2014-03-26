@@ -64,7 +64,7 @@ function editMolecule(data){
         EXT_TYPE=getExtensionType();
         switch(EXT_TYPE){
                 case CHROME_EXT:
-			console.log("editting molecule");
+			//console.log("editting molecule");
         		chrome.runtime.sendMessage({type: "edit",
                         	data:{"molecule":data}
                         	}, function(response) {
@@ -106,7 +106,7 @@ function addFirefoxListeners(){
 		if (addonMessage.type == "imgprocess"){
 			//if(request.frame == document.location.href ){
 				var b64=imageToPngBase64(addonMessage.imgurl).split("png;base64,")[1];
-				console.log(b64);
+				//console.log(b64);
 				sendResponse({base64:b64});
 				var uid= (Math.round(Math.random()*100000));
 				self.postMessage({type:"imgprocess",data:data,id:uid});
@@ -204,7 +204,7 @@ function addChromeListeners(){
 		if (request.greeting == "imgprocess"){
 			if(request.frame == document.location.href ){
 				var b64=imageToPngBase64(request.imgurl).split("png;base64,")[1];
-				console.log(b64);
+				//console.log(b64);
 				sendResponse({base64:b64});
 			}
 		}
@@ -279,7 +279,7 @@ function mark(){
 	next=false;
 	var startTime=(new Date()).getTime();
 		getSettings(function(settings){
-			//console.log(JSON.stringify(settings));
+			////console.log(JSON.stringify(settings));
 			
 			
 			if(settings.hover){
@@ -287,7 +287,7 @@ function mark(){
 				if(prevhtml!=nhtml){
 					prevhtml=nhtml; 
 					mark2();  
-					console.log("Finding:" + (((new Date()).getTime()-startTime)/1000));
+					//console.log("Finding:" + (((new Date()).getTime()-startTime)/1000));
 				}
 			}		
 		});
@@ -335,13 +335,13 @@ function unmark(){
 }
 function getParentTree(e){
 	return "";
-	console.log(e.outerHTML);
+	//console.log(e.outerHTML);
 	return e.outerHTML;
 	var e2=e;
 	var plist="";
 	while(e2!=undefined){
 		plist+=e2.tagName+"->";
-		console.log(e2.innerHTML);
+		//console.log(e2.innerHTML);
 		e2=e2.parentNode;
 	}
 	return plist;
@@ -365,7 +365,7 @@ function mark2(){
 	var startTime=(new Date()).getTime();
 	var regexSet=getRegexSet();
 	var elms = getChild(document.body,regexSet);
-	console.log("Tree Nav:" + (((new Date()).getTime()-startTime)/1000));
+	//console.log("Tree Nav:" + (((new Date()).getTime()-startTime)/1000));
 	
 	var gotsome=false;
 	var numgot=0;
@@ -388,7 +388,7 @@ function mark2(){
                 for(i in regexSet){
                 	if(!isNaN(i)){
                 		var m=str.match(regexSet[i]);
-                		//console.log(element.parentNode.outerHTML);
+                		////console.log(element.parentNode.outerHTML);
                 		if(m!=null){
                 			for(o in m){
                 				found.push(m[o]);
@@ -408,7 +408,7 @@ function mark2(){
 					if(Array.isArray(actualTerm)){
 						actualTerm = actualTerm[0];
 					}
-					//console.log(actualTerm);
+					////console.log(actualTerm);
 					var strRep = str.replace(actualTerm,"____");
             		if(!matchAny(strRep,
             		new RegExp("____[^<>]*[>]","g")
@@ -418,11 +418,11 @@ function mark2(){
 						var eIndex=sIndex+actualTerm.length;
 						
 						var n=str.substring(eIndex,eIndex+1)+" ";
-						//console.log("N is:" + n);
+						////console.log("N is:" + n);
 						
 						
 						if(n==undefined || (n+"").match(/^[0-9A-Z]/)==null){
-							console.log("GOT STR:" + str);
+							//console.log("GOT STR:" + str);
 							var str2=str.replace(actualTerm,
 							'<span class="ncgchover unii" !><span class="ncatsterm">'+actualTerm +"</span>"+dotHTML+'</span>');
 								if(str2!==str){
@@ -441,7 +441,7 @@ function mark2(){
     
                 if (str != ostr) {
                 	gotsome=true;
-                	//console.log(ostr);
+                	////console.log(ostr);
                     element.innerHTML = str;
 
                     $('.ncgchover .ncatsterm').css("font-weight", "bold");
@@ -504,7 +504,7 @@ function mark2(){
                                 if(str!="d"){
 									display(lookup[uniilook]);
                                 }else{
-									//console.log("In process");   
+									////console.log("In process");   
                                 }
                             }
                         }
@@ -536,11 +536,11 @@ function mark2(){
 }
 //TODO: get/set all globals through this function:
 function getValue(key,callback2){
-	console.log("----------GETTING");
+	//console.log("----------GETTING");
 	switch(EXT_TYPE){
 		case CHROME_EXT:
 			chrome.storage.local.get(key, function (result) {
-					console.log("OK, I got something: " + result);
+					//console.log("OK, I got something: " + result);
 					callback2(result[key]);
 				});
 			break;
@@ -556,7 +556,7 @@ function getValue(key,callback2){
 }
 
 function setValue(key,value){
-	console.log("----------SETTING");
+	//console.log("----------SETTING");
 	switch(EXT_TYPE){
 		case CHROME_EXT:
 			var obj={};
@@ -586,7 +586,7 @@ function FIREFOX_GETUID(){
 	return (Math.round(Math.random()*100000));
 }
 function myAjaxGet(murl,callback){
-	console.log("OK ... what browser?");
+	//console.log("OK ... what browser?");
 	
 	switch(EXT_TYPE){
 		case CHROME_EXT:
@@ -621,7 +621,7 @@ function displayResolve(uniilook){
                             if(str==undefined){
                                 lookup[uniilook]="d";
 								var lurl="https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace("+","%2B") +  "&force=true&apikey="  + _cacheSettings.apikey;
-								console.log(uniilook);
+								//console.log(uniilook);
 								
 								myAjaxGet(lurl,function(data){
 										if(data.indexOf("Exception")<0){
@@ -641,7 +641,7 @@ function displayResolve(uniilook){
 									display2(lookup[uniilook],undefined,undefined, uniilook,lookup[uniilook + "_SRC"],lookup[uniilook + "_SRCURL"]);
                                 }else{
 									//TODO:DEBUG
-									console.log("In process");   
+									//console.log("In process");   
                                 }
                             }
 }
@@ -762,10 +762,10 @@ function getChild(elm,regex,force){
 	var startTime=(new Date()).getTime();
 	treeStartTime=startTime;
 	var ret = getChildren(elm,regex);
-	console.log("Actual Nav:" + (((new Date()).getTime()-startTime)/1000));
+	//console.log("Actual Nav:" + (((new Date()).getTime()-startTime)/1000));
 	
 	//if(true)return rret;
-	console.log("Found: " + ret.length + " nodes");
+	//console.log("Found: " + ret.length + " nodes");
     var rret=[];
 	var testCache={};
     for(i in ret){
@@ -799,7 +799,7 @@ function getChild(elm,regex,force){
 function acceptNode(telm){
 	//if(telm.outerHTML==undefined)return true;
 	var t = telm.outerHTML.replace(telm.innerHTML,"");
-	console.log("ITS:" + t);
+	//console.log("ITS:" + t);
     if(
                 t.indexOf("noscript")>=0
                 || t.indexOf("textarea")>=0
@@ -843,7 +843,7 @@ function getChildren(elm, regex){
 		tlevel--;
         return undefined;
     }
-	//console.log("entering level " + tlevel + ", looking at:" + elm.tagName);
+	////console.log("entering level " + tlevel + ", looking at:" + elm.tagName);
 	
 	var good = [];
     var childs = elm.children;
@@ -956,7 +956,7 @@ function getCASMatches(str){
 	var UNIIS=[];
 	while ((match = casreg.exec(str)) != null) {
 		UNIIS.push(match);
-		//console.log(JSON.stringify(match));
+		////console.log(JSON.stringify(match));
 	}                      
 	var gmatches = [];
 	for(k in UNIIS){
@@ -1138,7 +1138,7 @@ function takeSnap(callback,tut) {
         }else{
         	document.body.removeEventListener('mousemove',arguments.callee);
         }
-        //console.log(coor);
+        ////console.log(coor);
     }, false);
     var selectionEvent = function(e) {
         if (snapListen) {
@@ -1157,7 +1157,7 @@ function takeSnap(callback,tut) {
 					$.jGrowl("Click to select bottom-right corner of image");
             } else {
                 endc = tc;
-                //console.log(startc.x + "," + startc.y + "-" + endc.x + "," + endc.y);
+                ////console.log(startc.x + "," + startc.y + "-" + endc.x + "," + endc.y);
                 var rect={x:startc.x,y:startc.y,height:(endc.y-startc.y),width:(endc.x-startc.x)};
                 callback(rect);
 				$.jGrowl("Processing image");
@@ -1219,16 +1219,16 @@ function chrome_clipsetup_local(callback){
 					if(response && !response.setup){
 						callback();
 					}else{
-						console.log("waiting...");
+						//console.log("waiting...");
 						chrome_clipsetup_local(callback);
 					}
 				}),100);
 }
 function chrome_clipsetup(callback){
 			chrome.runtime.sendMessage({type: "clipPing"}, function(response) {
-				console.log("Callbacking");
+				//console.log("Callbacking");
 				if(response.setup){
-					console.log("Need setup");
+					//console.log("Need setup");
 					var iframe=document.createElement("IFRAME");
 					iframe.src = "http://tripod.nih.gov/ncatsfind/chemclip.html";
 					iframe.setAttribute("style","opacity:0");
@@ -1236,7 +1236,7 @@ function chrome_clipsetup(callback){
 					alert("Initializing clipboard applet");
 					chrome_clipsetup_local(callback);
 				}else{
-					console.log("Think its setup");
+					//console.log("Think its setup");
 				
 					callback();
 				}
@@ -1247,11 +1247,11 @@ function addAppletListener(){
 	  function(request, sender, sendResponse) {
 		if (request.type == "copy"){
 			appletCopy(request.molecule);
-			console.log(request.molecule);
+			//console.log(request.molecule);
 		}
 		if (request.type == "paste"){
 			var mfile=appletPaste();
-			console.log("paste" + mfile);
+			//console.log("paste" + mfile);
 			if((mfile+"")!="null"){
 				sendResponse({molfile:mfile});
 			}
@@ -1259,7 +1259,7 @@ function addAppletListener(){
 		if( request.type == "clipPing"){
 			if(typeof document.getElementById("chemclipboard").test == "function"){
 				if(document.getElementById("chemclipboard").test("D") == "D"){
-					console.log("found it");
+					//console.log("found it");
 					sendResponse("OK");
 					return true;
 				}
@@ -1425,15 +1425,15 @@ function setMol(m){
 */
 function isNormalCopy(){
 	if(document.getSelection()){
-		console.log("-----SELECTION");
+		//console.log("-----SELECTION");
 		var sel = document.getSelection();
 		if(sel.rangeCount>=1){
-			console.log("-----SELECTION ENOUGH");
+			//console.log("-----SELECTION ENOUGH");
 		
 			var s=sel.getRangeAt(0).endOffset-sel.getRangeAt(0).startOffset;
-			console.log("-----SELECTION "   + s);
+			//console.log("-----SELECTION "   + s);
 			if(s>=1){
-				console.log("DO NOTHING");
+				//console.log("DO NOTHING");
 				return true;
 			}
 		}
@@ -1575,7 +1575,7 @@ function nativeSetMol(m,callback){
 							sm=require("casdraw/domain/structureModel");
 						}
 						if(sm){
-							console.log("found");
+							//console.log("found");
 							sm.convertDslJson(mol.json);
 							sm.centerAndScaleStructure();
 						}
@@ -1592,12 +1592,12 @@ function pasteEvent(){
 	if(isNormalPaste()){
 		return true;		
 	}
-	console.log("PASTE EVENT");
+	//console.log("PASTE EVENT");
 		switch(EXT_TYPE){
 			case CHROME_EXT:
 					chrome_clipsetup(function(){
 						chrome.runtime.sendMessage({type: "paste"}, function(response) {
-							console.log("got paste" + JSON.stringify(response));
+							//console.log("got paste" + JSON.stringify(response));
 							setMol(response);
 						});
 					});
@@ -1605,7 +1605,7 @@ function pasteEvent(){
 			case FIREFOX_EXT:
 				FIREFOX_SEND_MESSAGE({type:"paste"},function(mol){
 					if(mol!=undefined){
-						console.log(mol);
+						//console.log(mol);
 						setMol({molfile:mol});
 					}
 				});
@@ -1615,7 +1615,7 @@ function pasteEvent(){
 		return false;
 }
 function copyEvent(){
-	console.log("COPY");
+	//console.log("COPY");
 	var callback;
 	switch(EXT_TYPE){
 		case CHROME_EXT:
@@ -1649,7 +1649,7 @@ function addPasteHandler(document1){
 		var ctrlDown = false;
 		var ctrlKey = 17, vKey = 86, cKey = 67;
 		document1.onkeydown=function(e){
-			//console.log("down");
+			////console.log("down");
 			if (e.keyCode == ctrlKey) ctrlDown = true;
 			if (ctrlDown ){
 				if(e.keyCode == vKey){
@@ -1723,9 +1723,9 @@ function runlocal(src, param, callback, persist){
 //This is a hack fix exclusively for pages with frameset paste events
 //TODO: Refactor
 function tempFix(){
-	console.log("tryfix");
+	//console.log("tryfix");
 	for (var id=0;id<window.parent.frames.length; id++){
-		console.log("fixing" + id);
+		//console.log("fixing" + id);
 		addPasteHandler(window.parent.frames[id].document);
 	}
 	if(true)return;
@@ -1747,48 +1747,61 @@ function isReview(){
 function forceLoad(){
 	getValue("resIMGURL",function(resURL){
 		getValue("ncgcImage",function(mol){
-			console.log("------EXECUTING " + resURL + "," + mol);
+			//console.log("------EXECUTING " + resURL + "," + mol);
 			//if response is invalid, don't do anything
 			if(mol.indexOf("Not a valid")>=0){
 				
 			}else{
-				addCopyPasteBar();
+				if(getClipboardState()){
+                                        addCopyPasteBar();
+                }
 				//inject molfile and image
 				runlocal(function (ini){load_mol_url(ini.mol,ini.url);},{mol:mol,url:resURL});
 			}
 		});
 	});
 }
+function getClipboardState(){
+        EXT_TYPE=getExtensionType();
+        if(EXT_TYPE==FIREFOX_EXT){
+                if(navigator.userAgent.indexOf("indows")>=0){
+                        return true;
+                }
+        }
+        return false;
+}
+
 jQuery(document).ready(
-	function($){
-		EXT_TYPE=getExtensionType();
-		//Clipboard applet
-		//console.log("loading");
-		if((document.getElementById("chemclipboard")+"") != "null"){
-			addAppletListener();
-			console.log("clipboard");
-		}else{
-			//alert("INITIALIZE");
-			initializeListeners();
-			
-			if(EXT_TYPE==FIREFOX_EXT){
-				if(document.body.tagName=="FRAMESET"){
-					tempFix();
-				}
-				if(isReview()){
-					console.log("============Yes, it's review");
-					forceLoad();
-				}
-			}
-			
-			//console.log(document.location.href);
-			$(document).mousemove(function (e) {
-				mouseX = e.pageX;
-				mouseY = e.pageY;
-			});
-			mark();
-			setInterval(function(){fixRefresh()},refreshTime*2.1);
-			addPasteHandler();
-		}
-	}
+        function($){
+                EXT_TYPE=getExtensionType();
+                var CLIP_ON=getClipboardState();
+                //Clipboard applet
+                ////console.log("loading");
+                if((document.getElementById("chemclipboard")+"") != "null"){
+                        addAppletListener();
+                        ////console.log("clipboard");
+                }else{
+                        //alert("INITIALIZE");
+                        initializeListeners();
+
+                        if(EXT_TYPE==FIREFOX_EXT){
+                                if(document.body.tagName=="FRAMESET"){
+                                        if(CLIP_ON)tempFix();
+                                }
+                                if(isReview()){
+                                        ////console.log("============Yes, it's review");
+                                        forceLoad();
+                                }
+                        }
+
+                        ////console.log(document.location.href);
+                        $(document).mousemove(function (e) {
+                                mouseX = e.pageX;
+                                mouseY = e.pageY;
+                        });
+                        mark();
+                        setInterval(function(){fixRefresh()},refreshTime*2.1);
+                        if(CLIP_ON)addPasteHandler();
+                }
+        }
 );
