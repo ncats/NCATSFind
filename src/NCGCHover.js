@@ -246,6 +246,8 @@ function getEditorURL(){
 function displayEdit(strtitle,url){
 	if(strtitle==undefined)strtitle="Structure";
 	if(url==undefined)url=getEditorURL();
+	window.open(url);
+	if(true)return;
 	$("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:740px;' src='" + url + "'></iframe>")
 	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}})
 	.dialog( "option", "width", 760)
