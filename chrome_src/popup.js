@@ -1,5 +1,8 @@
 var _loaded=false;
+var _enabled=true;
+
 populateSavedSettings();
+refresh();
 
 /*
 Firefox legacy
@@ -73,8 +76,8 @@ function populateForm(settings){
 }
 function getSavedSettings(callback){
 	chrome.storage.local.get('settings', function (result) {
-    callback(result.settings); 
-  });
+		callback(result.settings); 
+	});
 }
 
 function img(){
@@ -103,6 +106,20 @@ function about(){
 }
 function update(){
 	//addon.port.emit("update");
-	chrome.runtime.sendMessage({type: "update"}, function(response) {});
-  
+	chrome.runtime.sendMessage({type: "update"}, function(response) {}); 
+}
+function refresh(){
+	chrome.storage.local.get('enabled', function (result) {
+		 var en=result.enabled;
+		_enabled=en;
+		if(_enabled){
+			document.getElementById("enableit").innerHTML = "Disable";
+		}else{
+			document.getElementById("enableit").innerHTML = "Enable";
+		}
+	});
+}
+function toggleEnabled(){
+	chrome.storage.local.set({'enabled': !_enabled});
+	refresh();
 }

@@ -2,6 +2,13 @@
 <html>
 <head>
   <script>
+var defaultSettings={format:"svg",hover:false,debug:true,refresh:false,
+			casResolve:true,
+			UNIIResolve:false,
+			inchiResolve:false,
+			NCGCResolve:false,
+			checkUpdates:true
+			};
 function getChemicalFormat(str,format,callback){
         str = encodeURIComponent(str);
         ajaxPost("https://tripod.nih.gov/servlet/exporter/","structure=" + str + "&format=" + format.toUpperCase(),callback);
@@ -22,7 +29,17 @@ function ajaxPost(murl,data,callback){
 
 
 
-
+	chrome.storage.local.get('settings', function (result) {
+		if(result.settings == undefined){
+			chrome.storage.local.set({'settings': defaultSettings});
+		}
+	});
+	
+	chrome.storage.local.get('enabled', function (result) {
+		if(result.enabled == undefined){
+			chrome.storage.local.set({'enabled': true});
+		}
+	});
 
 
 

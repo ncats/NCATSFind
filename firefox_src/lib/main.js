@@ -3,9 +3,10 @@ var tabs = require("sdk/tabs");
 var self = require("sdk/self");
 var { Hotkey } = require("sdk/hotkeys");
 var enabled=true;
-var version = 0.88;
 
+var version = self.version;
 
+var blackList = ["bankofamerica.com"];
 var defaultSettings={format:"png",hover:false,debug:true,refresh:false,
 			casResolve:true,
 			UNIIResolve:false,
@@ -71,6 +72,20 @@ text_entry.port.on("saveSettings", function(settings) {
 			setValue("settings",settings);
 			console.log("---------saved");
 		});
+		
+text_entry.port.on("message", function(message) {
+			if(message.type == "get"){
+				var ss = require("sdk/simple-storage");
+				var resp = getValue(message.key);
+				var id=message.id;
+				text_entry.port.emit("callback",{id:id,data:resp});
+				
+				//worker.port.emit("message",{id:message.id,type:"get",data:resp});
+			}else if(message.type == "set"){
+				var ss = require("sdk/simple-storage");
+				setValue(message.key,message.value);
+			}
+});
 text_entry.port.on("img", function(){
 	text_entry.hide();
 	getActiveWorker().port.emit("message",{id:1234,type:"bbox"});
@@ -159,28 +174,40 @@ cm.Item({
       }
 });
 
-/*
-//PageContext()
-cm.Item({
-  label: "Image to Structure (screenshot)",
-      context: cm.PageContext(),
-      contentScript: '  self.on("click", function () {' +
-      '  alertTest("b");' + 
-      '});',
-      onMessage: function (text) {
-		//Code for lookup goes here
-		console.log(text);
-      }
-});*/
-
 function getSnap(){
 
 }
 
+function rep(str, count){
+	var v="";
+	for(var i=0;i<count;i++){
+		v+=str;
+	}
+	return v;
+}
+
+function isAllowed(url){
+	if(!enabled)return false;
+	
+	for(i in blackList){
+		var str=blackList[i];
+		if(url.indexOf(str)>=0){
+			return false;
+		}
+	}
+	return true;
+}
+
+
 var workerMap = {};
 
 tabs.on("pageshow", function(tab) {
-
+	
+	console.log(rep("\n",20) + "loaded:" + tab.url + rep("\n",20));
+	if(!isAllowed(tab.url)){
+		return;
+	}
+	
   var worker = tab.attach({
     contentScriptFile:
 	[self.data.url("jquery.js"),self.data.url("jquery-ui.js"),self.data.url("jquery.jgrowl.js"), self.data.url("NCGCHover.js"),self.data.url("styleSetter.js")],
@@ -211,6 +238,7 @@ tabs.on("pageshow", function(tab) {
 			var molecule=message.data.molecule;
 			var ss = require("sdk/simple-storage");
 			ss.storage.resIMGURL = "";
+			
 			if(molecule.molfile == undefined){
 					getChemicalFormat(molecule.smiles,"MOL",function(mol){
 						showMolEditor(mol);
@@ -238,7 +266,6 @@ tabs.on("pageshow", function(tab) {
     }
   });
   workerMap[tab.id]=worker;
-  
   activeWorker=worker;
   console.log("attached");
 });
@@ -439,7 +466,7 @@ function displayResolveb64(b64,callback){
 
 
 //Save individual value
- function getValue(key){
+ function getValue(key,cback){
 		var ss = require("sdk/simple-storage");
 		var resp = ss.storage[key];
 		if(key=="settings"){
@@ -447,11 +474,17 @@ function displayResolveb64(b64,callback){
 				resp=defaultSettings;
 			}
 		}
+		if(cback!=undefined){
+			cback(resp);
+		}
 		return resp;	
  }
  function setValue(key, value){
 		var ss = require("sdk/simple-storage");
 		ss.storage[key] = value;
+		if(key=="enabled"){
+			enabled=value;
+		}
  }
  function launchAbout(){
 	tabs.open(self.data.url("about.html"));
@@ -542,3 +575,18 @@ function removeToolbarButton() {
 		navBar.removeChild(btn);
 	}
 }
+
+
+
+
+
+
+
+setValue("version",version);
+getValue("enabled",function(en){
+	if(en==undefined){
+		en=true;
+	}
+	enabled=en;
+	setValue("enabled",en);
+});

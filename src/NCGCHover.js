@@ -46,7 +46,7 @@ var _formRegexSet=[
 			"inchiKeyResolve"
 			];
 			
-var firefoxCallbacks={};
+
 var firefox_temp_settings=undefined;
 
 function initializeListeners(){
@@ -64,15 +64,14 @@ function editMolecule(data){
         EXT_TYPE=getExtensionType();
         switch(EXT_TYPE){
                 case CHROME_EXT:
-			//console.log("editting molecule");
-        		chrome.runtime.sendMessage({type: "edit",
+				chrome.runtime.sendMessage({type: "edit",
                         	data:{"molecule":data}
                         	}, function(response) {
 				});
                         break;
                 case FIREFOX_EXT:
-                	FIREFOX_SEND_MESSAGE({type:"edit",data:{"molecule":{"smiles":smi}}},callback);
-                        break;
+                	FIREFOX_SEND_MESSAGE({type:"edit",data:{"molecule":data}},function(){});
+                    break;
         }
 }
 
@@ -308,23 +307,13 @@ function getSettings(callback2){
 		
 		callback2(csettings);
 	}
-	if(EXT_TYPE==CHROME_EXT){
-                //settings = {};
-                getValue("settings",function(val){
-                        if(val!=undefined){
-                                settings=val;
-                        }
-                        callback(settings);
-                });
-	}else if(EXT_TYPE==FIREFOX_EXT){
-		//settings = {};
-		getValue("settings",function(val){
-			if(val!=undefined){
-				settings=val;
-			}
-			callback(settings);
-		});
-	}
+	
+    getValue("settings",function(val){
+        if(val!=undefined){
+			settings=val;
+        }
+        callback(settings);
+    });
 	return settings;
 }
 
@@ -578,6 +567,7 @@ function setValue(key,value){
 			break;
 	}
 }
+var firefoxCallbacks={};
 function FIREFOX_SEND_MESSAGE(msg,callback){
 	var uid= FIREFOX_GETUID();
 	msg["id"]=uid;

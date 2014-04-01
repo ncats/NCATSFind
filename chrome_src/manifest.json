@@ -1,14 +1,13 @@
 {
     "manifest_version": 2,
     "content_scripts": [ {
-        "exclude_globs":    [  ],
+        "exclude_globs":    [ "*bankofamerica.com*" ],
         "include_globs":    [ "*" ],
         "js":               [ 
 				"jquery.js",
 				"jquery-ui.js",
 				"jquery.jgrowl.js",
 				"NCGCHover.js"
-
 			    ],
         "css": ["jquery-ui.css","jquery.jgrowl.css"],
         "matches":          [   "<all_urls>"
@@ -43,8 +42,8 @@
 	"commands": {
     "capture": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Z",
-        "mac": "Command+Shift+Z"
+        "default": "Ctrl+Shift+C",
+        "mac": "Command+Shift+C"
       },
       "description": "Select screenshot area to convert to chemical structure"
     }
