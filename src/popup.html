@@ -100,7 +100,7 @@ function removeBlack(){
 <div style="
 background-color: rgb(218, 218, 218);
 margin: 0px;
-"><h1 style="display:inline;font-size: 2em;padding-left: 15px;margin: 0px;">NCATS<span style="color: orange;">FIND</span></h1><span>Version 0.88</span></div>
+"><h1 style="display:inline;font-size: 2em;padding-left: 15px;margin: 0px;">NCATS<span style="color: orange;">FIND</span></h1><span>Version <span id="version">0</span></span></div>
 
   <div style="
     width: 100%;
@@ -219,6 +219,11 @@ margin: 0px;
 <div style="width:300px;margin:auto;">
 	<button style="float:right;margin-top:40px;margin-right:25px" onclick='closeit()'>Close</button>
 </div>
+<script>
+	version(function(ver){
+		document.getElementById("version").innerHTML=ver;
+	});
+</script>
 </body>
 
 </html>

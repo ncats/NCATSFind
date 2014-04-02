@@ -51,6 +51,17 @@ update_panel.port.on("update", function(settings) {
 update_panel.port.on("close", function(settings) {
 	update_panel.hide();
 });
+update_panel.port.on("message", function(message) {
+			if(message.type == "get"){
+				var ss = require("sdk/simple-storage");
+				var resp = getValue(message.key);
+				var id=message.id;
+				update_panel.port.emit("callback",{id:id,data:resp});
+			}else if(message.type == "set"){
+				var ss = require("sdk/simple-storage");
+				setValue(message.key,message.value);
+			}
+});
 
 // Construct a panel, loading its content from the "text-entry.html"
 // file in the "data" directory, and loading the "get-text.js" script
@@ -219,6 +230,17 @@ tabs.on("pageshow", function(tab) {
 		if(allow){
 			attachScript(tab);
 		}
+	});
+	tab.port.on("message", function(message) {
+			if(message.type == "get"){
+				var ss = require("sdk/simple-storage");
+				var resp = getValue(message.key);
+				var id=message.id;
+				update_panel.port.emit("callback",{id:id,data:resp});
+			}else if(message.type == "set"){
+				var ss = require("sdk/simple-storage");
+				setValue(message.key,message.value);
+			}
 	});
 });
 	

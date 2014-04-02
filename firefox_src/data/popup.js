@@ -1,7 +1,6 @@
 var _loaded=false;
 var _enabled=true;
 
-
 addon.port.on("show", function (arg) {
 		//there's a weird bug where this shows upnmore than once
 		if(!_loaded){
@@ -21,7 +20,14 @@ var firefoxCallbacks={};
 function FIREFOX_SEND_MESSAGE(msg,callback){
 	var uid= FIREFOX_GETUID();
 	msg["id"]=uid;
-	addon.port.emit("message",msg);
+	if(self.port==undefined){
+		if(typeof addon =="undefined"){
+			//catch
+		}else{
+			addon.port.emit("message",msg);
+		}
+	}else 
+		self.port.emit("message",msg);
 	firefoxCallbacks[uid]=callback;
 }
 function FIREFOX_GETUID(){
@@ -83,5 +89,17 @@ function refresh(){
 function toggleEnabled(){
 	setValue("enabled",!_enabled);
 	refresh();
+}
+function version(cback){
+	var version=-1;
+	getValue("version",function(ver){
+		version=ver;
+		if(cback!=undefined){
+			cback(version);
+		}
+	});
+	
+	
+	return version;
 }
 		

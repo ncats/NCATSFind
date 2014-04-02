@@ -40,7 +40,11 @@ function ajaxPost(murl,data,callback){
 			chrome.storage.local.set({'enabled': true});
 		}
 	});
-
+	
+	var manifest = chrome.runtime.getManifest();
+	chrome.storage.local.set({'version': manifest.version});
+	
+	
 
 
 
@@ -53,8 +57,12 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
 		if(request.type == "capture"){
 			captureImage("TOP");
-		}
-		if(request.type == "edit"){
+		}else if(request.type == "about"){
+			var newURL ="chrome-extension://" + chrome.i18n.getMessage("@@extension_id") + "/about.html";
+			chrome.tabs.create({ url: newURL });
+		}else if(request.type == "update"){
+			checkUpdates();
+		}else if(request.type == "edit"){
 			//todo: chrome
 			console.log(JSON.stringify(request));
 			var molecule=request.data.molecule;
@@ -158,6 +166,22 @@ chrome.contextMenus.onClicked.addListener(function(t){
 		captureImage(framen);
 	}
 });
+function update(){
+	//TODO: Actual update procedure
+}
+function checkUpdates(){
+	console.log("Checking version");
+	ajaxGet("https://tripod.nih.gov/ncatsfind/_version_chrome.txt",function(data){
+		console.log("Nversion:" + data + ":" + version);
+		if(version < (data-0)){
+			console.log("There's a new version");
+			var newURL ="chrome-extension://" + chrome.i18n.getMessage("@@extension_id") + "/update.html";
+			chrome.tabs.create({ url: newURL });
+		}else{
+			//TODO: Something to say here
+		}
+	});
+}
 function captureImage(framen){
 	chrome.tabs.captureVisibleTab(null, function(img) {
 			chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -176,10 +200,10 @@ function captureImage(framen){
 function showMolEditor(mol, img){
 	chrome.storage.local.set({'resIMGURL': img}, function (result2) {});
 	chrome.storage.local.set({'ncgcImage': mol}, function (result2) {});
-        //var newURL = "chrome-extension://cabmomgdahhanlfnlpigldhlcbjijifb/ketcher/ketcher.html";
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         	chrome.tabs.sendMessage(tabs[0].id, {greeting: "displayEdit", frame: "TOP" }, function(response) {});
         });
+		
 }
 
 function displayResolve(url2, dataurl){
@@ -221,6 +245,18 @@ function displayResolveb64(b64){
 									xhr.send(params);
                                     
                                     //xhr.send();
+}
+
+ajaxGet(murl,callback){
+			var xhr1 = new XMLHttpRequest();
+			xhr1.open("GET", murl, true);
+			xhr1.onreadystatechange = function() {
+				if (xhr1.readyState == 4) {
+					callback(xhr1.responseText);
+				}
+			};
+			xhr1.send();
+
 }
   </script>
 </head>

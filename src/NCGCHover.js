@@ -210,9 +210,6 @@ function addChromeListeners(){
 		if (request.greeting == "displayEdit"){
 			if(request.frame == document.location.href || request.frame == "TOP"){
 					displayEdit();
-					//var c=document.createElement("DIV");
-					//c.innerHTML = "<iframe src='chrome-extension://nodjelikpenapjkodlddcphdfiihcohi/ketcher/ketcher.html'></iframe>";
-					//document.body.appendChild(c);
 			}
 		}
 		if (request.greeting == "display") {

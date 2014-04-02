@@ -4,33 +4,20 @@ var _enabled=true;
 populateSavedSettings();
 refresh();
 
-/*
-Firefox legacy
-addon.port.on("show", function (arg) {
-		//there's a weird bug where this shows upnmore than once
-		if(!_loaded){
-			populateSavedSettings();
-			//_loaded=true;
-		}
-});
-//listen for callbacks
-var callbacks = {};
-addon.port.on("callback", function (arg) {
-	//console.log(arg);
-	callbacks[arg.id](arg.data);
-});
-
-function FIREFOX_SEND_MESSAGE(msg,callback){
-	var uid= FIREFOX_GETUID();
-	msg["id"]=uid;
-	self.postMessage(msg);
-	firefoxCallbacks[uid]=callback;
-}
-function FIREFOX_GETUID(){
-	return (Math.round(Math.random()*100000));
+function getValue(key,callback2){
+			chrome.storage.local.get(key, function (result) {
+					//console.log("OK, I got something: " + result);
+					callback2(result[key]);
+				});
 }
 
-*/
+function setValue(key,value){
+			var obj={};
+			obj[key]=value;
+			chrome.storage.sync.set(obj, function() {
+				//Not sure what to do here
+			});
+}
 
 function saveSettings(){
 	var settings=getSettingsFromForm();
@@ -89,4 +76,17 @@ function refresh(){
 function toggleEnabled(){
 	chrome.storage.local.set({'enabled': !_enabled});
 	refresh();
+}
+function version(cback){
+	var version=-1;
+	var v=getValue("version",function(ver){
+		version=ver;
+		if(cback!=undefined){
+			cback(version);
+		}
+	});
+	if(version==-1){
+		version=v;
+	}
+	return version;
 }
