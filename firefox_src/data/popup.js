@@ -45,41 +45,6 @@ function saveSettings(){
 	var settings=getSettingsFromForm();
 	addon.port.emit("saveSettings", settings);
 }
-function getSettingsFromForm(){
-	var settings={};
-	var elms= document.getElementsByTagName("input");
-	for(var e =0;e<elms.length;e++){
-		//console.log(e);
-			var elm=elms[e];
-			var id=elm.id;
-			var val=elm.value;
-			if(elm.type == "checkbox"){
-				val=elm.checked;
-			}
-			//console.log(e + "\t" + val);
-			settings[id]=val;
-	}
-	console.log("------got form");
-	return settings;
-}
-function populateSavedSettings(){
-	getSavedSettings(populateForm);
-}
-function populateForm(settings){
-	//alert(settings);
-	//console.log(settings);
-	if(settings !=undefined){
-	for(e in settings){
-		var setting=settings[e];
-		var elm = document.getElementById(e);
-		if(elm.type == "checkbox"){
-			elm.checked=setting;
-		}else{
-			elm.value=setting;
-		}
-	}
-	}
-}
 function getSavedSettings(callback){
 	getValue("settings",callback);
 }
@@ -119,3 +84,4 @@ function toggleEnabled(){
 	setValue("enabled",!_enabled);
 	refresh();
 }
+		

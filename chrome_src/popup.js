@@ -40,40 +40,7 @@ function saveSettings(){
 			//???
    		});
 }
-function getSettingsFromForm(){
-	var settings={};
-	var elms= document.getElementsByTagName("input");
-	for(var e =0;e<elms.length;e++){
-		//console.log(e);
-			var elm=elms[e];
-			var id=elm.id;
-			var val=elm.value;
-			if(elm.type == "checkbox"){
-				val=elm.checked;
-			}
-			//console.log(e + "\t" + val);
-			settings[id]=val;
-	}
-	return settings;
-}
-function populateSavedSettings(){
-	getSavedSettings(populateForm);
-}
-function populateForm(settings){
-	//alert(settings);
-	//console.log(settings);
-	if(settings !=undefined){
-	for(e in settings){
-		var setting=settings[e];
-		var elm = document.getElementById(e);
-		if(elm.type == "checkbox"){
-			elm.checked=setting;
-		}else{
-			elm.value=setting;
-		}
-	}
-	}
-}
+
 function getSavedSettings(callback){
 	chrome.storage.local.get('settings', function (result) {
 		callback(result.settings); 

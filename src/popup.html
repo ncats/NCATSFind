@@ -16,6 +16,85 @@
 	}
 </style>
 <script src='popup.js'></script>
+<script>
+function getList(elm){
+		var sellist=[];
+		for(var i=0;i<elm.length;i++){
+			if(elm[i].selected ||true){
+				sellist.push(elm[i].value);
+			}
+		}
+		return sellist;
+	}
+function getSettingsFromForm(){
+	var settings={};
+	var elms= document.getElementsByTagName("input");
+	for(var e =0;e<elms.length;e++){
+		//console.log(e);
+			var elm=elms[e];
+			var id=elm.id;
+			var val=elm.value;
+			if(elm.type == "checkbox"){
+				val=elm.checked;
+			}
+			//console.log(e + "\t" + val);
+			settings[id]=val;
+	}
+	var elms= document.getElementsByTagName("select");
+	for(var e =0;e<elms.length;e++){
+			var elm=elms[e];
+			var id=elm.id;
+			var val=getList(elm);
+			settings[id]=val;
+	}
+	console.log("------got form");
+	return settings;
+}
+function populateSavedSettings(){
+	getSavedSettings(populateForm);
+}
+function populateForm(settings){
+	//alert(settings);
+	//console.log(settings);
+	if(settings !=undefined){
+	for(e in settings){
+		var setting=settings[e];
+		var elm = document.getElementById(e);
+		if(elm.tagName == "SELECT"){
+			elm.innerHTML="";
+			var nHTML = "";
+			for(var i =0;i<setting.length;i++){
+				nHTML +="<option value=\"" + setting[i] + "\" >" + setting[i] + "</option>";
+			}
+			elm.innerHTML=nHTML;
+		}else{
+			if(elm.type == "checkbox"){
+				elm.checked=setting;
+			}else{
+				elm.value=setting;
+			}
+		}
+	}
+	}
+}
+function addBlack(){
+	var site = prompt("New site for blacklist","bankofamerica.com");
+	if((site+"")!="null"){
+		document.getElementById("blacklist").innerHTML+="<option value=\"" + site + "\" >" + site + "</option>";
+		saveSettings();
+	}
+}
+function removeBlack(){
+	blist=document.getElementById("blacklist");
+	for(var i=0;i<blist.length;i++){
+		if(blist[i].selected){
+			blist[i].parentNode.removeChild(blist[i]);
+			i--;
+		}
+	}
+	saveSettings();
+}
+</script>
 </head>
 <body style="background:white;margin:0px">
 <div style="
@@ -55,7 +134,14 @@ margin: 0px;
 		<input name=apikey" id="apikey"></input>
 		<button onclick='saveSettings();'>Save</button>
 		</span>
-		<input type="hidden" style="display:none;" name="format" id="format" value='png' />		
+		<div style='padding-left:10px;padding-right:25px;'>
+			<input type="hidden" style="display:none;" name="format" id="format" value='png' />
+			<label for="blacklist">BlackListed Domains</label>
+			<select style="width:300px;display:block;" name="blacklist" id="blacklist" size="3"></select>
+			<button onclick='addBlack();'>Add Site</button>
+			<button onclick='removeBlack();'>Remove Site</button>
+		</div>
+		
 </div>    
     <div id="functions" style="display: block; margin: auto auto 20px;">
   <ul style="

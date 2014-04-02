@@ -6,13 +6,14 @@ var enabled=true;
 
 var version = self.version;
 
-var blackList = ["bankofamerica.com"];
+var blackList = [];
 var defaultSettings={format:"png",hover:false,debug:true,refresh:false,
 			casResolve:true,
 			UNIIResolve:false,
 			inchiResolve:false,
 			NCGCResolve:false,
-			checkUpdates:true
+			checkUpdates:true,
+			blacklist:["bankofamerica.com"]
 			};
 
 
@@ -186,28 +187,42 @@ function rep(str, count){
 	return v;
 }
 
-function isAllowed(url){
-	if(!enabled)return false;
+function isAllowed(url,callback){
+	var ret=enabled;
+	var setting = getValue("settings");
+	blackList=setting.blacklist;
 	
-	for(i in blackList){
-		var str=blackList[i];
-		if(url.indexOf(str)>=0){
-			return false;
+	if(ret){
+		if(Array.isArray(blackList)){
+			for(i in blackList){
+				var str=blackList[i];
+				if(url.indexOf(str)>=0){
+					ret=false;
+					break;
+				}
+			}
 		}
 	}
-	return true;
+	if(callback!=undefined){
+		callback(ret);
+	}
+	return ret;
 }
 
 
 var workerMap = {};
 
 tabs.on("pageshow", function(tab) {
-	
 	console.log(rep("\n",20) + "loaded:" + tab.url + rep("\n",20));
-	if(!isAllowed(tab.url)){
-		return;
-	}
 	
+	isAllowed(tab.url,function(allow){
+		if(allow){
+			attachScript(tab);
+		}
+	});
+});
+	
+function attachScript(tab) {	
   var worker = tab.attach({
     contentScriptFile:
 	[self.data.url("jquery.js"),self.data.url("jquery-ui.js"),self.data.url("jquery.jgrowl.js"), self.data.url("NCGCHover.js"),self.data.url("styleSetter.js")],
@@ -268,7 +283,7 @@ tabs.on("pageshow", function(tab) {
   workerMap[tab.id]=worker;
   activeWorker=worker;
   console.log("attached");
-});
+}
 
 
 
