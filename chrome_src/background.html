@@ -247,7 +247,7 @@ function displayResolveb64(b64){
                                     //xhr.send();
 }
 
-ajaxGet(murl,callback){
+function ajaxGet(murl,callback){
 			var xhr1 = new XMLHttpRequest();
 			xhr1.open("GET", murl, true);
 			xhr1.onreadystatechange = function() {
