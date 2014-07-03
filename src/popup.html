@@ -127,14 +127,14 @@ margin: 0px;
 			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
 			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Alerts</label></li>
 			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show How-To on Snapshot</label></li>
-			<li onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
+			<li class='ffonly' onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
 		</ul>
 		<span style='margin-left:10px;'>
 		<label for="apikey">ApiKey</label>
 		<input name=apikey" id="apikey"></input>
 		<button onclick='saveSettings();'>Save</button>
 		</span>
-		<div style='padding-left:10px;padding-right:25px;'>
+		<div class='ffonly' style='padding-left:10px;padding-right:25px;'>
 			<input type="hidden" style="display:none;" name="format" id="format" value='png' />
 			<label for="blacklist">BlackListed Domains</label>
 			<select style="width:300px;display:block;" name="blacklist" id="blacklist" size="3"></select>
@@ -192,7 +192,7 @@ margin: 0px;
                                             ">About NCATSFind</li>
 											
        
-<li onclick="update();" style="
+<li class="ffonly" onclick="update();" style="
     float: left;
     width: 220px;
     background-color: #EBEBEB; padding: 10px; text-align: center; 

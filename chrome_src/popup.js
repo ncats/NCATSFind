@@ -54,12 +54,9 @@ function captions(bol){
   });
 }
 function about(){
-	//addon.port.emit("about");
 	chrome.runtime.sendMessage({type: "about"}, function(response) {});
-  
 }
 function update(){
-	//addon.port.emit("update");
 	chrome.runtime.sendMessage({type: "update"}, function(response) {}); 
 }
 function refresh(){
@@ -87,6 +84,12 @@ function version(cback){
 	});
 	if(version==-1){
 		version=v;
+	}
+	var elms = document.getElementsByClassName("ffonly");
+	for(var i=0;i<elms.length;i++){
+		var st=elms[i];
+		console.log(st);
+		st.setAttribute("style",st.getAttribute("style") + ";display:none");
 	}
 	return version;
 }
