@@ -164,17 +164,15 @@ function addChromeListeners(){
 		}
 		if (request.greeting == "bbox"){
 			var sresp = sendResponse;
-			if(true){
-				if(request.frame == document.location.href|| request.frame == "TOP"){
-					takeSnap(function(r){
-						sresp({rect:r});
-					},true);
-					return true;
-				}		
+			if(request.frame == document.location.href || (request.frame == "TOP" && window.top==window)){
+				takeSnap(function(r){
+					sresp({rect:r});
+				},true);
+				return true;
 			}
 		}
 		if (request.greeting == "imagetest"){
-			if(request.frame == document.location.href || request.frame == "TOP"){
+			if(request.frame == document.location.href || (request.frame == "TOP" && window.top==window)){
 				var rect=request.rect;
 				var c=document.createElement("CANVAS");
 				c.style="border:1px solid #d3d3d3;";
@@ -1150,8 +1148,11 @@ function tutorialOverlay(callback){
         };
         document.body.addEventListener("mousemove", function myFunction(e) {
             if (snapListen) {
-                console.log("resizing");
+                //console.log("resizing");
                 tc = getPoint(e);
+		var minWidth=15;
+		var minHeight=15;
+		//copy object
                 var oc = JSON.parse(JSON.stringify(startc));
 
 
@@ -1162,7 +1163,14 @@ function tutorialOverlay(callback){
                     oc.y = startc.y + (my);
                     tc.x = endc.x + (mx);
                     tc.y = endc.y + (my);
-                }
+                }else{
+		    if(tc.x < oc.x +minWidth){
+			tc.x=oc.x +minWidth;
+		    }
+		    if(tc.y < oc.y +minHeight){
+			tc.y=oc.y +minHeight;
+		    }
+		}
                 document.getElementById("mycoord").style.top = (tc.y + window.pageYOffset - 13) + "px";
                 document.getElementById("mycoord").style.left = (tc.x + window.pageXOffset - 13) + "px";
                 if (startc != undefined) {
@@ -1186,7 +1194,6 @@ function tutorialOverlay(callback){
                     document.getElementById("overlay-4").style.width = (oc.x + w) + "px";
                     document.getElementById("overlay-4").style.height = "125%";
                     document.getElementById("overlay-4").style.top = (oc.y + h) + "px";
-                    style = 'cursor:se-resize;position:absolute;bottom:-17px;right:-17px;border:2px solid rgb(0, 160, 0);background-color:#00FF00;border-radius:10px;width:15px;height:15px'
                     document.getElementById("overlay-4").style.left = "0px";
 
                     document.getElementById("myrect").style.top = oc.y + "px";
@@ -1243,7 +1250,7 @@ function tutorialOverlay(callback){
 
                         if (fullDone) {
                             unloadfunc(arguments.callee);
-                            callback(rect);
+			    setTimeout(function(){callback(rect);},0);
                         }
                     }
 
@@ -1264,10 +1271,10 @@ function tutorialOverlay(callback){
         var resizeDiv1 = "<div style='cursor:nw-resize;position:absolute;top:0px;left:0px;border:2px solid blue;background-color:#000088;width:25px;height:25px'></div>";
         var resizeDiv2 = "<div style='cursor:ne-resize;position:absolute;top:0px;right:0px;border:2px solid blue;background-color:#000088;width:25px;height:25px'></div>";
         var resizeDiv3 = "<div style='cursor:sw-resize;position:absolute;bottom:0px;left:0px;border:2px solid blue;background-color:#000088;width:25px;height:25px'></div>";
-        var resizeDiv4 = "<div id='botrightresize' style='cursor:se-resize;position:absolute;bottom:-17px;right:-17px;border:2px solid rgb(0, 160, 0);background-color:#00FF00;border-radius:10px;width:15px;height:15px'></div>";
+        var resizeDiv4 = "<div id='botrightresize' style='cursor: se-resize;position: absolute;bottom: -16px;right: -16px;width: 32px;height: 32px;background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3klEQVR42mMwNjZm1dLSYlNRUWEH0SDs6enJTowYSC8DiBEaGspZWFjI6ePjwwWiQXxixBISHDjABpCjGcRPSEiAGECOZhQDSNHMzMx8mpeX9/K5c+ek4AaQYjNIs6qq6qsHDx5YoRhArLOPHDkiBdK8fv16AfoEIrKfQWIsLCxgPsglRAUisp9BYjD+y5cvLYkKRGQ/w/ggzfPnzxcgKxAJpkSgn0/h8jNSmFxBCQNi/QxSB+IDM9Trp0+fWmENRHx+BqkD8UGa4WEAypIODg4cubm57CABGJs4MU92AHZ4N7/7k4lSAAAAAElFTkSuQmCC\");background-repeat: no-repeat;'></div>";
 
-        var styleov = 'cursor:crosshair;width: 100%;height: 100%;position: absolute;top: 0px;left: 0px;background: rgba(0, 0, 0, 0.25);    font-size: 20pt;    color: white;    /* display: none; */    z-index: 999999 !important;    text-align: center;    position: fixed;';
-        var styleov2 = 'cursor:crosshair;width: 0;height: 0;position: absolute;top: 0px;left: 0px;background: rgba(0, 0, 0, 0.25);    font-size: 20pt;    color: white;    /* display: none; */    z-index: 999999 !important;    text-align: center;    position: fixed;';
+        var styleov = 'border:none;cursor:crosshair;width: 100%;height: 100%;position: absolute;top: 0px;left: 0px;background: rgba(0, 0, 0, 0.25);    font-size: 20pt;    color: white;    /* display: none; */    z-index: 999999 !important;    text-align: center;    position: fixed;';
+        var styleov2 = 'border:none;cursor:crosshair;width: 0;height: 0;position: absolute;top: 0px;left: 0px;background: rgba(0, 0, 0, 0.25);    font-size: 20pt;    color: white;    /* display: none; */    z-index: 999999 !important;    text-align: center;    position: fixed;';
         tut = document.createElement("DIV");
         tut.setAttribute("style", styleov);
         tut.id = "overlay-1";
@@ -1293,8 +1300,8 @@ function tutorialOverlay(callback){
         document.body.appendChild(tut);
 
         var econt = document.createElement("DIV");
-        econt.innerHTML += "<div id='myrect' style='cursor:move;position:fixed;border:1px dashed black;top:0px;left:0px;width:0px;height:0px'>" +
-            "<div style='padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;'>" + title + "</div>" +
+        econt.innerHTML += "<div id='myrect' style='background:none;cursor:move;position:fixed;border:1px dashed black;top:0px;left:0px;width:0px;height:0px'>" +
+            "<div style='padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;height:19px;overflow:hidden;'>" + title + "</div>" +
         //resizeDiv1+
         //resizeDiv2+
         //resizeDiv3+
@@ -1352,7 +1359,7 @@ function takeSnap(callback,tut) {
     }	
     getScreenshotArea(function (area) {
     	callback(area);
-    }, "Screenshot Area");    
+    }, "Select Area");    
 }
 /*<<CLIPBOARD_START>>
 var CHROME_EXT=1;
