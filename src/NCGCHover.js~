@@ -1352,7 +1352,7 @@ function takeSnap(callback,tut) {
     }	
     getScreenshotArea(function (area) {
     	callback(area);
-    }, "Select Area");    
+    }, "Screenshot Area");    
 }
 /*<<CLIPBOARD_START>>
 var CHROME_EXT=1;

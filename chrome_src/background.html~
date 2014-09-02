@@ -183,6 +183,7 @@ function checkUpdates(){
 	});
 }
 function captureImage(framen){
+	
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {greeting: "bbox",frame: framen}, function(response) {
 				chrome.tabs.captureVisibleTab(null, function(img) {
