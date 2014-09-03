@@ -1963,8 +1963,8 @@ margin: 0px;
 
 <div id="status"></div>
 <div id="statusRefresh"></div>
-<div class="" style="position:fixed; bottom:25px;width:100%;margin:auto;">
-	<button style="float:right;margin-right:25px;" onclick='closeit()'>Close</button>
+<div class="" style="position:fixed; bottom:50px;width:100%;margin:auto;">
+	<button style="float:right;margin-right:50px;" onclick='closeit()'>Close</button>
 </div>
 <script>
 toggleClass("actions-panel");
