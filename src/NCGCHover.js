@@ -1089,6 +1089,9 @@ function tutorialOverlay(callback){
 								note1.style.display="none";
 								note2.style.display="none";
 								note3.style.display="none";
+								note1.style.opacity=0;
+								note2.style.opacity=0;
+								note3.style.opacity=0;
 								help.style.display="block";
 							}
 							note1.style.opacity=1-Math.min(ctime/10,1);
@@ -1119,6 +1122,9 @@ function tutorialOverlay(callback){
 		note1.style.display="block";
 		note2.style.display="block";
 		note3.style.display="block";
+		note1.style.opacity=0;
+		note2.style.opacity=0;
+		note3.style.opacity=0;
 		help.style.display="none";
 		fadeyElm(note2,function(){
 					fadeyElm(note1,function(){
@@ -1319,7 +1325,7 @@ function tutorialOverlay(callback){
             document.body.addEventListener("mousedown", selectionEvent, false);
         }
         var tut = {};
-        var okbutton = "<button style='bottom: -35px;left: 0px;position: absolute;z-index: 2999999;display: inline-block;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;padding: 8px;color: white;border-radius: 4px;text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);background: rgb(98, 116, 190);border: 0 rgba(0,0,0,0);font-size: 10pt;' id='confirmSelect'>Confirm</button>";
+        var okbutton = "<button style='bottom: -35px;left: 0px;position: absolute;z-index: 2999999;display: inline-block;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;padding: 8px;color: white;border-radius: 4px;text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);background: rgb(98, 116, 190);border: 0 rgba(0,0,0,0);font-size: 10pt;' id='confirmSelect'>Process</button>";
         var cancelbutton = "<button style='position: absolute;top: -31px;right: 0px;z-index: 2999999;display: inline-block;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;padding: 6px;color: white;border-radius: 4px;text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);background: rgb(223, 0, 0);border: 0 rgba(0,0,0,0);font-size: 10pt;font-weight: bold;' id='cancelSelect'>X</button>";
         var resizeDiv4 = "<div id='botrightresize' style='cursor: se-resize;position: absolute;bottom: -16px;right: -16px;width: 32px;height: 32px;background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3klEQVR42mMwNjZm1dLSYlNRUWEH0SDs6enJTowYSC8DiBEaGspZWFjI6ePjwwWiQXxixBISHDjABpCjGcRPSEiAGECOZhQDSNHMzMx8mpeX9/K5c+ek4AaQYjNIs6qq6qsHDx5YoRhArLOPHDkiBdK8fv16AfoEIrKfQWIsLCxgPsglRAUisp9BYjD+y5cvLYkKRGQ/w/ggzfPnzxcgKxAJpkSgn0/h8jNSmFxBCQNi/QxSB+IDM9Trp0+fWmENRHx+BqkD8UGa4WEAypIODg4cubm57CABGJs4MU92AHZ4N7/7k4lSAAAAAElFTkSuQmCC\");background-repeat: no-repeat;'></div>";
         var styleov2 = 'border:none;cursor:crosshair;width:0;height:0;position:absolute;top:0px;left:0px;background:rgba(0,0,0,0.25);font-size:20pt;color:white;z-index:999999 !important;text-align:center;position:fixed;';
@@ -1354,16 +1360,16 @@ function tutorialOverlay(callback){
 	myrect.innerHTML = "<div style='box-sizing: initial;padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;height:19px;overflow:hidden;'>" + title + "</div>" +
         resizeDiv4 + okbutton + cancelbutton;
     note1= document.createElement("DIV");
-	note1.setAttribute("style","opacity:0;width: 350px;    color: rgb(255, 255, 255);    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
+	note1.setAttribute("style","opacity:0;width: 350px;    color: rgb(255, 255, 255);text-align:center;    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
 	note1.innerHTML="Resize the box to surround the full structure";
 	myrect.appendChild(note1);
 	note2= document.createElement("DIV");
-	note2.setAttribute("style","opacity:0;width: 350px;    color: rgb(255, 255, 255);    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    top: 0;    margin: 0;");
+	note2.setAttribute("style","opacity:0;width: 350px;    color: rgb(255, 255, 255);text-align:center;    left: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    top: 0;    margin: 0;");
 	note2.innerHTML="Move the box to the chemical structure";
 	myrect.appendChild(note2);
 	note3= document.createElement("DIV");
-	note3.setAttribute("style","opacity:0;width: 300px;    color: rgb(255, 255, 255);text-align:right;    left: -310px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
-	note3.innerHTML="Click confirm";
+	note3.setAttribute("style","opacity:0;width: 120px;    color: rgb(255, 255, 255);text-align:center;    left: -130px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
+	note3.innerHTML="Click 'process'";
 	myrect.appendChild(note3);
 	
 	help= document.createElement("BUTTON");
