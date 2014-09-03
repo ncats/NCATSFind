@@ -1073,7 +1073,61 @@ function tutorialOverlay(callback){
 	var myrect;
 	var mycoord;
 	var nid;
-
+	var note1;
+	var note2;
+	var help;
+	var fadeStart=false;
+	var fadeNotes=function(){
+		if(!fadeStart){
+		fadeStart=true;
+		var timerID;
+		ntime=new Date();
+						timerID=setInterval(function(){
+							var ctime = (new Date() - ntime)/50;
+							if(ctime/10>1){
+								clearInterval(timerID);
+								note1.style.display="none";
+								note2.style.display="none";
+								note3.style.display="none";
+								help.style.display="block";
+							}
+							note1.style.opacity=1-Math.min(ctime/10,1);
+							note2.style.opacity=1-Math.min(ctime/10,1);
+							note3.style.opacity=1-Math.min(ctime/10,1);
+						},30);
+		}
+	
+	};
+	var fadeyElm = function(elm,cback){
+		ntime=new Date();
+		var nid3=setInterval(function(){
+							var ctime = (new Date() - ntime)/50;
+							var amp=100/(Math.pow(ctime,1.6));
+							if(amp<2){
+								clearInterval(nid3);
+								ntime=new Date();
+								cback();
+							}
+							var marg = Math.floor(amp*Math.sin(ctime));
+							elm.style.marginRight= marg + "px";
+							elm.style.marginLeft= marg + "px";
+							elm.style.opacity=Math.min(ctime/10,1);
+						},30);
+	};
+	var showNotes=function(){
+		fadeStart=false;
+		note1.style.display="block";
+		note2.style.display="block";
+		note3.style.display="block";
+		help.style.display="none";
+		fadeyElm(note2,function(){
+					fadeyElm(note1,function(){
+						fadeyElm(note3,function(){
+							
+						});
+					});
+				})
+	};
 
         var unloadfunc = function (torem) {
             fullDone = true;
@@ -1114,7 +1168,8 @@ function tutorialOverlay(callback){
                 x: x,
                 y: y
             };
-	    clearInterval(nid);
+			clearInterval(nid);
+			fadeNotes();
             return tc;
         }
        
@@ -1264,8 +1319,8 @@ function tutorialOverlay(callback){
             document.body.addEventListener("mousedown", selectionEvent, false);
         }
         var tut = {};
-        var okbutton = "<button style='position:absolute;bottom:-25px;left:0px;' id='confirmSelect'>Confirm</button>";
-        var cancelbutton = "<button style='position:absolute;top:-25px;right:0px;' id='cancelSelect'>Cancel</button>";
+        var okbutton = "<button style='bottom: -35px;left: 0px;position: absolute;z-index: 2999999;display: inline-block;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;padding: 8px;color: white;border-radius: 4px;text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);background: rgb(98, 116, 190);border: 0 rgba(0,0,0,0);font-size: 10pt;' id='confirmSelect'>Confirm</button>";
+        var cancelbutton = "<button style='position: absolute;top: -31px;right: 0px;z-index: 2999999;display: inline-block;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;padding: 6px;color: white;border-radius: 4px;text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);background: rgb(223, 0, 0);border: 0 rgba(0,0,0,0);font-size: 10pt;font-weight: bold;' id='cancelSelect'>X</button>";
         var resizeDiv4 = "<div id='botrightresize' style='cursor: se-resize;position: absolute;bottom: -16px;right: -16px;width: 32px;height: 32px;background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3klEQVR42mMwNjZm1dLSYlNRUWEH0SDs6enJTowYSC8DiBEaGspZWFjI6ePjwwWiQXxixBISHDjABpCjGcRPSEiAGECOZhQDSNHMzMx8mpeX9/K5c+ek4AaQYjNIs6qq6qsHDx5YoRhArLOPHDkiBdK8fv16AfoEIrKfQWIsLCxgPsglRAUisp9BYjD+y5cvLYkKRGQ/w/ggzfPnzxcgKxAJpkSgn0/h8jNSmFxBCQNi/QxSB+IDM9Trp0+fWmENRHx+BqkD8UGa4WEAypIODg4cubm57CABGJs4MU92AHZ4N7/7k4lSAAAAAElFTkSuQmCC\");background-repeat: no-repeat;'></div>";
         var styleov2 = 'border:none;cursor:crosshair;width:0;height:0;position:absolute;top:0px;left:0px;background:rgba(0,0,0,0.25);font-size:20pt;color:white;z-index:999999 !important;text-align:center;position:fixed;';
         tut = document.createElement("DIV");
@@ -1298,6 +1353,26 @@ function tutorialOverlay(callback){
 	myrect.setAttribute("style", "margin:0;font-size: 12pt;-webkit-box-sizing: initial;background:none;cursor:move;position:fixed;border:1px dashed black;top:0px;left:0px;width:0px;height:0px");
 	myrect.innerHTML = "<div style='box-sizing: initial;padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;height:19px;overflow:hidden;'>" + title + "</div>" +
         resizeDiv4 + okbutton + cancelbutton;
+    note1= document.createElement("DIV");
+	note1.setAttribute("style","opacity:0;width: 350px;    color: rgb(255, 255, 255);    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
+	note1.innerHTML="Resize the box to surround the full structure";
+	myrect.appendChild(note1);
+	note2= document.createElement("DIV");
+	note2.setAttribute("style","opacity:0;width: 350px;    color: rgb(255, 255, 255);    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    top: 0;    margin: 0;");
+	note2.innerHTML="Move the box to the chemical structure";
+	myrect.appendChild(note2);
+	note3= document.createElement("DIV");
+	note3.setAttribute("style","opacity:0;width: 300px;    color: rgb(255, 255, 255);text-align:right;    left: -310px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
+	note3.innerHTML="Click confirm";
+	myrect.appendChild(note3);
+	
+	help= document.createElement("BUTTON");
+	help.setAttribute("style","display: block;width: 25px;color: white;right: -25px;position: absolute;padding: 6px;font-family: sans-serif;font-size: 10pt;top: 0px;margin: 0px;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;border-top-left-radius: 4px;border-top-right-radius: 4px;border-bottom-right-radius: 4px;border-bottom-left-radius: 4px;text-shadow: rgba(0, 0, 0, 0.2) 0px 1px 1px;border: 0px rgba(0, 0, 0, 0);font-weight: bold;background: rgba(0, 0, 0, 0.4);");
+	help.innerHTML="?";
+	myrect.appendChild(help);
+	
+	
+	
 	mycoord = document.createElement("DIV");
 	mycoord.id="mycoord";
 	mycoord.setAttribute("style", "overflow:hidden;padding:0px;margin:0px;position:absolute;opacity:0.0;top:0px;left:0px;width:1px;height:1px");
@@ -1339,6 +1414,7 @@ function tutorialOverlay(callback){
             console.log("down");
             return false;
         }, false);
+		
 	var wstart = window.innerWidth/2;
 	var hstart = window.innerHeight/2;
 
@@ -1346,17 +1422,24 @@ function tutorialOverlay(callback){
 	var istart = JSON.parse(JSON.stringify(startc));
 	var iend = JSON.parse(JSON.stringify(endc));
 	var ntime=new Date();
+	
+	
 	nid=setInterval(function(){
-			
 			var ctime = (new Date() - ntime)/50;
-			var amp=100/(Math.pow(ctime,1.5));
-			if(amp<1){
+			var amp=100/(Math.pow(ctime,1.6));
+			if(amp<2){
 				clearInterval(nid);
+				showNotes();
 			}
 			var npos1 = {x:(istart.x),y:(istart.y+amp*Math.sin(ctime))};
 			var npos2 = {x:(iend.x),y:(iend.y+amp*Math.sin(ctime))};
 			positionWindow(npos2,npos1,true);
 		},30);
+	
+	help.addEventListener("click", function (e) {
+            showNotes();
+        }, false);
+	
     }
 function takeSnap(callback,tut) {
     if(false && tut){
