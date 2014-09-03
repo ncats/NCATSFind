@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
 <style>
+li:hover i.fa {
+color: rgb(0, 0, 0);
+}
+i.fa{
+	color:rgb(103, 103, 103);
+}
 	.panel{
 		-webkit-transition:left .5s, height 1s, background-color 1s, -webkit-transform 1s;
 		transition:left .5s, height 1s, background-color 1s, transform 1s;
@@ -1914,7 +1920,7 @@ margin: 0px;
 			<li onclick='saveSettings();'><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve">Resolve InChI string</label></li>
 			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
 			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Show Notifications</label></li>
-			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show guide on snapshot</label></li>
+			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show snapshot hints</label></li>
 			<li class='ffonly' onclick='saveSettings();'><input name="clipboard" id="clipboard" type="checkbox" value="clipboard" checked=""><label for="clipboard">Clipboard support (experimental)</label></li>
 			<li class='ffonly' onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
 		</ul>		
@@ -1963,8 +1969,8 @@ margin: 0px;
 
 <div id="status"></div>
 <div id="statusRefresh"></div>
-<div class="" style="position:fixed; bottom:50px;width:100%;margin:auto;">
-	<button style="float:right;margin-right:50px;" onclick='closeit()'>Close</button>
+<div class="" style="position:fixed; bottom:25px;width:100%;margin:auto;">
+	<button style="float:right;margin-right:25px;" onclick='closeit()'>Close</button>
 </div>
 <script>
 toggleClass("actions-panel");

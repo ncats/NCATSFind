@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
 <style>
+li:hover i.fa {
+color: rgb(0, 0, 0);
+}
+i.fa{
+	color:rgb(103, 103, 103);
+}
 	.panel{
 		-webkit-transition:left .5s, height 1s, background-color 1s, -webkit-transform 1s;
 		transition:left .5s, height 1s, background-color 1s, transform 1s;
@@ -1907,14 +1913,14 @@ margin: 0px;
 <div class="panel settings-panel">
 		<h4 class="heading">Settings</h4>
 		<ul style="list-style: none;">
-			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic Resolve (on Page Load)</label></li>
-			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic Resolve (every 4 seconds)</label></li>
+			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic resolve (on page load)</label></li>
+			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic resolve (every 4 seconds)</label></li>
 			<li onclick='saveSettings();'><input name="casResolve" id="casResolve" type="checkbox" value="casResolve" checked=""><label for="casResolve">Resolve CAS number</label></li>
 			<li onclick='saveSettings();'><input name="UNIIResolve" id="UNIIResolve" type="checkbox" value="UNIIResolve" checked=""><label for="UNIIResolve">Resolve UNII code</label></li>
 			<li onclick='saveSettings();'><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve">Resolve InChI string</label></li>
 			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
-			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Show Notifications</label></li>
-			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show guide on snapshot</label></li>
+			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Show notifications</label></li>
+			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show snapshot hints</label></li>
 			<li class='ffonly' onclick='saveSettings();'><input name="clipboard" id="clipboard" type="checkbox" value="clipboard" checked=""><label for="clipboard">Clipboard support (experimental)</label></li>
 			<li class='ffonly' onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
 		</ul>		
