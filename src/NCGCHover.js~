@@ -1069,17 +1069,22 @@ function tutorialOverlay(callback){
         var fullDone = false;
         var dragSelection = true;
         var selType = "moving";
+	var overlays=[];
+	var myrect;
+	var mycoord;
+	var nid;
+
 
         var unloadfunc = function (torem) {
             fullDone = true;
             startc = undefined;
             snapListen = false;
-            var elm1 = document.getElementById("myrect");
-            var elm2 = document.getElementById("mycoord");
-            var elm3 = document.getElementById("overlay-1");
-            var elm4 = document.getElementById("overlay-2");
-            var elm5 = document.getElementById("overlay-3");
-            var elm6 = document.getElementById("overlay-4");
+            var elm1 = myrect;
+            var elm2 = mycoord;
+            var elm3 = overlays[0];
+            var elm4 = overlays[1];
+            var elm5 = overlays[2];
+            var elm6 = overlays[3];
 
             elm1.parentNode.removeChild(elm1);
             elm2.parentNode.removeChild(elm2);
@@ -1109,43 +1114,63 @@ function tutorialOverlay(callback){
                 x: x,
                 y: y
             };
+	    clearInterval(nid);
             return tc;
         }
-        var setArea = function (oc) {
-            var w = oc.x2 - oc.x;
-            var h = oc.y2 - oc.y;
-            //part 1
-            document.getElementById("overlay-1").style.width = oc.x + "px";
-            document.getElementById("overlay-1").style.height = (oc.y + h) + "px";
+       
+	var positionWindow = function(tc,oc,commit){
+		    var w = tc.x - oc.x;
+                    var h = tc.y - oc.y;
 
-            document.getElementById("overlay-2").style.width = "125%";
-            document.getElementById("overlay-2").style.height = oc.y + "px";
-            document.getElementById("overlay-2").style.top = "0px";
-            document.getElementById("overlay-2").style.left = oc.x + "px";
+                    overlays[0].style.width = oc.x + "px";
+                    overlays[0].style.height = (oc.y + h) + "px";
 
-            document.getElementById("overlay-3").style.width = "125%";
-            document.getElementById("overlay-3").style.height = "125%";
-            document.getElementById("overlay-3").style.top = oc.y + "px";
-            document.getElementById("overlay-3").style.left = (oc.x + w) + "px";
+                    overlays[1].style.width = "125%";
+                    overlays[1].style.height = oc.y + "px";
+                    overlays[1].style.top = "0px";
+                    overlays[1].style.left = oc.x + "px";
 
-            document.getElementById("overlay-4").style.width = (oc.x + w) + "px";
-            document.getElementById("overlay-4").style.height = "125%";
-            document.getElementById("overlay-4").style.top = (oc.y + h) + "px";
-            style = 'cursor:se-resize;position:absolute;bottom:-17px;right:-17px;border:2px solid rgb(0, 160, 0);background-color:#00FF00;border-radius:10px;width:15px;height:15px'
-            document.getElementById("overlay-4").style.left = "0px";
+                    overlays[2].style.width = "125%";
+                    overlays[2].style.height = "125%";
+                    overlays[2].style.top = oc.y + "px";
+                    overlays[2].style.left = (oc.x + w) + "px";
 
-            document.getElementById("myrect").style.top = oc.y + "px";
-            document.getElementById("myrect").style.left = oc.x + "px";
+                    overlays[3].style.width = (oc.x + w) + "px";
+                    overlays[3].style.height = "125%";
+                    overlays[3].style.top = (oc.y + h) + "px";
+                    overlays[3].style.left = "0px";
 
-            document.getElementById("myrect").style.width = w + "px";
-            document.getElementById("myrect").style.height = h + "px";
-            startc={};
-            endc={};
-             startc.x = oc.x;
-                            startc.y = oc.y;
-                            endc.x = oc.x2;
-                            endc.y = oc.y2;
+                    myrect.style.top = oc.y + "px";
+                    myrect.style.left = oc.x + "px";
+
+                    myrect.style.width = w + "px";
+                    myrect.style.height = h + "px";
+		    
+		    if(commit){
+			startc={};
+                    	startc.x = oc.x;
+                    	startc.y = oc.y;
+			endc={};
+                    	endc.x = tc.x;
+                    	endc.y = tc.y;
+		    }
+                    return oc.x + "," + oc.y + "-" + tc.x + "," + tc.y;
+	};
+ 	var setArea = function (oc) {
+            var tc = {x:oc.x2,y:oc.y2};
+            var oc2 = {x:oc.x,y:oc.y};
+            positionWindow(tc,oc2,true);
         };
+	var nudgeWindow = function(dx,dy){
+		console.log("nudging");
+		var oc={};
+		var tc={};
+		oc.x = startc.x + (dx);
+                oc.y = startc.y + (dy);
+                tc.x = endc.x + (dx);
+                tc.y = endc.y + (dy);
+		positionWindow(tc,oc,true);
+	};
         document.body.addEventListener("mousemove", function myFunction(e) {
             if (snapListen) {
                 //console.log("resizing");
@@ -1171,37 +1196,10 @@ function tutorialOverlay(callback){
 			tc.y=oc.y +minHeight;
 		    }
 		}
-                document.getElementById("mycoord").style.top = (tc.y + window.pageYOffset - 13) + "px";
-                document.getElementById("mycoord").style.left = (tc.x + window.pageXOffset - 13) + "px";
+                mycoord.style.top = (tc.y + window.pageYOffset - 13) + "px";
+                mycoord.style.left = (tc.x + window.pageXOffset - 13) + "px";
                 if (startc != undefined) {
-
-                    var w = tc.x - oc.x;
-                    var h = tc.y - oc.y;
-                    //part 1
-                    document.getElementById("overlay-1").style.width = oc.x + "px";
-                    document.getElementById("overlay-1").style.height = (oc.y + h) + "px";
-
-                    document.getElementById("overlay-2").style.width = "125%";
-                    document.getElementById("overlay-2").style.height = oc.y + "px";
-                    document.getElementById("overlay-2").style.top = "0px";
-                    document.getElementById("overlay-2").style.left = oc.x + "px";
-
-                    document.getElementById("overlay-3").style.width = "125%";
-                    document.getElementById("overlay-3").style.height = "125%";
-                    document.getElementById("overlay-3").style.top = oc.y + "px";
-                    document.getElementById("overlay-3").style.left = (oc.x + w) + "px";
-
-                    document.getElementById("overlay-4").style.width = (oc.x + w) + "px";
-                    document.getElementById("overlay-4").style.height = "125%";
-                    document.getElementById("overlay-4").style.top = (oc.y + h) + "px";
-                    document.getElementById("overlay-4").style.left = "0px";
-
-                    document.getElementById("myrect").style.top = oc.y + "px";
-                    document.getElementById("myrect").style.left = oc.x + "px";
-
-                    document.getElementById("myrect").style.width = w + "px";
-                    document.getElementById("myrect").style.height = h + "px";
-                    coor = startc.x + "," + startc.y + "-" + tc.x + "," + tc.y;
+		    coor = positionWindow(tc,oc);
                 } else {
 
                     coor = tc.x + "," + tc.y;
@@ -1223,8 +1221,8 @@ function tutorialOverlay(callback){
                 tc = getPoint(e);
                 if (startc == undefined) {
                     startc = tc;
-                    document.getElementById("myrect").style.top = (tc.y + window.pageYOffset) + "px";
-                    document.getElementById("myrect").style.left = (tc.x + window.pageXOffset) + "px";
+                    myrect.style.top = (tc.y + window.pageYOffset) + "px";
+                    myrect.style.left = (tc.x + window.pageXOffset) + "px";
                 } else {
                     if (resizing) {
                         resizing = false;
@@ -1268,54 +1266,50 @@ function tutorialOverlay(callback){
         var tut = {};
         var okbutton = "<button style='position:absolute;bottom:-25px;left:0px;' id='confirmSelect'>Confirm</button>";
         var cancelbutton = "<button style='position:absolute;top:-25px;right:0px;' id='cancelSelect'>Cancel</button>";
-        var resizeDiv1 = "<div style='cursor:nw-resize;position:absolute;top:0px;left:0px;border:2px solid blue;background-color:#000088;width:25px;height:25px'></div>";
-        var resizeDiv2 = "<div style='cursor:ne-resize;position:absolute;top:0px;right:0px;border:2px solid blue;background-color:#000088;width:25px;height:25px'></div>";
-        var resizeDiv3 = "<div style='cursor:sw-resize;position:absolute;bottom:0px;left:0px;border:2px solid blue;background-color:#000088;width:25px;height:25px'></div>";
         var resizeDiv4 = "<div id='botrightresize' style='cursor: se-resize;position: absolute;bottom: -16px;right: -16px;width: 32px;height: 32px;background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3klEQVR42mMwNjZm1dLSYlNRUWEH0SDs6enJTowYSC8DiBEaGspZWFjI6ePjwwWiQXxixBISHDjABpCjGcRPSEiAGECOZhQDSNHMzMx8mpeX9/K5c+ek4AaQYjNIs6qq6qsHDx5YoRhArLOPHDkiBdK8fv16AfoEIrKfQWIsLCxgPsglRAUisp9BYjD+y5cvLYkKRGQ/w/ggzfPnzxcgKxAJpkSgn0/h8jNSmFxBCQNi/QxSB+IDM9Trp0+fWmENRHx+BqkD8UGa4WEAypIODg4cubm57CABGJs4MU92AHZ4N7/7k4lSAAAAAElFTkSuQmCC\");background-repeat: no-repeat;'></div>";
-
-        var styleov = 'border:none;cursor:crosshair;width: 100%;height: 100%;position: absolute;top: 0px;left: 0px;background: rgba(0, 0, 0, 0.25);    font-size: 20pt;    color: white;    /* display: none; */    z-index: 999999 !important;    text-align: center;    position: fixed;';
-        var styleov2 = 'border:none;cursor:crosshair;width: 0;height: 0;position: absolute;top: 0px;left: 0px;background: rgba(0, 0, 0, 0.25);    font-size: 20pt;    color: white;    /* display: none; */    z-index: 999999 !important;    text-align: center;    position: fixed;';
+        var styleov2 = 'border:none;cursor:crosshair;width:0;height:0;position:absolute;top:0px;left:0px;background:rgba(0,0,0,0.25);font-size:20pt;color:white;z-index:999999 !important;text-align:center;position:fixed;';
         tut = document.createElement("DIV");
-        tut.setAttribute("style", styleov);
+        tut.setAttribute("style", styleov2);
         tut.id = "overlay-1";
-        //tut.innerHTML=resizeDiv;
+	overlays[0]=tut;
         document.body.appendChild(tut);
 
         tut = document.createElement("DIV");
         tut.setAttribute("style", styleov2);
         tut.id = "overlay-2";
-        //tut.innerHTML=resizeDiv;
+	overlays[1]=tut;
         document.body.appendChild(tut);
 
         tut = document.createElement("DIV");
         tut.setAttribute("style", styleov2);
         tut.id = "overlay-3";
-        //tut.innerHTML=resizeDiv;
+	overlays[2]=tut;
         document.body.appendChild(tut);
 
         tut = document.createElement("DIV");
         tut.setAttribute("style", styleov2);
         tut.id = "overlay-4";
-        //tut.innerHTML=resizeDiv;
+	overlays[3]=tut;
         document.body.appendChild(tut);
 
         var econt = document.createElement("DIV");
-        econt.innerHTML += "<div id='myrect' style='background:none;cursor:move;position:fixed;border:1px dashed black;top:0px;left:0px;width:0px;height:0px'>" +
-            "<div style='padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;height:19px;overflow:hidden;'>" + title + "</div>" +
-        //resizeDiv1+
-        //resizeDiv2+
-        //resizeDiv3+
-        resizeDiv4 + okbutton + cancelbutton + "</div>";
-        econt.innerHTML += "<div id='mycoord' style='overflow:hidden;padding:0px;margin:0px;position:absolute;opacity:0.0;top:0px;left:0px;width:1px;height:1px'><div id='coordText'></div></div>"
-
-
+	myrect = document.createElement("DIV");
+	myrect.id="myrect";
+	myrect.setAttribute("style", "margin:0;font-size: 12pt;-webkit-box-sizing: initial;background:none;cursor:move;position:fixed;border:1px dashed black;top:0px;left:0px;width:0px;height:0px");
+	myrect.innerHTML = "<div style='box-sizing: initial;padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;height:19px;overflow:hidden;'>" + title + "</div>" +
+        resizeDiv4 + okbutton + cancelbutton;
+	mycoord = document.createElement("DIV");
+	mycoord.id="mycoord";
+	mycoord.setAttribute("style", "overflow:hidden;padding:0px;margin:0px;position:absolute;opacity:0.0;top:0px;left:0px;width:1px;height:1px");
+	mycoord.innerHTML = "<div id='coordText'></div>";
+	econt.appendChild(myrect);
+	econt.appendChild(mycoord);
         document.body.appendChild(econt);
 
-        document.getElementById("myrect").style.zIndex = 999999;
-        document.getElementById("mycoord").style.zIndex = 1999999;
-        document.getElementById("myrect").addEventListener("mousedown", function (e) {
+        myrect.style.zIndex = 999999;
+        mycoord.style.zIndex = 1999999;
+        myrect.addEventListener("mousedown", function (e) {
             if (selType != "resizing") {
-                console.log("moving");
                 snapListen = true;
                 resizing = true;
                 initc = getPoint(e);
@@ -1349,9 +1343,23 @@ function tutorialOverlay(callback){
 	var hstart = window.innerHeight/2;
 
         setArea({x:wstart-100,y:hstart-100,x2:wstart+100,y2:hstart+100});
+	var istart = JSON.parse(JSON.stringify(startc));
+	var iend = JSON.parse(JSON.stringify(endc));
+	var ntime=new Date();
+	nid=setInterval(function(){
+			
+			var ctime = (new Date() - ntime)/50;
+			var amp=100/(Math.pow(ctime,1.5));
+			if(amp<1){
+				clearInterval(nid);
+			}
+			var npos1 = {x:(istart.x),y:(istart.y+amp*Math.sin(ctime))};
+			var npos2 = {x:(iend.x),y:(iend.y+amp*Math.sin(ctime))};
+			positionWindow(npos2,npos1,true);
+		},30);
     }
 function takeSnap(callback,tut) {
-    if(tut){
+    if(false && tut){
 	tutorialOverlay(function(){
 		takeSnap(callback,false);
 	});
