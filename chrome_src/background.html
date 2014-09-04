@@ -200,6 +200,9 @@ function captureImage(framen){
     	});
 }
 function showMolEditor(mol, img){
+	if(img==undefined){
+		img="";
+	}
 	chrome.storage.local.set({'resIMGURL': img}, function (result2) {});
 	chrome.storage.local.set({'ncgcImage': mol}, function (result2) {});
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

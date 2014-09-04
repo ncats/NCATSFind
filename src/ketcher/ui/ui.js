@@ -204,12 +204,15 @@ ui.init = function ()
 
     // Document events
     //TODO: FIX this for proper clipboard
-    $('ketcher_window').observe('keypress', ui.onKeyPress_Ketcher);
-    $('ketcher_window').observe('keydown', ui.onKeyDown_IE);
-    $('ketcher_window').observe('keyup', ui.onKeyUp);
-    $('ketcher_window').observe(EventMap['mousedown'], ui.onMouseDown_Ketcher);
-    $('ketcher_window').observe(EventMap['mouseup'], ui.onMouseUp_Ketcher);
-
+    $('ketcher_window_input').observe('keypress', ui.onKeyPress_Ketcher);
+    $('ketcher_window_input').observe('keydown', ui.onKeyDown_IE);
+    $('ketcher_window_input').observe('keyup', ui.onKeyUp);
+    $('ketcher_window_input').observe(EventMap['mousedown'], ui.onMouseDown_Ketcher);
+    $('ketcher_window_input').observe(EventMap['mouseup'], ui.onMouseUp_Ketcher);
+	$('ketcher_window').observe('mouseup', function(){
+		console.log("resettting");
+		document.getElementById('ketcher_window_input').focus();
+	});
     // Button events
     $$('.toolButton').each(ui.initButton);
     $$('.modeButton').each(function (el)
@@ -861,6 +864,7 @@ ui.onKeyDown_IE = function (event)
 // Button handler specially for Safari and IE
 ui.onKeyUp = function (event)
 {
+console.log(event);
     // Esc
     if (event.keyCode == 27)
     {
@@ -897,8 +901,8 @@ ui.onKeyUp = function (event)
         ui.ctrlShortcuts.indexOf(event.which) != -1) && (event.keyCode != 46 && Prototype.Browser.WebKit))
         return;
 
-    if (this != document)
-        return;
+    //if (this != document)
+    //    return;
 
     util.stopEventPropagation(event);
 
@@ -909,6 +913,7 @@ ui.onKeyUp = function (event)
             ui.removeSelected();
         return;
     case 65: // Ctrl+A
+	console.log("select all");
         if ((event.metaKey && ui.is_osx) || (event.ctrlKey && !ui.is_osx))
             ui.selectAll();
         return;
@@ -2314,3 +2319,5 @@ ui.showLabelEditor = function(aid)
 
     input_el.activate();
 };
+
+

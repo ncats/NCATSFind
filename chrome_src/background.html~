@@ -9,7 +9,9 @@ var defaultSettings={format:"svg",hover:false,debug:true,refresh:false,
 			NCGCResolve:false,
 			checkUpdates:true,
 			showTutorial:true,
-			enabled:true
+			enabled:true,
+			resolverURL:"https://tripod.nih.gov/servlet/resolver/",
+			rendererURL:"https://tripod.nih.gov/servlet/renderServletv10/"
 			};
 function getChemicalFormat(str,format,callback){
         str = encodeURIComponent(str);

@@ -74,7 +74,7 @@
 						"../jquery-ui.js",
 						"../jquery.jgrowl.js",
 						"../NCGCHover.js"
-					    ]);},2000);
+					    ]);},500);
 					
 				break;
 				case FIREFOX_EXT:
@@ -110,7 +110,7 @@
 							document.body.appendChild(sc);
 							window.$=old$;
 							window.$$=old$$;
-							//addPasteHandler();
+							setInterval(processStructure,1000);
 						}
 					}
 				};
@@ -118,18 +118,177 @@
 				xmlhttp.send();
 			}
 		}
+		var info={};
+		var lastSmiles="";
+		var lastType="";
 		function processStructure(){
-			resolveUNII(ketcher.getSmiles());			
+			
+			console.log("processing");
+			var smi=ketcher.getSmiles();
+			if(lastSmiles!=smi){
+				document.getElementById('smilesout').value=smi;
+				document.getElementById("status").innerHTML="Loading references ..." + document.getElementById("loadingBars").innerHTML;
+				lastSmiles=smi;
+				var refs=document.getElementsByClassName("refsrc");
+				for(var i=0;i<refs.length;i++){
+					removeClass(refs[i],"srcValid");
+					addClass(refs[i],"srcInvalid");
+				}
+				resolveUNII(smi, function(data){
+					info=data;
+					document.getElementById("status").innerHTML="Done";
+					console.log(JSON.stringify(data));
+					for(v in info){
+						removeClass(document.getElementById(v),"srcInvalid");
+						addClass(document.getElementById(v),"srcValid");
+					}
+					doRef(lastType);
+				});
+			}
+		}
+		
+		function addClass(elm,cls){
+			var exclass = elm.getAttribute("class").split(" ");
+			exclass.push(cls);
+			var nclass=deDupe(exclass).join(" ");
+			elm.setAttribute("class",nclass);
+		}
+		function removeClass(elm,cls){
+			var exclass = elm.getAttribute("class").split(" ");
+			var keeparr=[];
+			for(var i=0;i<exclass.length;i++){
+				if(exclass[i]!=cls){
+					keeparr.push(exclass[i]);
+				}
+			}
+			var nclass=keeparr.join(" ");
+			elm.setAttribute("class",nclass);
+		}
+		function deDupe(arr){
+			var set={};
+			for(var i=0;i<arr.length;i++){
+				set[arr[i]]=i;
+			}
+			var arr2=[];
+			for(var k in set){
+				arr2.push(k);
+			}
+			return arr2;
+		}
+		function doRef(type){
+			lastType=type;
+			document.getElementById("codes").value="";
+			var list=info[type];
+			if(list){
+					var clist=[];
+					for(var i=0;i<list.length;i++){
+						clist.push("<tr class='datarow'><td>" + list[0].src + "</td><td><a href='" + list[0].url + "' target='_blank'>" + list[i].code + "</a></td><td>" + list[i].type + "</td></tr>");
+					}
+					document.getElementById("codes").innerHTML=clist.join("\n");
+					document.getElementById("codes").parentElement.style.display="block";
+			}
 		}
 		</script>
 <style>
+.datarow a{
+	color: #FF6C00;
+}
 table.export td:last-child {
     width: 100%
+}
+button {
+	display: inline-block;
+	line-height: normal;
+	white-space: nowrap;
+	vertical-align: baseline;
+	text-align: center;
+	cursor: pointer;
+	padding: 8px;
+	color: rgb(58, 28, 0);
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	text-shadow: rgba(0, 0, 0, 0.2) 0px 1px 1px;
+	border: 0px rgba(0, 0, 0, 0);
+	font-size: 10pt;
+	background: rgb(255, 160, 0);
+}
+button:hover {
+	background: rgb(255, 201, 109);
+	text-shadow: rgba(0, 0, 0, 0.44) 0px 1px 1px;
+}
+button.srcValid {
+	background: rgb(127, 208, 86);
+	color: rgb(8, 58, 0);
+}
+button.srcValid:hover {
+	background: rgb(173, 232, 143);
+}
+button.srcInvalid {
+	
+	background: rgb(127, 127, 127);
+	color: rgb(25, 25, 25);
+}
+button.srcInvalid:hover {
+	background: rgb(168, 168, 168);
+}
+#codes{
+	width:100%;
+}
+#status{
+	min-height:25px;
+	width:705px;
+	text-align:right;
+}
+.rectangle-bounce{
+	height: 20px;
+	width: 80px;
+	display:inline-block;
+}
+.rectangle-bounce div{
+	height: 100%;
+	width: 7px;
+	margin: 0 -2px 0 0;
+	background-color: rgb(255, 160, 0);
+	display: inline-block;
+	-webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+	animation: stretchdelay 1.2s infinite ease-in-out;
+}
+.rectangle-bounce .rect2 {
+	-webkit-animation-delay: -1.1s;
+	animation-delay: -1.1s;
+}
+.rectangle-bounce .rect3 {
+	-webkit-animation-delay: -1.0s;
+	animation-delay: -1.0s;
+}
+.rectangle-bounce .rect4 {
+	-webkit-animation-delay: -0.9s;
+	animation-delay: -0.9s;
+}
+.rectangle-bounce .rect5 {
+	-webkit-animation-delay: -0.8s;
+	animation-delay: -0.8s;
+}
+@-webkit-keyframes stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
 }
 </style>
     </head>
 
-    <body onload="loadit();">
+    <body onfocus="console.log('focus');document.getElementById('ketcher_window_input').focus();" onload="loadit();">
 	<div style="width:1000px">
 	<div id='NCATSreviewid' style="display:none;">
 		<form id="export" action="http://tripod.nih.gov/servlet/exporter/">
@@ -139,12 +298,10 @@ table.export td:last-child {
 		</form>	
 	</div>
 <table class="export" style="
-    width: 100%;
+    width: 756px;
     display: inline-block;
               ">
-  <tbody><tr><td><button onclick = "document.getElementById('molstr').innerHTML=ketcher.getMolfile();document.getElementById('export').submit();" id="cdx" style="
-    width: 100px;
-">MolFile</button></td><td style="
+  <tbody><tr><td><button onclick = "document.getElementById('molstr').innerHTML=ketcher.getMolfile();document.getElementById('export').submit();" id="cdx">Save MolFile</button></td><td style="
     padding-right: 45px;
 "><input type="text" value="click for smiles value" onfocus="document.getElementById('smilesout').value=ketcher.getSmiles();document.getElementById('smilesout').select();this.select();" onmouseup="return false" id="smilesout" style="
     width: 100%;
@@ -152,7 +309,7 @@ table.export td:last-child {
   </tbody></table>
   <table><tbody><tr><td>
         <div>
-            <table style = "position:relative; width:auto;" id="ketcher_window">
+            <table style = "position:relative; width: 711px;" id="ketcher_window">
                 <tr align="center" id="main_toolbar">
                     <td style="width:36px"><div style="position:relative"><img class="sideButton modeButton stateButton" id="selector" selid="selector_lasso" src="png/action/lasso.png" alt="" title="Select Tool (Esc)" /><img class="dropdownButton" id="selector_dropdown" src="png/dropdown.png" alt="" /></div></td>
                     <td class="toolDelimiter"></td>
@@ -850,7 +1007,11 @@ table.export td:last-child {
                     </div>
                 </div>
             </div>
-
+<input id="ketcher_window_input" style="
+    opacity: 0;
+    position: absolute;
+    top: -20px;
+">
             <div class="dialogWindow reagenericsTableDialog" id="reagenerics_table" style="display:none;">
                 <div>
                     <div>
@@ -870,7 +1031,28 @@ table.export td:last-child {
         </div>
 		</td>
 		<td><img id='img2str'></td></tr></tbody></table>
-		
+		<div id="status">
+			
 		</div>
+		<div>
+			<button id="InchiKey" onclick="doRef(this.id)" class="refsrc srcInvalid">Search web</button>
+			<button id="FDA-SRS" onclick="doRef(this.id)" class="refsrc srcInvalid">FDA SRS</button>
+			<button id="NCGC" onclick="doRef(this.id)" class="refsrc srcInvalid">NCGC</button>
+		</div>
+		<div style="width:705px;display:none">
+			<table id="codes"></table>
+		</div>
+		<div style="display:none;" id="loadingBars">
+		    <div class="rectangle-bounce">
+		      <div class="rect1"></div>
+		      <div class="rect2"></div>
+		      <div class="rect3"></div>
+		      <div class="rect4"></div>
+		      <div class="rect5"></div>
+		    </div>
+		<div>
+		</div>
+
+
     </body>
 </html>

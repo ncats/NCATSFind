@@ -520,21 +520,72 @@ function mark2(){
 	if(refresh)
 		setTimeout(function(){mark()},refreshTime);
 }
-function resolveUNII(str){
+function resolveUNII(str,cback){
 	var murl = resolverURL + "unii?structure=" + encodeURIComponent(str).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey + "&format=JSON";
 	myAjaxGet(murl, function(data) {
 	    if (data.indexOf("Exception") < 0) {
 		var results=JSON.parse(data);
+		var fullReturn={};		
+		var returning=[];
 		for(var i=0;i<results.length;i++){
 			var unii = results[i].response;
 			console.log(unii);
 			if(unii){
-				var uniis=unii.split("\\|");
+				var uniis=unii.split("|");
 				for(var j=0;j<uniis.length;j++){
-					alert(uniis[j]);
-				}
+					var up=uniis[j];
+					var runii=up.substr(up.length-10,10);
+					var sig=up.substr(0,up.length-10) ;					
+					returning.push({src:"FDA-SRS",code:runii,type:sig,url:("http://fdasis.nlm.nih.gov/srs/srsdirect.jsp?regno=" + runii)});
+				}			
 			}
 		}
+		if(returning.length>0){
+			fullReturn["FDA-SRS"]=returning;
+		}
+		var purl = resolverURL + "inchikey?structure=" + encodeURIComponent(str).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey + "&format=JSON";
+		myAjaxGet(purl, function(data) {
+			    if (data.indexOf("Exception") < 0) {
+				var results=JSON.parse(data);
+				var returning=[];
+				for(var i=0;i<results.length;i++){
+					var inch = results[i].response;
+					console.log(inch);
+					if(inch){
+						var uniis=inch.split("|");
+						for(var j=0;j<uniis.length;j++){		
+							returning.push({src:"InchiKey",code:uniis[j].replace("InChIKey=",""),type:"",url:("https://www.google.com/search?q=" + uniis[j].replace("InChIKey=",""))});
+						}			
+					}
+				}
+				if(returning.length>0){
+					fullReturn["InchiKey"]=returning;
+				}
+				var purl = resolverURL + "qhts?structure=" + encodeURIComponent(str).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey + "&format=JSON";
+						myAjaxGet(purl, function(data) {
+							    if (data.indexOf("Exception") < 0) {
+								var results=JSON.parse(data);
+								var returning=[];
+								for(var i=0;i<results.length;i++){
+									var inch = results[i].response;
+									console.log(inch);
+									if(inch){
+										var uniis=inch.split("|");
+										for(var j=0;j<uniis.length;j++){		
+											returning.push({src:"NCGC",code:uniis[j],type:"",url:("https://www.google.com/search?q=" + uniis[j])});
+										}			
+									}
+								}
+								if(returning.length>0){
+									fullReturn["NCGC"]=returning;
+								}
+								cback(fullReturn);
+							    }
+						});
+			    }
+		});
+
+
 	    }
 	});
 }
