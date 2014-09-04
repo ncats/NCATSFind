@@ -37,14 +37,13 @@
 	    "storage",
 	    "tabs",
 	    "contextMenus",
-	    "notifications",
 	    "clipboardWrite"
   	],
     "commands": {
     "capture": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Alt+K",
-        "mac": "Ctrl+Shift+Alt+K"
+        "default": "Shift+Alt+K",
+        "mac": "Shift+Alt+K"
       },
       "global": true,
       "description": "Select screenshot area to convert to chemical structure"

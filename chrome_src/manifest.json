@@ -31,13 +31,12 @@
     "converted_from_user_script": true,
     "description":  "Structure ID parser / chemical structure viewer",
     "name":         "NCATS Find",
-    "version":      "0.89",
+    "version":      "0.91",
     "permissions": [
 	    "<all_urls>", 
 	    "storage",
 	    "tabs",
 	    "contextMenus",
-	    "notifications",
 	    "clipboardWrite"
   	],
     "commands": {
