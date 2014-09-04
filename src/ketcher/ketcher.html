@@ -177,12 +177,12 @@
 		}
 		function doRef(type){
 			lastType=type;
-			document.getElementById("codes").value="";
+			document.getElementById("codes").innerHTML="";
 			var list=info[type];
 			if(list){
 					var clist=[];
 					for(var i=0;i<list.length;i++){
-						clist.push("<tr class='datarow'><td>" + list[0].src + "</td><td><a href='" + list[0].url + "' target='_blank'>" + list[i].code + "</a></td><td>" + list[i].type + "</td></tr>");
+						clist.push("<tr class='datarow'><td>" + list[i].src + "</td><td><a href='" + list[i].url + "' target='_blank'>" + list[i].code + "</a></td><td>" + list[i].type + "</td></tr>");
 					}
 					document.getElementById("codes").innerHTML=clist.join("\n");
 					document.getElementById("codes").parentElement.style.display="block";

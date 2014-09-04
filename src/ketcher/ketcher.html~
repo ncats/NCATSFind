@@ -177,7 +177,7 @@
 		}
 		function doRef(type){
 			lastType=type;
-			document.getElementById("codes").value="";
+			document.getElementById("codes").innerHTML="";
 			var list=info[type];
 			if(list){
 					var clist=[];
@@ -309,7 +309,7 @@ button.srcInvalid:hover {
   </tbody></table>
   <table><tbody><tr><td>
         <div>
-            <table style = "position:relative; width:auto;" id="ketcher_window">
+            <table style = "position:relative; width: 711px;" id="ketcher_window">
                 <tr align="center" id="main_toolbar">
                     <td style="width:36px"><div style="position:relative"><img class="sideButton modeButton stateButton" id="selector" selid="selector_lasso" src="png/action/lasso.png" alt="" title="Select Tool (Esc)" /><img class="dropdownButton" id="selector_dropdown" src="png/dropdown.png" alt="" /></div></td>
                     <td class="toolDelimiter"></td>
