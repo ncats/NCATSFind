@@ -24,6 +24,8 @@ var next=false;
 var lastload = 0;
 var found = [];
 var apikey="";
+var resolverURL="https://tripod.nih.gov/servlet/resolver/";
+var rendererURL="https://tripod.nih.gov/servlet/renderServletv10/";
 
 var forceoff=false;
 
@@ -212,7 +214,7 @@ function addChromeListeners(){
 			var off={};
 			if(window.getSelection().anchorNode!=undefined){
 				if(window.getSelection().anchorNode.parentNode!=null){
-					off=$(window.getSelection().anchorNode.parentNode).offset();
+					off=jQuery(window.getSelection().anchorNode.parentNode).offset();
 				}
 			}
 			if(request.frame == document.location.href){
@@ -240,18 +242,18 @@ function displayEdit(strtitle,url){
 	if(url==undefined)url=getEditorURL();
 	window.open(url);
 	if(true)return;
-	$("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:740px;' src='" + url + "'></iframe>")
+	jQuery("<iframe style='width:100%;height:100%;margin-right: 10px;min-width:740px;' src='" + url + "'></iframe>")
 	.dialog({closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}})
 	.dialog( "option", "width", 760)
 	.dialog( "option", "height", 600)
 	.dialog({dialogClass:'NCATSFindDialog'});
-	$(".NCATSFindDialog").css('position','fixed');
-	$(".NCATSFindDialog").not(".setup").css('top','0px');
-        $(".NCATSFindDialog").not(".setup").css('left','0px');
-        $(".NCATSFindDialog").not(".setup").addClass("setup"); 
+	jQuery(".NCATSFindDialog").css('position','fixed');
+	jQuery(".NCATSFindDialog").not(".setup").css('top','0px');
+        jQuery(".NCATSFindDialog").not(".setup").css('left','0px');
+        jQuery(".NCATSFindDialog").not(".setup").addClass("setup"); 
 
 
-	$(".ui-dialog").css('z-index', 99999); 
+	jQuery(".ui-dialog").css('z-index', 99999); 
 }
 function imageToPngBase64(imgsrc){
 	//alert("got url:" + imgsrc);
@@ -278,7 +280,6 @@ function mark(){
 				if(prevhtml!=nhtml){
 					prevhtml=nhtml; 
 					mark2();  
-					//console.log("Finding:" + (((new Date()).getTime()-startTime)/1000));
 				}
 			}		
 		});
@@ -290,13 +291,17 @@ function getSettings(callback2){
 	var settings = _cacheSettings;
 	var callback=function(csettings){
 		_cacheSettings=csettings;
-		
 		refresh=csettings.refresh;
 		debug=csettings.debug;
 		apikey=csettings.apikey;
-		
-		callback2(csettings);
-	}
+		if(csettings.resolverURL){
+			resolverURL=csettings.resolverURL;
+		}
+		if(csettings.rendererURL){
+			rendererURL=csettings.rendererURL;
+		}
+		if(callback2)callback2(csettings);
+	};
 	
     getValue("settings",function(val){
         if(val!=undefined){
@@ -309,8 +314,8 @@ function getSettings(callback2){
 
 function unmark(){
 	forceoff=true;
-	$(".ncgchover").each(function(){
-		$(this).replaceWith($(this).text());
+	jQuery(".ncgchover").each(function(){
+		jQuery(this).replaceWith(jQuery(this).text());
 	});
 	
 }
@@ -360,7 +365,7 @@ function mark2(){
         var element=elms[e];
 		if(doneElm[element])continue;
 		doneElm[element]=true;
-		//if(!$(element).is(":visible"))continue;
+		//if(!jQuery(element).is(":visible"))continue;
         if(element.textContent !=undefined){
             var UNIIS= getSpecialMatches(element.textContent);
 			
@@ -426,20 +431,20 @@ function mark2(){
                 	////console.log(ostr);
                     element.innerHTML = str;
 
-                    $('.ncgchover .ncatsterm').css("font-weight", "bold");
-                    $('.ncgchover .ncatsterm').css("background-color", "rgba(255, 150, 0, 0.42)");
-                    $('.ncgchover .ncatsterm').css("border-radius","5px");
-                    $('.ncgchover .ncatsterm').css("padding-right","5px");
-                    $('.ncgchover .ncatsterm').css("padding-left","5px");
-                    //$('.ncgchover').css("cursor","pointer");
-                    $(function() {
-    $( document ).tooltip({
+                    jQuery('.ncgchover .ncatsterm').css("font-weight", "bold");
+                    jQuery('.ncgchover .ncatsterm').css("background-color", "rgba(255, 150, 0, 0.42)");
+                    jQuery('.ncgchover .ncatsterm').css("border-radius","5px");
+                    jQuery('.ncgchover .ncatsterm').css("padding-right","5px");
+                    jQuery('.ncgchover .ncatsterm').css("padding-left","5px");
+                    //jQuery('.ncgchover').css("cursor","pointer");
+                    jQuery(function() {
+    jQuery( document ).tooltip({
       items: ".ncgchover .ncatsterm",
       tooltipClass:"",
       track:true,
       position: {my: "left+15 top+15", at: "left bottom", collision:"flipfit flipfit"},
       content: function() {
-        var element = $( this );
+        var element = jQuery( this );
         if ( element.parent().is( ".ncgchover.unii" ) ) {
           var text = element.text();
           var str=lookup[text];
@@ -457,20 +462,19 @@ function mark2(){
       }
     });
   });
-					$("span.ncgchover").css("cursor","pointer");
-  					$("span.ncgchover .ncatsicon").off("click");
-                    $("span.ncgchover .ncatsicon").on("click",function(e){e.preventDefault();e.stopPropagation();displayResolve($(this).parent().text());return false;});
+					jQuery("span.ncgchover").css("cursor","pointer");
+  					jQuery("span.ncgchover .ncatsicon").off("click");
+                    jQuery("span.ncgchover .ncatsicon").on("click",function(e){e.preventDefault();e.stopPropagation();displayResolve(jQuery(this).parent().text());return false;});
                     
-					$('.ncgchover').on("mouseenter",function () {
-                        if(!$(this).hasClass("unii")){
-                        	display($(this).text());
+					jQuery('.ncgchover').on("mouseenter",function () {
+                        if(!jQuery(this).hasClass("unii")){
+                        	display(jQuery(this).text());
                         }else{
-                            var uniilook=$(this).text().trim();
+                            var uniilook=jQuery(this).text().trim();
                             var str=lookup[uniilook];
                             if(str==undefined){
                                 lookup[uniilook]="d";
-								var murl = "https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey;
-								//alert(murl);
+								var murl =resolverURL  + "?structure=" + encodeURIComponent(uniilook).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey;
 								myAjaxGet(murl,function(data){
 									if(data.indexOf("Exception")<0){
                                          lookup[uniilook]=data.split("\t")[1];
@@ -479,7 +483,7 @@ function mark2(){
 												lookup[uniilook + "_SRCURL"]=data.split("\t")[3];
 										 }
                                          display(lookup[uniilook]);
-										 $("img.NCGCHOVER_" + uniilook).attr("src",urlFor(lookup[uniilook]));
+										 jQuery("img.NCGCHOVER_" + uniilook).attr("src",urlFor(lookup[uniilook]));
 									}
                                 });
                             }else{
@@ -491,7 +495,7 @@ function mark2(){
                             }
                         }
                     });
-                    $('.ncgchover').on("mouseout",function () {
+                    jQuery('.ncgchover').on("mouseout",function () {
                         hide();
                     });
         
@@ -516,14 +520,33 @@ function mark2(){
 	if(refresh)
 		setTimeout(function(){mark()},refreshTime);
 }
+function resolveUNII(str){
+	var murl = resolverURL + "unii?structure=" + encodeURIComponent(str).replace(/[+]/g,"%2B").replace(/[%]2C/g,",") + "&force=true&apikey="  + _cacheSettings.apikey + "&format=JSON";
+	myAjaxGet(murl, function(data) {
+	    if (data.indexOf("Exception") < 0) {
+		var results=JSON.parse(data);
+		for(var i=0;i<results.length;i++){
+			var unii = results[i].response;
+			console.log(unii);
+			if(unii){
+				var uniis=unii.split("\\|");
+				for(var j=0;j<uniis.length;j++){
+					alert(uniis[j]);
+				}
+			}
+		}
+	    }
+	});
+}
 //TODO: get/set all globals through this function:
 function getValue(key,callback2){
 	//console.log("----------GETTING");
 	switch(EXT_TYPE){
 		case CHROME_EXT:
 			chrome.storage.local.get(key, function (result) {
-					//console.log("OK, I got something: " + result);
-					callback2(result[key]);
+					if(callback2){
+						callback2(result[key]);
+					}
 				});
 			break;
 		case FIREFOX_EXT:
@@ -598,12 +621,13 @@ function myAjaxGet(murl,callback){
 	}
 
 }
+
 function displayResolve(uniilook){
 							uniilook=uniilook.trim();
 							var str=lookup[uniilook];
                             if(str==undefined){
                                 lookup[uniilook]="d";
-								var lurl="https://tripod.nih.gov/servlet/resolver/?structure=" + encodeURIComponent(uniilook).replace("+","%2B") +  "&force=true&apikey="  + _cacheSettings.apikey;
+								var lurl=resolverURL + "?structure=" + encodeURIComponent(uniilook).replace("+","%2B") +  "&force=true&apikey="  + _cacheSettings.apikey;
 								//console.log(uniilook);
 								
 								myAjaxGet(lurl,function(data){
@@ -630,10 +654,10 @@ function displayResolve(uniilook){
 }
 function urlFor(str){
 	var settings= getSettings();
-	return "https://tripod.nih.gov/servlet/renderServletv7/?structure=" + encodeURIComponent(str) + "&format=" + settings.format + "&rotate=0.0&apikey="  + _cacheSettings.apikey;
+	return rendererURL + "?structure=" + encodeURIComponent(str) + "&format=" + settings.format + "&rotate=0.0&apikey="  + _cacheSettings.apikey;
 }
 function hide(){
-	$('.ncgcstructure').hide('slow');	
+	jQuery('.ncgcstructure').hide('slow');	
 }
 function display2(str, wx, wy, strtitle, source, sourceURL){
 	var sourceHTML="";
@@ -652,22 +676,22 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	var strtitlem='<img style="margin-bottom: 2px;margin-right: 10px;border-radius: 5px; margin-left: -10px; padding: 4px; vertical-align: bottom; background: none repeat scroll 0% 0% white;/* clear: none; *//* display: inline; */" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACRUlEQVR42p1STYhSURTWoimmrOQlRZM/D/+fz/+f0HkzI8ODx2slbgyGiEanoBzLGCpahLqRhIpctHBTK2cbudClCyEIQtonGc7KRYskeqHv1fceNOCQUh243HvPPd93vnPuUanmmMlkOkZR1ILqf4ym6bN+v5/1er2czWZb+mugTqc7EQqFWIC3PR5PDusmzjksHopOz8MeRrZIIBDYcblcW8jKQL7f7XZf8vl8y9g3sO9gX0XskX0UgiiLxXI0HA5vIMsjs9m8rNFozuDpEPwnoeAqSJ/Z7XYP7i4kuY/7dfiPKwTxePwLJL+G8x6C1kFAH1CmdjqdNN5fYt2SE4JkE2QXlNd8Pj+uVCrfOI57D+mXEfQU7sU/lLhgMBgoOQEIrmHXK95isSj2ej2xXq8LyWSyAYJduGc2C9LJKYJSqSQOh0NpNBpJjUZD4Hn+E+St/QuBBIKfMEkQBKnT6UxQThelMgewiwCv4BccswgUk2Ddbvc7y7JvAbDLTYxEIuto9C6G64rVasVv+jL7BIVCQRwMBmK/35+02+1JIpGYxGKxj/jSV3L3g8HgXfl7jUZjgCTJFfToMQi2tFrtKYUgk8kItVrtazqd3mu1WkI2mx1D5hMExZDR6XA41lAOD98NSH+AabwImDwDaoWAYZjnqPkFJD6sVqufm83mGFk+IHgbJLdxvgOiHGaEQzghT+xUZ5CBAOs5uaZUKvWmXC7/AOgdJJMoYRWzwREEsTQ1vjNMjaxMNBrd1Ov153/75JGeB/oFDjDMFWlNFx4AAAAASUVORK5CYII="><span class="" style="'+
     'overflow: hidden;text-overflow: ellipsis;width: 80%;display: inline-block;">' + strtitle + "</span>";
 	
-	$("<div class='mystr'><input style='display:none;width: 100%;font-size: smaller;font-family: monospace;' type='textbox' value='" + str+ "'/>"
+	jQuery("<div class='mystr'><input style='display:none;width: 100%;font-size: smaller;font-family: monospace;' type='textbox' value='" + str+ "'/>"
 	+"<img title='Click to get structure' style='cursor:pointer;width: 100%;' src='" + urlFor(str) + "'>" + 
 	sourceHTML + 
 	"</div>")
 	.dialog({dialogClass:'NCATSFindDialog',closeText: "hide",title:strtitle ,position: 'top',show: {effect: 'fade', duration: 350},hide: {effect: 'fade', duration: 250}});
 	//.dialog({dialogClass:'NCATSFindDialog'});
-	$(".ui-dialog").css('z-index', 99999); 
-	$(".NCATSFindDialog").css('position','fixed');
-	$(".NCATSFindDialog").not(".setup").css('top','0px');
-	$(".NCATSFindDialog").not(".setup").css('left','0px');
-	$(".NCATSFindDialog").not(".setup").addClass("setup");
+	jQuery(".ui-dialog").css('z-index', 99999); 
+	jQuery(".NCATSFindDialog").css('position','fixed');
+	jQuery(".NCATSFindDialog").not(".setup").css('top','0px');
+	jQuery(".NCATSFindDialog").not(".setup").css('left','0px');
+	jQuery(".NCATSFindDialog").not(".setup").addClass("setup");
 
 
-	$(".mystr img").click(function(){
+	jQuery(".mystr img").click(function(){
 		//open in ketcher
-		var smi=$(this).parent().find("input").val();
+		var smi=jQuery(this).parent().find("input").val();
 		var mole = {"smiles":smi};
 		editMolecule(mole);
 	});
@@ -675,23 +699,23 @@ function display2(str, wx, wy, strtitle, source, sourceURL){
 	//rotation behavior:
 	//makeRotate();
 	//background: rgb(199, 199, 255);color: black;
-	$(".ui-dialog-titlebar").css("background","rgb(199, 199, 255)");
-	$(".ui-dialog-titlebar").css("color","black");
+	jQuery(".ui-dialog-titlebar").css("background","rgb(199, 199, 255)");
+	jQuery(".ui-dialog-titlebar").css("color","black");
 	
 	
-	$(".ui-dialog .ui-dialog-content").css("overflow","hidden");
-	$(".ui-dialog-title").css("overflow","visible");
-	$(".ui-dialog-title").not(".active").html(strtitlem);
-	$(".ui-dialog-title").addClass("active");
+	jQuery(".ui-dialog .ui-dialog-content").css("overflow","hidden");
+	jQuery(".ui-dialog-title").css("overflow","visible");
+	jQuery(".ui-dialog-title").not(".active").html(strtitlem);
+	jQuery(".ui-dialog-title").addClass("active");
 }
 
 //TODO: retire this, not really used anymore
 function display(str, wx, wy){
 	if(true)return;
 	display2(str,wx,wy);
- 	if($(".ncgcstructure").length<1){
-		$("body").append("<div style='border-radius:15px;background-color:white;border:1px solid black;position:absolute;display:none;' class='ncgcstructure'></div>");
-		//$(".ncgcstructure").dialog({autoOpen: false});
+ 	if(jQuery(".ncgcstructure").length<1){
+		jQuery("body").append("<div style='border-radius:15px;background-color:white;border:1px solid black;position:absolute;display:none;' class='ncgcstructure'></div>");
+		//jQuery(".ncgcstructure").dialog({autoOpen: false});
     }  
 
 	if(wx!=undefined)mouseX=wx;
@@ -709,25 +733,25 @@ function display(str, wx, wy){
     }else{
            gx=mouseX;
     }
-    $(".ncgcstructure").html("<center><a class='closestr' href='javascript:void(0);'>(close)</a></center><br><img src='" + urlFor(str) + "'>");
-	$('.ncgcstructure').css({
+    jQuery(".ncgcstructure").html("<center><a class='closestr' href='javascript:void(0);'>(close)</a></center><br><img src='" + urlFor(str) + "'>");
+	jQuery('.ncgcstructure').css({
 		'top': gy,
 		'left': gx
 	}).css('z-index', 9999).show('slow');
     var fudge=false;
-    $(".closestr").on("click",function(){
+    jQuery(".closestr").on("click",function(){
     	hide();
     });
-    if($(".ncgcstructure").get(0).offsetLeft+twidth>window.innerWidth){
+    if(jQuery(".ncgcstructure").get(0).offsetLeft+twidth>window.innerWidth){
      	   gx=mouseX-twidth;
            fudge=true;
     }
-    if($(".ncgcstructure").get(0).offsetTop+twidth>window.innerHeight){
+    if(jQuery(".ncgcstructure").get(0).offsetTop+twidth>window.innerHeight){
      	   gy=mouseY-twidth;
            fudge=true;
     }
     if(fudge){
-                                     $('.ncgcstructure').css({
+                                     jQuery('.ncgcstructure').css({
                                          'top': gy,
                                          'left': gx
                                      });
@@ -977,50 +1001,50 @@ function fixRefresh(){
 }
 
   function makeRotate(){
-  	$(".mystr img").mousemove(function mouse(evt){
-        if($(this).attr("offset")==undefined){
-        	$(this).attr("offset",JSON.stringify($(this).offset()));
+  	jQuery(".mystr img").mousemove(function mouse(evt){
+        if(jQuery(this).attr("offset")==undefined){
+        	jQuery(this).attr("offset",JSON.stringify(jQuery(this).offset()));
         }
-        var offset = JSON.parse($(this).attr("offset"));
-        if($(this).hasClass("rotate")){
-            var src=$(this).attr("src");
+        var offset = JSON.parse(jQuery(this).attr("offset"));
+        if(jQuery(this).hasClass("rotate")){
+            var src=jQuery(this).attr("src");
             var rot=(src+"&rotate=0.0").split("&rotate=")[1].split("&")[0]/1;
-        var center_x = (offset.left) + ($(this).width()/2);
-        var center_y = (offset.top) + ($(this).height()/2);
+        var center_x = (offset.left) + (jQuery(this).width()/2);
+        var center_y = (offset.top) + (jQuery(this).height()/2);
         var mouse_x = evt.pageX; var mouse_y = evt.pageY;
         var radians = Math.atan2(mouse_x - center_x, mouse_y - center_y)-(rot);
-        $(this).attr("value",radians);
+        jQuery(this).attr("value",radians);
         var degree = (radians * (180 / Math.PI) * -1) + 90; 
-        $(this).css('-moz-transform', 'rotate('+degree+'deg)');
-        $(this).css('-webkit-transform', 'rotate('+degree+'deg)');
-        $(this).css('-o-transform', 'rotate('+degree+'deg)');
-        $(this).css('-ms-transform', 'rotate('+degree+'deg)');
+        jQuery(this).css('-moz-transform', 'rotate('+degree+'deg)');
+        jQuery(this).css('-webkit-transform', 'rotate('+degree+'deg)');
+        jQuery(this).css('-o-transform', 'rotate('+degree+'deg)');
+        jQuery(this).css('-ms-transform', 'rotate('+degree+'deg)');
         }
     });
-    $(".mystr img").click(function(){
-        if($(this).hasClass("rotate")){
-            $(this).removeClass("rotate");
-            var src=$(this).attr("src");
+    jQuery(".mystr img").click(function(){
+        if(jQuery(this).hasClass("rotate")){
+            jQuery(this).removeClass("rotate");
+            var src=jQuery(this).attr("src");
             var rot=src.split("&rotate=")[1].split("&")[0];
             //alert(rot);
             src=
                 src.replace(
                     /&rotate=[-]*[0-9]*[.]*[0-9]*/g,
-                    "&rotate=" + ($(this).attr("value")-Math.PI/2
+                    "&rotate=" + (jQuery(this).attr("value")-Math.PI/2
                                   +rot/1
                                  ));
-            $(this).attr("value",0.0);
-            $(this).fadeTo(50,0.1,function(){
-                $(this).attr("src",src);
-                $(this).attr('style',"width:100%;display:none");                
-                $(this).fadeTo(50,0.1,function(){
-                	$(this).fadeTo(50,1);
+            jQuery(this).attr("value",0.0);
+            jQuery(this).fadeTo(50,0.1,function(){
+                jQuery(this).attr("src",src);
+                jQuery(this).attr('style',"width:100%;display:none");                
+                jQuery(this).fadeTo(50,0.1,function(){
+                	jQuery(this).fadeTo(50,1);
                 });
             });
             
         }else{
-	        $(this).attr("offset",JSON.stringify($(this).offset()));
-            $(this).addClass("rotate");
+	        jQuery(this).attr("offset",JSON.stringify(jQuery(this).offset()));
+            jQuery(this).addClass("rotate");
         }
   	});
   	}
@@ -1520,8 +1544,8 @@ function JSDraw_getActive(){
 	if(typeof v2.JSDraw2 != "undefined"){
 		var keys = Object.keys(v2.JSDraw2.Editor._allitems);
 		for(var i in keys){
-			if($(v2.JSDraw2.Editor._allitems[keys[i]].div).css("visibility")!="hidden"){
-				if($(v2.JSDraw2.Editor._allitems[keys[i]].div).is(":visible")){
+			if(jQuery(v2.JSDraw2.Editor._allitems[keys[i]].div).css("visibility")!="hidden"){
+				if(jQuery(v2.JSDraw2.Editor._allitems[keys[i]].div).is(":visible")){
 					return v2.JSDraw2.Editor._allitems[keys[i]];
 					break;
 				}
@@ -1699,11 +1723,11 @@ function isNormalPaste(){
 function addNativeHooks(){
 	runlocal(function forceClipboardpaste(b){
 				if(b){}
-				else{$CB$();}
+				else{$CBjQuery();}
 			},{},function(){pasteEvent();},true);
 	runlocal(function forceClipboardcopy(b){
 				if(b){}
-				else{$CB$();}
+				else{$CBjQuery();}
 			},{},function(){copyEvent();},true);
 }
 
@@ -1715,9 +1739,9 @@ function nativeGetMol(callback){
 	runlocal(function(){
 		if(typeof getClipboardMolecule != "undefined"){
 			var m=getClipboardMolecule();
-			$CB$(m);
+			$CBjQuery(m);
 		}else{
-			$CB$();
+			$CBjQuery();
 		}
 	},{},
 	//callback
@@ -1737,13 +1761,13 @@ function nativeGetMol(callback){
 							var mfile = jsdraw.getMolfile();
 							var smiles = jsdraw.getSmiles();
 							JSDraw2.Editor.setClipboard({isEmpty:function(){return false;},getXml:function(){return "";}},0);
-							$CB$({smiles:smiles,molfile:mfile});
+							$CBjQuery({smiles:smiles,molfile:mfile});
 							return;
 						}
 						if(typeof ketcher != "undefined"){
 							var mfile1 = ketcher.getMolfile(); 
 							var smiles1 = ketcher.getSmiles();
-							$CB$({smiles:smiles1,molfile:mfile1});
+							$CBjQuery({smiles:smiles1,molfile:mfile1});
 						}
 		},{}, callback);
 	});
@@ -1755,7 +1779,7 @@ function nativeSetMol(m,callback){
 		if(typeof setClipboardMolecule != "undefined"){
 			var m=setClipboardMolecule(mol);
 		}else{
-			$CB$();
+			$CBjQuery();
 		}
 	},m,function(){
 			runlocal(function(temp1){
@@ -1999,47 +2023,43 @@ function forceLoad(){
 		});
 	});
 }
-function getClipboardState(){
+function getClipboardState(cback){
         EXT_TYPE=getExtensionType();
         if(EXT_TYPE==FIREFOX_EXT){
                 if(navigator.userAgent.indexOf("indows")>=0){
+			if(cback)cback(true);
                         return true;
                 }
         }
+	if(cback)cback(false);
         return false;
 }
 
 jQuery(document).ready(
         function($){
+		jQuery(document).mousemove(function (e) {
+                                mouseX = e.pageX;
+                                mouseY = e.pageY;
+                });
+		
                 EXT_TYPE=getExtensionType();
                 var CLIP_ON=getClipboardState();
-                //Clipboard applet
-                ////console.log("loading");
-                if((document.getElementById("chemclipboard")+"") != "null"){
-                        addAppletListener();
-                        ////console.log("clipboard");
-                }else{
-                        //alert("INITIALIZE");
-                        initializeListeners();
-
-                        if(EXT_TYPE==FIREFOX_EXT){
+		initializeListeners();
+		mark();
+                setInterval(function(){fixRefresh()},refreshTime*2.1);
+		if(EXT_TYPE==FIREFOX_EXT){
                                 if(document.body.tagName=="FRAMESET"){
                                         if(CLIP_ON)tempFix();
                                 }
                                 if(isReview()){
-                                        ////console.log("============Yes, it's review");
                                         forceLoad();
                                 }
-                        }
-
-                        ////console.log(document.location.href);
-                        $(document).mousemove(function (e) {
-                                mouseX = e.pageX;
-                                mouseY = e.pageY;
-                        });
-                        mark();
-                        setInterval(function(){fixRefresh()},refreshTime*2.1);
-                        if(CLIP_ON)addPasteHandler();
-                }
+                }	
+		if(CLIP_ON)addPasteHandler();
+                
+		//TODO: Rework applet parts
+		//if((document.getElementById("chemclipboard")+"") != "null"){
+                //        addAppletListener();
+                //}
         }
 );

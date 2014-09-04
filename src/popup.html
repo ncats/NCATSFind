@@ -1796,6 +1796,18 @@ padding-left: 25px;
 width: 100%;
 border-bottom: 1px solid rgb(202, 202, 202);
 }
+#status span{
+
+	color: grey;
+	font-style: italic;
+}
+#status{
+	position: fixed;
+	bottom: 0px;
+	font-family: sans-serif;
+	width: 100%;
+	text-align: center;
+}
 </style>
 <script>
 function getList(elm){
@@ -1945,11 +1957,11 @@ margin: 0px;
 <div class="panel actions-panel">
 	<h4 class="heading">Structure Tools</h4>
 	<ul class="fa-ul menu">
-	<li class="button" onclick="img();"><i class="fa fa-camera-retro fa-fw"></i>Snapshot in tab to Structure</li>
-	<li class="button" onclick="captions(true);"><i class="fa fa-magic fa-fw"></i>Mark structure IDs</li>
-	<li class="button" onclick="captions(false);"><i class="fa fa-undo fa-fw"></i>Unmark structure IDs</li>
+	<li class="button cmd" id="capture" onclick="img();"><i class="fa fa-camera-retro fa-fw"></i>Screen area to Structure</li>
+	<li class="button cmd" id="unmark" onclick="captions(true);"><i class="fa fa-magic fa-fw"></i>Mark structure IDs</li>
+	<li class="button cmd" id="mark" onclick="captions(false);"><i class="fa fa-undo fa-fw"></i>Unmark structure IDs</li>
 	<div class="linebreak"></div>
-	<li class="button" onclick="toggleClass('menu-panel');"><i class="fa fa-bars fa-fw"></i>Menu</li>
+	<li class="button cmd" onclick="toggleClass('menu-panel');"><i class="fa fa-bars fa-fw"></i>Menu</li>
 	</ul>
 </div>  
 
@@ -1973,10 +1985,36 @@ margin: 0px;
 	<button style="float:right;margin-right:25px;" onclick='closeit()'>Close</button>
 </div>
 <script>
-toggleClass("actions-panel");
+	function attach(){
+		var commands = document.getElementsByClassName("cmd");
+		for(var i=0;i<commands.length;i++){
+			commands[i].addEventListener("mouseover", function(){showStatus(this.id);}, true);
+			commands[i].addEventListener("mouseout", function(){showStatus('');}, true);
+		}
+	}
+	attach();
+	toggleClass("actions-panel");
 
+	
+	function showStatus(cmd){
+		var key=shortcutKeys[cmd];
+		var status=document.getElementById("status");
+		if(key){
+			status.innerHTML="Shortcut Key: <span>" + key + "</span>";
+		}else{
+			status.innerHTML="";
+		}
+
+	}
 	version(function(ver){
 		document.getElementById("version").innerHTML=ver;
+	});
+	var shortcutKeys={};
+	getShortcut(function(shortkey){
+		if(shortkey==""){
+			shortkey="&lt;not set&gt;";
+		}
+		shortcutKeys["capture"]=shortkey;
 	});
 
 </script>

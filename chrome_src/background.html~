@@ -8,6 +8,7 @@ var defaultSettings={format:"svg",hover:false,debug:true,refresh:false,
 			inchiResolve:false,
 			NCGCResolve:false,
 			checkUpdates:true,
+			showTutorial:true,
 			enabled:true
 			};
 function getChemicalFormat(str,format,callback){
@@ -140,6 +141,8 @@ chrome.contextMenus.onClicked.addListener(function(t){
 		framen=t.pageUrl;
 	}
 	var sid= t.menuItemId;
+
+
 	if(sid=="display"){
 		var searchText = t.selectionText.replace(/UNII[-]*/g,"");
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

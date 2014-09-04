@@ -93,13 +93,3 @@ function version(cback){
 	}
 	return version;
 }
-
-function getShortcut(cback){
-	chrome.commands.getAll(function(c){
-		for(var i in c){
-			if(c[i].name=="capture"){
-				cback(c[i].shortcut);
-			}
-		}
-	});
-}

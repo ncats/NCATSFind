@@ -203,7 +203,6 @@ ui.init = function ()
     }
 
     // Document events
-    //TODO: FIX this for proper clipboard
     $('ketcher_window').observe('keypress', ui.onKeyPress_Ketcher);
     $('ketcher_window').observe('keydown', ui.onKeyDown_IE);
     $('ketcher_window').observe('keyup', ui.onKeyUp);

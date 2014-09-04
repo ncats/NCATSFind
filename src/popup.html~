@@ -1796,6 +1796,18 @@ padding-left: 25px;
 width: 100%;
 border-bottom: 1px solid rgb(202, 202, 202);
 }
+#status span{
+
+	color: grey;
+	font-style: italic;
+}
+#status{
+	position: fixed;
+	bottom: 0px;
+	font-family: sans-serif;
+	width: 100%;
+	text-align: center;
+}
 </style>
 <script>
 function getList(elm){
@@ -1913,13 +1925,13 @@ margin: 0px;
 <div class="panel settings-panel">
 		<h4 class="heading">Settings</h4>
 		<ul style="list-style: none;">
-			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic Resolve (on Page Load)</label></li>
-			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic Resolve (every 4 seconds)</label></li>
+			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic resolve (on page load)</label></li>
+			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic resolve (every 4 seconds)</label></li>
 			<li onclick='saveSettings();'><input name="casResolve" id="casResolve" type="checkbox" value="casResolve" checked=""><label for="casResolve">Resolve CAS number</label></li>
 			<li onclick='saveSettings();'><input name="UNIIResolve" id="UNIIResolve" type="checkbox" value="UNIIResolve" checked=""><label for="UNIIResolve">Resolve UNII code</label></li>
 			<li onclick='saveSettings();'><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve">Resolve InChI string</label></li>
 			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
-			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Show Notifications</label></li>
+			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Show notifications</label></li>
 			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show snapshot hints</label></li>
 			<li class='ffonly' onclick='saveSettings();'><input name="clipboard" id="clipboard" type="checkbox" value="clipboard" checked=""><label for="clipboard">Clipboard support (experimental)</label></li>
 			<li class='ffonly' onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
@@ -1945,11 +1957,11 @@ margin: 0px;
 <div class="panel actions-panel">
 	<h4 class="heading">Structure Tools</h4>
 	<ul class="fa-ul menu">
-	<li class="button" onclick="img();"><i class="fa fa-camera-retro fa-fw"></i>Snapshot in tab to Structure</li>
-	<li class="button" onclick="captions(true);"><i class="fa fa-magic fa-fw"></i>Mark structure IDs</li>
-	<li class="button" onclick="captions(false);"><i class="fa fa-undo fa-fw"></i>Unmark structure IDs</li>
+	<li class="button cmd" id="capture" onclick="img();"><i class="fa fa-camera-retro fa-fw"></i>Screen area to Structure</li>
+	<li class="button cmd" id="unmark" onclick="captions(true);"><i class="fa fa-magic fa-fw"></i>Mark structure IDs</li>
+	<li class="button cmd" id="mark" onclick="captions(false);"><i class="fa fa-undo fa-fw"></i>Unmark structure IDs</li>
 	<div class="linebreak"></div>
-	<li class="button" onclick="toggleClass('menu-panel');"><i class="fa fa-bars fa-fw"></i>Menu</li>
+	<li class="button cmd" onclick="toggleClass('menu-panel');"><i class="fa fa-bars fa-fw"></i>Menu</li>
 	</ul>
 </div>  
 
@@ -1973,8 +1985,32 @@ margin: 0px;
 	<button style="float:right;margin-right:25px;" onclick='closeit()'>Close</button>
 </div>
 <script>
-toggleClass("actions-panel");
+	function attach(){
+		var commands = document.getElementsByClassName("cmd");
+		for(var i=0;i<commands.length;i++){
+			commands[i].addEventListener("mouseover", function(){showStatus(this.id);}, true);
+			commands[i].addEventListener("mouseout", function(){showStatus('');}, true);
+		}
+	}
+	attach();
+	toggleClass("actions-panel");
+	var shortcutKeys={};
+	getShortcut(function(shortkey){
+		if(shortkey==""){
+			shortkey="&lt;not set&gt;";
+		}
+		shortcutKeys["capture"]=shortkey;
+	});
+	function showStatus(cmd){
+		var key=shortcutKeys[cmd];
+		var status=document.getElementById("status");
+		if(key){
+			status.innerHTML="Shortcut Key: <span>" + key + "</span>";
+		}else{
+			status.innerHTML="";
+		}
 
+	}
 	version(function(ver){
 		document.getElementById("version").innerHTML=ver;
 	});
