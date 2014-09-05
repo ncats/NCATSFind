@@ -273,8 +273,10 @@ function imageToPngBase64(imgsrc){
 function mark(){
 	if(forceoff)return;
 	next=false;
+	console.log("marking");
 	var startTime=(new Date()).getTime();
 		getSettings(function(settings){
+			console.log("Got settings");
 			if(settings.hover){
 				var nhtml=document.body.textContent;
 				if(prevhtml!=nhtml){
@@ -1129,7 +1131,7 @@ function fixRefresh(){
 		var timerID;
 		ntime=new Date();
 						timerID=setInterval(function(){
-							var ctime = (new Date() - ntime)/50;
+							var ctime = (new Date() - ntime)/20;
 							if(ctime/10>1){
 								clearInterval(timerID);
 								note1.style.display="none";

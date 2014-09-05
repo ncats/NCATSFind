@@ -1985,6 +1985,9 @@ margin: 0px;
 	<button style="float:right;margin-right:25px;" onclick='closeit()'>Close</button>
 </div>
 <script>
+	version(function(ver){
+		document.getElementById("version").innerHTML=ver;
+	});
 	function attach(){
 		var commands = document.getElementsByClassName("cmd");
 		for(var i=0;i<commands.length;i++){
@@ -2006,9 +2009,7 @@ margin: 0px;
 		}
 
 	}
-	version(function(ver){
-		document.getElementById("version").innerHTML=ver;
-	});
+	
 	var shortcutKeys={};
 	getShortcut(function(shortkey){
 		if(shortkey==""){
