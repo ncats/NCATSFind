@@ -58,7 +58,6 @@
 							setTimeout(function(){
 								var smi=ketcher.getSmiles();
 								document.getElementById('smilesout').value=smi;
-								//resolveUNII(smi);
 							},1000);
 							
 						}
@@ -134,7 +133,7 @@
 					removeClass(refs[i],"srcValid");
 					addClass(refs[i],"srcInvalid");
 				}
-				resolveUNII(smi, function(data){
+				getStructureInfo(smi, function(data){
 					info=data;
 					document.getElementById("status").innerHTML="Done";
 					console.log(JSON.stringify(data));
@@ -289,7 +288,7 @@ button.srcInvalid:hover {
     </head>
 
     <body onfocus="console.log('focus');document.getElementById('ketcher_window_input').focus();" onload="loadit();">
-	<div style="width:1000px">
+	<div style="width:100%">
 	<div id='NCATSreviewid' style="display:none;">
 		<form id="export" action="http://tripod.nih.gov/servlet/exporter/">
 				<textarea id="molstr" type="text" name="structure"></textarea><br>
@@ -307,7 +306,9 @@ button.srcInvalid:hover {
     width: 100%;
 "></td></tr>
   </tbody></table>
-  <table><tbody><tr><td>
+  <table style="width:100%" ><tbody>
+	<tr>
+	<td style="width:720px">
         <div>
             <table style = "position:relative; width: 711px;" id="ketcher_window">
                 <tr align="center" id="main_toolbar">
