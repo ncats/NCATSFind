@@ -1985,11 +1985,9 @@ margin: 0px;
 	<button style="float:right;margin-right:25px;" onclick='closeit()'>Close</button>
 </div>
 <script>
-	console.log("version");
 	version(function(ver){
 		document.getElementById("version").innerHTML=ver;
 	});
-	console.log("version complete");
 	function attach(){
 		var commands = document.getElementsByClassName("cmd");
 		for(var i=0;i<commands.length;i++){

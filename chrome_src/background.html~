@@ -2,11 +2,14 @@
 <html>
 <head>
   <script>
-var defaultSettings={format:"svg",hover:false,debug:true,refresh:false,
+var defaultSettings={format:"svg",
+			hover:false,
+			debug:true,
+			refresh:false,
 			casResolve:true,
-			UNIIResolve:false,
-			inchiResolve:false,
-			NCGCResolve:false,
+			UNIIResolve:true,
+			inchiResolve:true,
+			NCGCResolve:true,
 			checkUpdates:true,
 			showTutorial:true,
 			enabled:true,
@@ -32,11 +35,13 @@ function ajaxPost(murl,data,callback){
 }
 
 
-
+	
 	chrome.storage.local.get('settings', function (result) {
-		if(result.settings == undefined){
+		console.log(result.settings);
+		//if(result.settings == undefined){
+			console.log(defaultSettings);
 			chrome.storage.local.set({'settings': defaultSettings});
-		}
+		//}
 	});
 	
 	chrome.storage.local.get('enabled', function (result) {
@@ -189,9 +194,13 @@ function checkUpdates(){
 	});
 }
 function captureImage(framen){
+	console.log("Getting image");
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+			console.log("Got tab");
 			chrome.tabs.sendMessage(tabs[0].id, {greeting: "bbox",frame: framen}, function(response) {
+				console.log("got box");
 				chrome.tabs.captureVisibleTab(null, function(img) {
+					console.log("got img");
 					chrome.tabs.sendMessage(tabs[0].id, {greeting: "imagetest", image: img ,frame: framen,rect:response.rect}, function(response2) {
 						displayResolveb64(response2.base64);
 					});
@@ -200,6 +209,9 @@ function captureImage(framen){
     	});
 }
 function showMolEditor(mol, img){
+	if(img==undefined){
+		img="";
+	}
 	chrome.storage.local.set({'resIMGURL': img}, function (result2) {});
 	chrome.storage.local.set({'ncgcImage': mol}, function (result2) {});
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

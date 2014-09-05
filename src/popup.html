@@ -1853,18 +1853,20 @@ function populateForm(settings){
 	for(e in settings){
 		var setting=settings[e];
 		var elm = document.getElementById(e);
-		if(elm.tagName == "SELECT"){
-			elm.innerHTML="";
-			var nHTML = "";
-			for(var i =0;i<setting.length;i++){
-				nHTML +="<option value=\"" + setting[i] + "\" >" + setting[i] + "</option>";
-			}
-			elm.innerHTML=nHTML;
-		}else{
-			if(elm.type == "checkbox"){
-				elm.checked=setting;
+		if(elm!=null){
+			if(elm.tagName == "SELECT"){
+				elm.innerHTML="";
+				var nHTML = "";
+				for(var i =0;i<setting.length;i++){
+					nHTML +="<option value=\"" + setting[i] + "\" >" + setting[i] + "</option>";
+				}
+				elm.innerHTML=nHTML;
 			}else{
-				elm.value=setting;
+				if(elm.type == "checkbox"){
+					elm.checked=setting;
+				}else{
+					elm.value=setting;
+				}
 			}
 		}
 	}
