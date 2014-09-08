@@ -2,6 +2,132 @@
 <html lang="en">
 <head>
 <style>
+ul.booleanoptions{
+	width:100%;
+	padding:0;
+}
+ul.booleanoptions li{
+	position:relative;
+	height:30px;
+	padding:5px;
+}
+ul.booleanoptions li label:first-child{
+	cursor:pointer;
+	display: inline-block;
+	width: 100%;
+}
+ul.booleanoptions li:hover{
+	background: rgba(0, 0, 0, .1) !important;
+	
+}
+
+
+input[type='checkbox'] + label{
+   position:absolute !important;
+   top:5px;
+   right:0;
+   margin-right: 25px;
+}
+input[type='checkbox']{
+    display:none;
+}
+input[type='checkbox'] + label {
+padding: 2px;
+width: 40px;
+height: 20px;
+background-color: #dddddd;
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+-ms-border-radius: 10px;
+-o-border-radius: 10px;
+border-radius: 10px;
+}
+input[type='checkbox'] + label {
+display: block;
+position: relative;
+cursor: pointer;
+outline: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+*, *:before, *:after {
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+input[type='checkbox'] + label:before {
+right: 1px;
+background-color: #f1f1f1;
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+-ms-border-radius: 10px;
+-o-border-radius: 10px;
+border-radius: 10px;
+-webkit-transition: background 0.4s;
+-moz-transition: background 0.4s;
+-o-transition: background 0.4s;
+transition: background 0.4s;
+}
+input[type='checkbox'] + label:before, input[type='checkbox'] + label:after {
+display: block;
+position: absolute;
+top: 1px;
+left: 1px;
+bottom: 1px;
+content: "";
+}
+*, *:before, *:after {
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+input[type='checkbox'] + label:after {
+width: 50%;
+background-color: #fff;
+-webkit-border-radius: 100%;
+-moz-border-radius: 100%;
+-ms-border-radius: 100%;
+-o-border-radius: 100%;
+border-radius: 100%;
+-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+-moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+-webkit-transition: margin 0.4s;
+-moz-transition: margin 0.4s;
+-o-transition: margin 0.4s;
+transition: margin 0.4s;
+}
+input[type='checkbox'] + label:before, input.cmn-toggle-round + label:after {
+display: block;
+position: absolute;
+top: 1px;
+left: 1px;
+bottom: 1px;
+content: "";
+}
+*, *:before, *:after {
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+input[type='checkbox']:checked + label:before {
+background-color: #8ce196;
+}
+
+input[type='checkbox']:checked + label:after {
+margin-left: 50%;
+}
+
+
+
+
+
+
 li:hover i.fa {
 color: rgb(0, 0, 0);
 }
@@ -58,7 +184,7 @@ i.fa{
 	}
 	body{
 		width:325px;
-		height:365px;
+		height:395px;
 	}
 	span.glyph{
 		font-family: 'Glyphicons Halflings';
@@ -1926,17 +2052,17 @@ margin: 0px;
 
 <div class="panel settings-panel">
 		<h4 class="heading">Settings</h4>
-		<ul style="list-style: none;">
-			<li onclick='saveSettings();'><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover">Automatic resolve (on page load)</label></li>
-			<li onclick='saveSettings();'><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh">Automatic resolve (every 4 seconds)</label></li>
-			<li onclick='saveSettings();'><input name="casResolve" id="casResolve" type="checkbox" value="casResolve" checked=""><label for="casResolve">Resolve CAS number</label></li>
-			<li onclick='saveSettings();'><input name="UNIIResolve" id="UNIIResolve" type="checkbox" value="UNIIResolve" checked=""><label for="UNIIResolve">Resolve UNII code</label></li>
-			<li onclick='saveSettings();'><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve">Resolve InChI string</label></li>
-			<li onclick='saveSettings();'><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve">Resolve NCGC IDs</label></li>
-			<li onclick='saveSettings();'><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug">Show notifications</label></li>
-			<li onclick='saveSettings();'><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial">Show snapshot hints</label></li>
-			<li class='ffonly' onclick='saveSettings();'><input name="clipboard" id="clipboard" type="checkbox" value="clipboard" checked=""><label for="clipboard">Clipboard support (experimental)</label></li>
-			<li class='ffonly' onclick='saveSettings();'><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates">Check for new version</label></li>
+		<ul class="booleanoptions" style="list-style: none;">
+			<li onclick='saveSettings();'><label for="hover">Resolve on page load</label><input name="hover" id="hover" type="checkbox" value="hover" checked=""><label for="hover"></label></li>
+			<li onclick='saveSettings();'><label for="refresh">Resolve every 4 seconds</label><input name="refresh" id="refresh" type="checkbox" value="hoverRefresh" checked=""><label for="refresh"></label></li>
+			<li onclick='saveSettings();'><label for="casResolve">Resolve CAS number</label><input name="casResolve" id="casResolve" type="checkbox" value="casResolve" checked=""><label for="casResolve"></label></li>
+			<li onclick='saveSettings();'><label for="UNIIResolve">Resolve UNII code</label><input name="UNIIResolve" id="UNIIResolve" type="checkbox" value="UNIIResolve" checked=""><label for="UNIIResolve"></label></li>
+			<li onclick='saveSettings();'><label for="inchiResolve">Resolve InChI string</label><input name="inchiResolve" id="inchiResolve" type="checkbox" value="inchiResolve" checked=""><label for="inchiResolve"></label></li>
+			<li onclick='saveSettings();'><label for="NCGCResolve">Resolve NCGC IDs</label><input name="NCGCResolve" id="NCGCResolve" type="checkbox" value="NCGCResolve" checked=""><label for="NCGCResolve"></label></li>
+			<li onclick='saveSettings();'><label for="debug">Show notifications</label><input name="debug" id="debug" type="checkbox" value="hoverRefresh2" checked=""><label for="debug"></label></li>
+			<li onclick='saveSettings();'><label for="showTutorial">Show snapshot hints</label><input name="showTutorial" id="showTutorial" type="checkbox" value="showTutorial" checked=""><label for="showTutorial"></label></li>
+			<li class='ffonly' onclick='saveSettings();'><label for="clipboard">Clipboard support (experimental)</label><input name="clipboard" id="clipboard" type="checkbox" value="clipboard" checked=""><label for="clipboard"></label></li>
+			<li class='ffonly' onclick='saveSettings();'><label for="checkUpdates">Check for new version</label><input name="checkUpdates" id="checkUpdates" type="checkbox" value="checkUpdates" checked=""><label for="checkUpdates"></label></li>
 		</ul>		
 </div>    
 <div class="panel adv-settings-panel" >
