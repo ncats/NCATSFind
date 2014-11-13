@@ -167,49 +167,7 @@ public class ChemClipboard extends Applet{
 		    clipboard.setContents(t, null);
 	}
 	public static void main(String[] args) throws ClassNotFoundException, UnsupportedFlavorException, IOException {
-		 Transferable t = new Transferable(){
-			@Override
-			public Object getTransferData(DataFlavor arg0)
-					throws UnsupportedFlavorException, IOException {
-				ByteArrayInputStream bais = new ByteArrayInputStream("ASDSADAS".getBytes());
-				return bais;
-			}
-			@Override
-			public DataFlavor[] getTransferDataFlavors() {
-					DataFlavor df;
-					try {
-						df = new DataFlavor2("chemical/cml");
-						return new DataFlavor[]{df};
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return null;
-			}
-
-			@Override
-			public boolean isDataFlavorSupported(DataFlavor arg0) {
-				// TODO Auto-generated method stub
-				for(DataFlavor df: getTransferDataFlavors()){
-					if(df.equals(arg0))return true;
-				}
-				return false;
-			}
-			 
-		 };
-		 	
-		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		    SystemFlavorMap myest =(SystemFlavorMap)(SystemFlavorMap.getDefaultFlavorMap());
-		    myest.addUnencodedNativeForFlavor(new DataFlavor2("chemical/cml"), "MDLCT");
-		    myest.addFlavorForUnencodedNative("MDLCT",new DataFlavor2("chemical/cml"));
-		    Transferable tr=clipboard.getContents(null);
-		    for(DataFlavor df:clipboard.getAvailableDataFlavors()){
-		    	ByteArrayInputStream bais =(ByteArrayInputStream) tr.getTransferData(df);
-		    	String s = new String(read(bais));
-		    	//System.out.println(s);
-		    }
-		    setMolfile(getMolfile());
-		  
+		
 	}
 	public static class DataFlavor2 extends DataFlavor{
 		public DataFlavor2(String s) throws ClassNotFoundException{

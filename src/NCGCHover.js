@@ -214,7 +214,7 @@ function addChromeListeners() {
                         displayEdit();
                     }
                 }
-                if (request.greeting == "display") {
+                if (request.greeting == "display") {NCAT
                     var off = {};
                     if (window.getSelection().anchorNode != undefined) {
                         if (window.getSelection().anchorNode.parentNode != null) {
@@ -1288,7 +1288,12 @@ function fixRefresh() {
     }
 }
 
-function getScreenshotArea(callback, titlet, showHints) {
+var chemSnapHints=[
+"1. Move the box to the chemical structure",
+"2. Resize the box to surround the full structure",
+"3. Click 'process'"
+];
+function getScreenshotArea(callback, titlet, showHints, hints) {
     var title = titlet;
     if (title == undefined) {
         title = "Area Select";
@@ -1601,24 +1606,28 @@ function getScreenshotArea(callback, titlet, showHints) {
     myrect.setAttribute("style", "margin:0;font-size: 12pt;-webkit-box-sizing: initial;background:none;cursor:move;position:fixed;border:1px dashed black;top:0px;left:0px;width:0px;height:0px");
     myrect.innerHTML = "<div style='box-sizing: initial;padding:5px;border-radius:0px;position:absolute;background:rgb(76, 126, 231);color:white;top:-29px;left:0px;height:19px;overflow:hidden;'>" + title + "</div>" +
         resizeDiv4 + okbutton + cancelbutton;
-    note1 = document.createElement("DIV");
-    note1.setAttribute("style", "opacity:0;width: 350px;    color: rgb(255, 255, 255);text-align:center;    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
-    note1.innerHTML = "2. Resize the box to surround the full structure";
-    myrect.appendChild(note1);
-    note2 = document.createElement("DIV");
-    note2.setAttribute("style", "opacity:0;width: 350px;    color: rgb(255, 255, 255);text-align:center;    left: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    top: 0;    margin: 0;");
-    note2.innerHTML = "1. Move the box to the chemical structure";
-    myrect.appendChild(note2);
-    note3 = document.createElement("DIV");
-    note3.setAttribute("style", "opacity:0;width: 120px;    color: rgb(255, 255, 255);text-align:center;    left: -130px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
-    note3.innerHTML = "3. Click 'process'";
-    myrect.appendChild(note3);
+    
+    if(hints!=undefined){
+	    note1 = document.createElement("DIV");
+	    note1.setAttribute("style", "opacity:0;width: 350px;    color: rgb(255, 255, 255);text-align:center;    right: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
 
-    help = document.createElement("BUTTON");
-    help.setAttribute("style", "display: block;width: 25px;color: white;right: -25px;position: absolute;padding: 6px;font-family: sans-serif;font-size: 10pt;top: 0px;margin: 0px;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;border-top-left-radius: 4px;border-top-right-radius: 4px;border-bottom-right-radius: 4px;border-bottom-left-radius: 4px;text-shadow: rgba(0, 0, 0, 0.2) 0px 1px 1px;border: 0px rgba(0, 0, 0, 0);font-weight: bold;background: rgba(0, 0, 0, 0.4);");
-    help.innerHTML = "?";
-    myrect.appendChild(help);
+	    
+	    note1.innerHTML = hints[1]; //"2. Resize the box to surround the full structure";
+	    myrect.appendChild(note1);
+	    note2 = document.createElement("DIV");
+	    note2.setAttribute("style", "opacity:0;width: 350px;    color: rgb(255, 255, 255);text-align:center;    left: -360px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    top: 0;    margin: 0;");
+	    note2.innerHTML = hints[0]; //"1. Move the box to the chemical structure";
+	    myrect.appendChild(note2);
+	    note3 = document.createElement("DIV");
+	    note3.setAttribute("style", "opacity:0;width: 120px;    color: rgb(255, 255, 255);text-align:center;    left: -130px;    position: absolute;    background: rgba(0, 0, 0, 0.71);    padding: 5px;    font-family: sans-serif;    font-size: 13pt;    bottom: 0;    margin: 0;");
+	    note3.innerHTML = hints[2]; //"3. Click 'process'";
+	    myrect.appendChild(note3);
 
+	    help = document.createElement("BUTTON");
+	    help.setAttribute("style", "display: block;width: 25px;color: white;right: -25px;position: absolute;padding: 6px;font-family: sans-serif;font-size: 10pt;top: 0px;margin: 0px;line-height: normal;white-space: nowrap;vertical-align: baseline;text-align: center;cursor: pointer;border-top-left-radius: 4px;border-top-right-radius: 4px;border-bottom-right-radius: 4px;border-bottom-left-radius: 4px;text-shadow: rgba(0, 0, 0, 0.2) 0px 1px 1px;border: 0px rgba(0, 0, 0, 0);font-weight: bold;background: rgba(0, 0, 0, 0.4);");
+	    help.innerHTML = "?";
+	    myrect.appendChild(help);
+    }
 
 
     mycoord = document.createElement("DIV");
@@ -1707,7 +1716,7 @@ function takeSnap(callback, tut) {
         getSettings(function(settings) {
             getScreenshotArea(function(area) {
                 callback(area);
-            }, "Select Area", settings.showTutorial);
+            }, "Select Area", settings.showTutorial,chemSnapHints);
         });
 
     }
@@ -2365,8 +2374,8 @@ function getClipboardState(cback) {
 jQuery(document).ready(
     function($) {
         jQuery(document).mousemove(function(e) {
-            mouseX = e.pageX;
-            mouseY = e.pageY;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
 
         EXT_TYPE = getExtensionType();
