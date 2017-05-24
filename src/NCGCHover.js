@@ -27,8 +27,8 @@ var found = [];
 var apikey = "";
 var forceoff = false;
 
-var resolverURL = "https://tripod.nih.gov/servlet/resolver/";
-var rendererURL = "https://tripod.nih.gov/servlet/renderServletv10/";
+var resolverURL = "https://tripod.nih.gov/servlet/resolverBeta3/";
+var rendererURL = "https://tripod.nih.gov/servlet/renderServletv12/";
 
 
 var _cacheSettings = {};
@@ -214,7 +214,7 @@ function addChromeListeners() {
                         displayEdit();
                     }
                 }
-                if (request.greeting == "display") {NCAT
+                if (request.greeting == "display") {
                     var off = {};
                     if (window.getSelection().anchorNode != undefined) {
                         if (window.getSelection().anchorNode.parentNode != null) {
@@ -735,6 +735,11 @@ function mark2() {
             mark()
         }, refreshTime);
 }
+
+function encodeIt(structure){
+return encodeURIComponent(structure).replace(/[+]/g, "%2B").replace(/[%]2C/g, ",");
+}
+
 function getResolveURL(prefix, structure, format){
 	if(format){
 
@@ -742,7 +747,7 @@ function getResolveURL(prefix, structure, format){
 	   format="JSON";
 	}
         var murl = resolverURL + prefix + 
-		"?structure=" + encodeURIComponent(structure).replace(/[+]/g, "%2B").replace(/[%]2C/g, ",") + 
+		"?structure=" + encodeIt(structure) + 
 		"&force=true" + 
 		"&apikey=" + _cacheSettings.apikey + 
 		"&format=" + format;
@@ -926,22 +931,28 @@ function displayResolve(uniilook) {
     var str = lookup[uniilook];
     if (str == undefined) {
         lookup[uniilook] = "d";
-        myAjaxGet(getResolveURL("",uniilook,"TAB"), function(data) {
+        myAjaxGet(getResolveURL("smiles/inchikey",uniilook,"TAB"), function(data) {
             if (data.indexOf("Exception") < 0) {
                 lookup[uniilook] = data.split("\t")[1];
-                lookup[uniilook + "_SRC"] = data.split("\t")[2];
-                if (data.split("\t").length > 3) {
-                    lookup[uniilook + "_SRCURL"] = data.split("\t")[3];
+                lookup[uniilook + "_INCHIKEY"] = data.split("\t")[2];
+                lookup[uniilook + "_SRC"] = data.split("\t")[3];
+                if (data.split("\t").length > 4) {
+                    lookup[uniilook + "_SRCURL"] = data.split("\t")[4];
                 }
-                display(lookup[uniilook], undefined, undefined, uniilook, lookup[uniilook + "_SRC"], lookup[uniilook + "_SRCURL"]);
+                var add = {};
+                add.inchikey=lookup[uniilook + "_INCHIKEY"];
+                
+                display(lookup[uniilook], undefined, undefined, uniilook, lookup[uniilook + "_SRC"], lookup[uniilook + "_SRCURL"], add);
             } else {
                 lookup[uniilook] = "Exception";
-                display(undefined, undefined, undefined, uniilook, lookup[uniilook + "_SRC"], lookup[uniilook + "_SRCURL"]);
+                display(undefined, undefined, undefined, uniilook, lookup[uniilook + "_SRC"], lookup[uniilook + "_SRCURL"], lookup);
             }
         });
     } else {
         if (str != "d") {
-            display(lookup[uniilook], undefined, undefined, uniilook, lookup[uniilook + "_SRC"], lookup[uniilook + "_SRCURL"]);
+        	var add = {};
+            add.inchikey=lookup[uniilook + "_INCHIKEY"];
+            display(lookup[uniilook], undefined, undefined, uniilook, lookup[uniilook + "_SRC"], lookup[uniilook + "_SRCURL"], add);
         } else {
             //TODO:DEBUG
             //console.log("In process");   
@@ -963,11 +974,10 @@ function notify(msg){
 }
 
 //Open a popup dialog with structure
-function display(str, wx, wy, strtitle, source, sourceURL) {
+function display(str, wx, wy, strtitle, source, sourceURL, add) {
     var sourceHTML = "";
     var showleft=mouseX;
     var showtop=mouseY;
-
     if (source != undefined) {
         if (sourceURL != undefined) {
             sourceHTML = '<div><center>Structure from:<a target="_blank" style="text-decoration: underline;" href="$URL$">$SOURCE$</a></center></div>'.replace("$SOURCE$", source).replace("$URL$", sourceURL);
@@ -975,10 +985,18 @@ function display(str, wx, wy, strtitle, source, sourceURL) {
             sourceHTML = '<div><center>Structure from:<span style="text-decoration: underline;" >$SOURCE$</span></center></div>'.replace("$SOURCE$", source);
         }
     }
+    if(add.inchikey){
+    	var ikey = add.inchikey.split("=")[1];
+    //https://www.google.com/search?q=BSYNRYMUTXBXSQ-UHFFFAOYSA-N
+    	sourceHTML += '<div style="text-align: center;font-size:small;"><a href="https://www.google.com/search?q=' + ikey + '" target="_blank">' + ikey +'</a></div>';
+    }
+    //https://ginas.ncats.nih.gov/ginas/app/substances?q=CC(%3DO)OC1%3DC(C%3DCC%3DC1)C(O)%3DO&type=FLEX
     if (str == "" || str == undefined) {
         notify("No structure found for : " + strtitle);
         return;
     }
+    sourceHTML += '<div style="text-align: center;font-size:small;"><a href="https://ginas.ncats.nih.gov/ginas/app/substances?q=' + encodeIt(str) + '&type=FLEX" target="_blank">Search GSRS</a></div>';
+    
     if (strtitle == undefined) strtitle = str;
     var strtitlem = '<img style="margin-bottom: 2px;margin-right: 10px;border-radius: 5px; margin-left: -10px; padding: 4px; vertical-align: bottom; background: none repeat scroll 0% 0% white;/* clear: none; *//* display: inline; */" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACRUlEQVR42p1STYhSURTWoimmrOQlRZM/D/+fz/+f0HkzI8ODx2slbgyGiEanoBzLGCpahLqRhIpctHBTK2cbudClCyEIQtonGc7KRYskeqHv1fceNOCQUh243HvPPd93vnPuUanmmMlkOkZR1ILqf4ym6bN+v5/1er2czWZb+mugTqc7EQqFWIC3PR5PDusmzjksHopOz8MeRrZIIBDYcblcW8jKQL7f7XZf8vl8y9g3sO9gX0XskX0UgiiLxXI0HA5vIMsjs9m8rNFozuDpEPwnoeAqSJ/Z7XYP7i4kuY/7dfiPKwTxePwLJL+G8x6C1kFAH1CmdjqdNN5fYt2SE4JkE2QXlNd8Pj+uVCrfOI57D+mXEfQU7sU/lLhgMBgoOQEIrmHXK95isSj2ej2xXq8LyWSyAYJduGc2C9LJKYJSqSQOh0NpNBpJjUZD4Hn+E+St/QuBBIKfMEkQBKnT6UxQThelMgewiwCv4BccswgUk2Ddbvc7y7JvAbDLTYxEIuto9C6G64rVasVv+jL7BIVCQRwMBmK/35+02+1JIpGYxGKxj/jSV3L3g8HgXfl7jUZjgCTJFfToMQi2tFrtKYUgk8kItVrtazqd3mu1WkI2mx1D5hMExZDR6XA41lAOD98NSH+AabwImDwDaoWAYZjnqPkFJD6sVqufm83mGFk+IHgbJLdxvgOiHGaEQzghT+xUZ5CBAOs5uaZUKvWmXC7/AOgdJJMoYRWzwREEsTQ1vjNMjaxMNBrd1Ov153/75JGeB/oFDjDMFWlNFx4AAAAASUVORK5CYII="><span class="" style="' +
         'overflow: hidden;text-overflow: ellipsis;width: 80%;display: inline-block;">' + strtitle + "</span>";
