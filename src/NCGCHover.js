@@ -383,24 +383,24 @@ function blockUI(){
 var tdefSize=500;
 jQuery("body").append(
 "<div class='NCATSFindOverlay' style='position:fixed;top:0;width:100%;height:100%;z-index:999999;'><div style='margin:auto;overflow:hidden;height:" + tdefSize + "px;" + "width:" + tdefSize + "px;' class='NCGCHOVER_' >"+ 
-"<div class=\"spinner\">\
-  <div class=\"spinner-container container1\">\
-    <div class=\"circle1\"></div>\
-    <div class=\"circle2\"></div>\
-    <div class=\"circle3\"></div>\
-    <div class=\"circle4\"></div>\
+"<div class=\"nfind-spinner\">\
+  <div class=\"nfind-spinner-container nfind-container1\">\
+    <div class=\"nfind-circle1\"></div>\
+    <div class=\"nfind-circle2\"></div>\
+    <div class=\"nfind-circle3\"></div>\
+    <div class=\"nfind-circle4\"></div>\
   </div>\
-  <div class=\"spinner-container container2\">\
-    <div class=\"circle1\"></div>\
-    <div class=\"circle2\"></div>\
-    <div class=\"circle3\"></div>\
-    <div class=\"circle4\"></div>\
+  <div class=\"nfind-spinner-container nfind-container2\">\
+    <div class=\"nfind-circle1\"></div>\
+    <div class=\"nfind-circle2\"></div>\
+    <div class=\"nfind-circle3\"></div>\
+    <div class=\"nfind-circle4\"></div>\
   </div>\
-  <div class=\"spinner-container container3\">\
-    <div class=\"circle1\"></div>\
-    <div class=\"circle2\"></div>\
-    <div class=\"circle3\"></div>\
-    <div class=\"circle4\"></div>\
+  <div class=\"nfind-spinner-container nfind-container3\">\
+    <div class=\"nfind-circle1\"></div>\
+    <div class=\"nfind-circle2\"></div>\
+    <div class=\"nfind-circle3\"></div>\
+    <div class=\"nfind-circle4\"></div>\
   </div>\
 </div></div>"+						
 					"</div>");
@@ -409,7 +409,7 @@ function addAnimationStyle(){
 $("<style>")
     .prop("type", "text/css")
     .html("\
-.spinner {\
+.nfind-spinner {\
   margin: auto;\
   margin-top:25%;\
   width: 50%;\
@@ -419,11 +419,11 @@ $("<style>")
 .NCATSFindOverlay{\
   background:rgba(255, 255, 255, 0.7);\
 }\
-.NCATSFindOverlay .container1 > div,.NCATSFindOverlay .container2 > div,.NCATSFindOverlay .container3 > div {\
+.NCATSFindOverlay .nfind-container1 > div,.NCATSFindOverlay .nfind-container2 > div,.NCATSFindOverlay .nfind-container3 > div {\
   background-color:#FF8600;\
 }\
 \
-.container1 > div, .container2 > div, .container3 > div {\
+.nfind-container1 > div, .nfind-container2 > div, .nfind-container3 > div {\
   width: 22%;\
   height: 22%;\
   background-color: #333;\
@@ -437,78 +437,78 @@ $("<style>")
   animation-fill-mode: both;\
 }\
 \
-.spinner .spinner-container {\
+.nfind-spinner .nfind-spinner-container {\
   position: absolute;\
   width: 100%;\
   height: 100%;\
 }\
 \
-.container2 {\
+.nfind-container2 {\
   -webkit-transform: rotateZ(45deg);\
   transform: rotateZ(45deg);\
 }\
 \
-.container3 {\
+.nfind-container3 {\
   -webkit-transform: rotateZ(90deg);\
   transform: rotateZ(90deg);\
 }\
 \
-.circle1 { top: 0; left: 0; }\
-.circle2 { top: 0; right: 0; }\
-.circle3 { right: 0; bottom: 0; }\
-.circle4 { left: 0; bottom: 0; }\
+.nfind-circle1 { top: 0; left: 0; }\
+.nfind-circle2 { top: 0; right: 0; }\
+.nfind-circle3 { right: 0; bottom: 0; }\
+.nfind-circle4 { left: 0; bottom: 0; }\
 \
-.container2 .circle1 {\
+.nfind-container2 .nfind-circle1 {\
   -webkit-animation-delay: -1.1s;\
   animation-delay: -1.1s;\
 }\
 \
-.container3 .circle1 {\
+.nfind-container3 .nfind-circle1 {\
   -webkit-animation-delay: -1.0s;\
   animation-delay: -1.0s;\
 }\
 \
-.container1 .circle2 {\
+.nfind-container1 .nfind-circle2 {\
   -webkit-animation-delay: -0.9s;\
   animation-delay: -0.9s;\
 }\
 \
-.container2 .circle2 {\
+.nfind-container2 .nfind-circle2 {\
   -webkit-animation-delay: -0.8s;\
   animation-delay: -0.8s;\
 }\
 \
-.container3 .circle2 {\
+.nfind-container3 .nfind-circle2 {\
   -webkit-animation-delay: -0.7s;\
   animation-delay: -0.7s;\
 }\
 \
-.container1 .circle3 {\
+.nfind-container1 .nfind-circle3 {\
   -webkit-animation-delay: -0.6s;\
   animation-delay: -0.6s;\
 }\
 \
-.container2 .circle3 {\
+.nfind-container2 .nfind-circle3 {\
   -webkit-animation-delay: -0.5s;\
   animation-delay: -0.5s;\
 }\
 \
-.container3 .circle3 {\
+.nfind-container3 .nfind-circle3 {\
   -webkit-animation-delay: -0.4s;\
   animation-delay: -0.4s;\
 }\
 \
-.container1 .circle4 {\
+.nfind-container1 .nfind-circle4 {\
   -webkit-animation-delay: -0.3s;\
   animation-delay: -0.3s;\
 }\
 \
-.container2 .circle4 {\
+.nfind-container2 .nfind-circle4 {\
   -webkit-animation-delay: -0.2s;\
   animation-delay: -0.2s;\
 }\
 \
-.container3 .circle4 {\
+.nfind-container3 .nfind-circle4 {\
   -webkit-animation-delay: -0.1s;\
   animation-delay: -0.1s;\
 }\
@@ -649,24 +649,24 @@ function mark2() {
 				    //not yet resolved
                                     if (str == undefined || str == "d") {
 					return "<div style='overflow:hidden;height:" + defSize + "px;" + "width:" + defSize + "px;' class='NCGCHOVER_" + simpleHash(text) + "' >"+ 
-"<div class=\"spinner\">\
-  <div class=\"spinner-container container1\">\
-    <div class=\"circle1\"></div>\
-    <div class=\"circle2\"></div>\
-    <div class=\"circle3\"></div>\
-    <div class=\"circle4\"></div>\
+"<div class=\"nfind-spinner\">\
+  <div class=\"nfind-spinner-container nfind-container1\">\
+    <div class=\"nfind-circle1\"></div>\
+    <div class=\"nfind-circle2\"></div>\
+    <div class=\"nfind-circle3\"></div>\
+    <div class=\"nfind-circle4\"></div>\
   </div>\
-  <div class=\"spinner-container container2\">\
-    <div class=\"circle1\"></div>\
-    <div class=\"circle2\"></div>\
-    <div class=\"circle3\"></div>\
-    <div class=\"circle4\"></div>\
+  <div class=\"nfind-spinner-container nfind-container2\">\
+    <div class=\"nfind-circle1\"></div>\
+    <div class=\"nfind-circle2\"></div>\
+    <div class=\"nfind-circle3\"></div>\
+    <div class=\"nfind-circle4\"></div>\
   </div>\
-  <div class=\"spinner-container container3\">\
-    <div class=\"circle1\"></div>\
-    <div class=\"circle2\"></div>\
-    <div class=\"circle3\"></div>\
-    <div class=\"circle4\"></div>\
+  <div class=\"spinner-container nfind-container3\">\
+    <div class=\"nfind-circle1\"></div>\
+    <div class=\"nfind-circle2\"></div>\
+    <div class=\"nfind-circle3\"></div>\
+    <div class=\"nfind-circle4\"></div>\
   </div>\
 </div>"+						
 					"</div>";
